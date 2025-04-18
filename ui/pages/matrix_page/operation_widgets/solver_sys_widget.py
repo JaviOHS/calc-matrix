@@ -1,8 +1,7 @@
 from ui.pages.matrix_page.operation_widgets.base_operation import MatrixOperationWidget
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QTableWidget, QSpinBox, QPushButton, QHBoxLayout, QFormLayout
 from model.matrix_model import Matrix
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtWidgets import QWidget, QTableWidgetItem, QSizePolicy, QScrollArea
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QVBoxLayout, QLabel, QTableWidget, QSpinBox, QPushButton, QHBoxLayout, QFormLayout, QWidget, QTableWidgetItem, QSizePolicy, QScrollArea
 
 class MatrixSystemSolverWidget(MatrixOperationWidget):
     def __init__(self, manager, controller):
@@ -12,10 +11,11 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
         self.layout = QVBoxLayout()
         self.layout.setSpacing(15)
 
-        # Formulario de configuración
+        # Formulario de configuración (sin cambios)
         config_widget = QWidget()
         config_layout = QFormLayout(config_widget)
         config_layout.setContentsMargins(0, 0, 0, 0)
+        config_layout.setSpacing(20)
 
         label = QLabel("Número de incógnitas:")
         label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
@@ -23,29 +23,37 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
         self.dim_spinbox = QSpinBox()
         self.dim_spinbox.setAlignment(Qt.AlignCenter)
         self.dim_spinbox.setRange(2, 10)
-        self.dim_spinbox.setValue(2)
+        self.dim_spinbox.setValue(3)
         self.dim_spinbox.setObjectName("dim_spinbox")
+        self.dim_spinbox.setMaximumWidth(40)
 
         config_layout.addRow(label, self.dim_spinbox)
         self.layout.addWidget(config_widget)
 
-        # Crear un widget contenedor para la tabla
-        table_widget = QWidget()
-        table_layout = QVBoxLayout(table_widget)
-        table_layout.setAlignment(Qt.AlignCenter)  # Centrar la tabla dentro del contenedor
+        # --- Área de scroll para la tabla (nuevo) ---
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+
+        # Contenedor principal para la tabla
+        self.scroll_content = QWidget()
+        self.scroll_layout = QVBoxLayout(self.scroll_content)
+        self.scroll_layout.setAlignment(Qt.AlignTop)  # Alinear el contenido arriba
 
         # Tabla del sistema
         self.system_table = QTableWidget()
         self.system_table.setSizeAdjustPolicy(QTableWidget.AdjustToContents)
-        self.system_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # No scroll vertical
-        self.system_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # No scroll horizontal
+        self.system_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.system_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.system_table.setShowGrid(True)
         self.system_table.verticalHeader().setVisible(False)
 
-        table_layout.addWidget(self.system_table)  # Añadir la tabla al layout centrado
-        self.layout.addWidget(table_widget)  # Añadir el contenedor al layout principal
+        # Añadir la tabla al layout (centrada horizontalmente)
+        self.scroll_layout.addWidget(self.system_table, 0, Qt.AlignHCenter)
+        self.scroll_area.setWidget(self.scroll_content)
+        self.layout.addWidget(self.scroll_area)
 
-        # Botones
+        # Botones (sin cambios)
         buttons_widget = QWidget()
         buttons_layout = QHBoxLayout(buttons_widget)
         buttons_layout.setContentsMargins(0, 0, 0, 0)
@@ -66,16 +74,50 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
 
     def update_table(self):
         dim = self.dim_spinbox.value()
+
+        # Limpiar el contenido anterior del scroll_layout
+        while self.scroll_layout.count():
+            item = self.scroll_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        # Crear un widget contenedor para el título y la tabla
+        container = QWidget()
+        container_layout = QVBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(5)
+        container_layout.setAlignment(Qt.AlignTop)  # Alinear el contenido arriba
+
+        # Añadir el título
+        label_system = QLabel("Sistema de ecuaciones a * x = b")
+        label_system.setAlignment(Qt.AlignCenter)
+        label_system.setStyleSheet("font-weight: bold;")
+        container_layout.addWidget(label_system)
+
+        # Configurar la tabla
+        self.system_table = QTableWidget()
         self.system_table.setRowCount(dim)
         self.system_table.setColumnCount(dim + 1)
+        self.system_table.setSizeAdjustPolicy(QTableWidget.AdjustToContents)
+        self.system_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.system_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.system_table.setShowGrid(True)
+        self.system_table.verticalHeader().setVisible(False)
 
         headers = [f"x{i+1}" for i in range(dim)] + ["= b"]
         self.system_table.setHorizontalHeaderLabels(headers)
 
-        # Establecer tamaño de las celdas
-        cell_size = 50
+        # Tamaño de celdas
+        cell_size = 40
         self.system_table.horizontalHeader().setDefaultSectionSize(cell_size)
         self.system_table.verticalHeader().setDefaultSectionSize(cell_size)
+
+        # Calcular tamaño total de la tabla
+        table_width = (dim + 1) * cell_size + 2
+        header_height = self.system_table.horizontalHeader().sizeHint().height()
+        table_height = (dim * cell_size) + header_height + 2
+        self.system_table.setFixedSize(table_width, table_height)
 
         # Llenar la tabla con valores por defecto
         for r in range(dim):
@@ -84,14 +126,13 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
                 item.setTextAlignment(Qt.AlignCenter)
                 self.system_table.setItem(r, c, item)
 
-        # Ajustar las filas y columnas para que se ajusten al contenido
-        self.system_table.resizeColumnsToContents()
-        self.system_table.resizeRowsToContents()
+        # Añadir la tabla al contenedor (centrada horizontalmente)
+        container_layout.addWidget(self.system_table, 0, Qt.AlignHCenter | Qt.AlignTop)
 
-        # Asegúrate de que la tabla ocupe todo el espacio disponible
-        self.system_table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.system_table.updateGeometry()
-        
+        # Añadir el contenedor al área de scroll
+        self.scroll_layout.addWidget(container, alignment=Qt.AlignHCenter | Qt.AlignTop)
+        self.scroll_layout.addStretch()  # Esto empuja el contenido hacia arriba  
+    
     def validate_operation(self):
         dim = self.dim_spinbox.value()
 

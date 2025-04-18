@@ -1,12 +1,7 @@
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QTableWidget, QSpinBox, QPushButton, QHBoxLayout, QFormLayout
 from ui.pages.matrix_page.operation_widgets.base_operation import MatrixOperationWidget
 from model.matrix_model import Matrix
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtWidgets import QWidget, QTableWidgetItem
-
-from PySide6.QtWidgets import (QVBoxLayout, QSpinBox, QScrollArea, 
-                              QWidget, QTableWidget, QLabel, QPushButton, 
-                              QHBoxLayout, QTableWidgetItem, QGridLayout, QSizePolicy)
+from PySide6.QtWidgets import QVBoxLayout, QLabel, QTableWidget, QSpinBox, QPushButton, QHBoxLayout, QWidget, QTableWidgetItem, QVBoxLayout, QSpinBox, QScrollArea, QWidget, QTableWidget, QLabel, QPushButton, QHBoxLayout, QTableWidgetItem, QGridLayout, QSizePolicy
 
 class MatrixMultiplicationWidget(MatrixOperationWidget):
     def __init__(self, manager, controller):
@@ -28,7 +23,8 @@ class MatrixMultiplicationWidget(MatrixOperationWidget):
             spin.setRange(1, 10)
             spin.setValue(2)
             spin.setObjectName("dim_spinbox")
-            self.a_rows.setAlignment(Qt.AlignCenter)
+            spin.setAlignment(Qt.AlignCenter) # Aplicar centrado a todos
+            # spin.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred) # Expandir horizontalmente
 
         config_layout.addWidget(QLabel("Filas de A:"), alignment=Qt.AlignRight)
         config_layout.addWidget(self.a_rows)

@@ -78,10 +78,12 @@ QSpinBox#matrix_count_spinbox::down-button {
 QTableWidget {
     border: none;
     background: transparent;
+    font-size: 16px;
 }
 
 QTableWidget::item:selected {
     background: #555a96;
+    font-size: 16px;
 }
 
 QTableWidget::item {
@@ -90,6 +92,17 @@ QTableWidget::item {
     color: #fff;
     font-weight: 500;
     color:rgb(192, 192, 192)
+}
+
+/* Estilo para los encabezados horizontales (columnas) */
+QHeaderView::section {
+    background: transparent;  /* Fondo transparente */
+    border: none;            /* Sin bordes laterales */
+    border-bottom: 2px solid #555a96;  /* Borde inferior del color deseado */
+    padding: 5px;            /* Espaciado interno */
+    color: rgb(192, 192, 192);  /* Color del texto */
+    font-size: 16px;
+    font-weight: 700;
 }
 
 QPushButton[class="operation-button"] {

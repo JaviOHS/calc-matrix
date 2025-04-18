@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QWidget
 from model.matrix_manager import MatrixManager
 from controller.matrix_controller import MatrixController
+from PySide6.QtWidgets import QWidget
 
 """Clase base para widgets de operaciones específicas"""
 class MatrixOperationWidget(QWidget):

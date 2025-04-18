@@ -1,7 +1,7 @@
 from ui.pages.matrix_page.operation_widgets.base_operation import MatrixOperationWidget
-from PySide6.QtWidgets import (QVBoxLayout, QSpinBox, QScrollArea, QWidget, QTableWidget, QLabel, QPushButton, QHBoxLayout, QTableWidgetItem, QGridLayout, QSizePolicy)
-from PySide6.QtCore import Qt
 from model.matrix_model import Matrix
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import (QVBoxLayout, QSpinBox, QScrollArea, QWidget, QTableWidget, QLabel, QPushButton, QHBoxLayout, QTableWidgetItem, QGridLayout, QSizePolicy)
 
 class MatrixAddSubWidget(MatrixOperationWidget):
     def __init__(self, manager, controller, allow_multiple_matrices=True):

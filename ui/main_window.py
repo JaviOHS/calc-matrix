@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QS
 from ui.sidebar import Sidebar
 from ui.pages.home_page import HomePage
 from ui.pages.matrix_page.matrix_page import MatrixPage
-from ui.pages.polynomial_page import PolynomialPage
+from ui.pages.polynomial_page.polynomial_page import PolynomialPage
 from ui.pages.vector_page import VectorPage
 from ui.pages.graph_page import GraphPage
 from ui.pages.derivative_page import DerivativePage

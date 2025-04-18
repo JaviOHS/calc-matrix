@@ -7,10 +7,7 @@ from ui.pages.matrix_page.operation_widgets.solver_sys_widget import MatrixSyste
 from ui.pages.matrix_page.operation_widgets.mult_widget import MatrixMultiplicationWidget
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import (
-    QVBoxLayout, QWidget, QTableWidget, QLabel, QPushButton,
-    QHBoxLayout, QStackedWidget, QMessageBox, QTableWidgetItem
-)
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QTableWidget, QLabel, QPushButton, QHBoxLayout, QStackedWidget, QMessageBox, QTableWidgetItem
 
 class MatrixPage(QWidget):
     def __init__(self, manager: MatrixManager):
