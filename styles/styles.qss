@@ -1,0 +1,116 @@
+QWidget {
+    font-family: "Dosis";
+    font-size: 18px;
+}
+
+QLabel {
+    font-weight: 500;
+    color:rgb(192, 192, 192);
+}
+
+QLabel#title_label {
+    color: white;
+    font-size: 26px;
+    font-weight: 600;
+}
+
+QLabel[class="sidebar-title"] {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+QPushButton {
+    background-color:rgb(85, 90, 150);
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+QPushButton[class="sidebar-button"] {
+    color: white;
+    padding: 10px 10px 10px 16px;
+    border: none;
+    text-align: left;
+    margin-bottom: 6px;
+    font-weight: 600;
+    background-color: rgb(43, 43, 49);
+    color: rgb(154, 154, 155)
+}
+
+QPushButton[class="sidebar-button"]:hover {
+    background-color: rgb(55, 55, 65);
+}
+
+QPushButton[class="sidebar-button"][active="true"] {
+    background-color:  rgb(85, 90, 150);
+    border-left: 5px solid rgb(255, 255, 255);
+    color: white;
+    padding-left: 11px;
+}
+
+QLabel#success_message {
+    background-color:rgb(114, 228, 140);       /* Verde claro */
+    color: #155724;                  /* Verde oscuro */
+    border-radius: 8px;
+    padding: 10px;
+    font-weight: 600;
+}
+
+QSpinBox#dim_spinbox,
+QSpinBox#matrix_count_spinbox {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #555a96;
+    font-weight: 500;
+    color:rgb(218, 218, 218)
+}
+
+QSpinBox#dim_spinbox::up-button,
+QSpinBox#dim_spinbox::down-button,
+QSpinBox#matrix_count_spinbox::up-button,
+QSpinBox#matrix_count_spinbox::down-button {
+    width: 0; /* Oculta las flechitas */
+    height: 0;
+    border: none;
+}
+
+QTableWidget {
+    border: none;
+    background: transparent;
+}
+
+QTableWidget::item:selected {
+    background: #555a96;
+}
+
+QTableWidget::item {
+    border-bottom: 2px solid #555a96;
+    padding: 5px;
+    color: #fff;
+    font-weight: 500;
+    color:rgb(192, 192, 192)
+}
+
+QPushButton[class="operation-button"] {
+    color: white;
+    border: none;
+    text-align: left;
+    margin-right: 6px;
+    font-weight: 600;
+    background-color: rgb(43, 43, 49);
+    color: rgb(154, 154, 155);
+}
+
+QPushButton[class="operation-button"]:hover {
+    background-color: rgb(55, 55, 65);
+}
+
+QPushButton[class="operation-button"][active="true"] {
+    background-color:  rgb(85, 90, 150);
+    color: white;
+}
+# Estilo para la tabla
+            table.setStyleSheet("""
+                
+            """)
