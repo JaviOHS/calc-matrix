@@ -1,17 +1,21 @@
-from ui.pages.polynomial_page.operation_widgets.base_operation import PolynomialOperationWidget
-from PySide6.QtWidgets import QVBoxLayout, QPushButton, QHBoxLayout, QTextEdit, QLabel, QWidget, QMessageBox
+from widgets.math_operation_widget import MathOperationWidget
+from model.polynomial_manager import PolynomialManager
+from controller.polynomial_controller import PolynomialController
+from PySide6.QtWidgets import QVBoxLayout, QTextEdit, QLabel, QWidget, QMessageBox
 from PySide6.QtCore import Qt
 import re
 
-class PolynomialOpcWidget(PolynomialOperationWidget):
-    def __init__(self, manager, controller, operation_type):
+class PolynomialOpcWidget(MathOperationWidget):
+    def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
         super().__init__(manager, controller, operation_type)
         self.operation_type = operation_type
         self.input_mode = "text"
         self.last_valid_text = ""
-        self.calculate_button.clicked.connect(self.execute_operation)
+        self.setup_ui()
 
     def setup_ui(self):
+        super().setup_ui()
+
         self.layout = QVBoxLayout()
         self.layout.setSpacing(15)
 
@@ -19,19 +23,18 @@ class PolynomialOpcWidget(PolynomialOperationWidget):
         title_label.setAlignment(Qt.AlignLeft)
         self.layout.addWidget(title_label)
 
+        # Entrada de expresión
         input_widget = QWidget()
         input_layout = QVBoxLayout(input_widget)
         input_layout.setContentsMargins(0, 0, 0, 0)
         input_layout.setSpacing(8)
 
-        # Campo de entrada para la expresión
         self.expression_input = QTextEdit()
-        self.expression_input.setPlaceholderText("Ejemplo:\n[(2x^4+3x^3-4x^2+1) + (2x+1)] - (2x-1)\nO solo el polinomio: x^2 + 2x + 1")
+        self.expression_input.setPlaceholderText("Ejemplo: x^2 + 2x + 1")
         self.expression_input.setMaximumHeight(100)
         self.expression_input.textChanged.connect(self.format_expression)
         input_layout.addWidget(self.expression_input)
 
-        # Vista previa
         self.preview_label = QLabel("Vista previa...")
         self.preview_label.setWordWrap(True)
         self.preview_label.setProperty("class", "preview-math")
@@ -39,7 +42,6 @@ class PolynomialOpcWidget(PolynomialOperationWidget):
 
         self.layout.addWidget(input_widget)
 
-        # Campo de entrada para evaluación
         if self.operation_type == "evaluacion":
             self.x_input_label = QLabel("Ingrese el valor de x:")
             self.x_input_label.setAlignment(Qt.AlignLeft)
@@ -49,23 +51,13 @@ class PolynomialOpcWidget(PolynomialOperationWidget):
             self.layout.addWidget(self.x_input_label)
             self.layout.addWidget(self.x_input)
 
-        # Botones
-        buttons_widget = QWidget()
-        buttons_layout = QHBoxLayout(buttons_widget)
-        buttons_layout.setContentsMargins(0, 0, 0, 0)
-
-        self.cancel_button = QPushButton("Cancelar")
-        self.calculate_button = QPushButton("Calcular")
-        self.cancel_button.setStyleSheet("padding: 6px 12px;")
-        self.calculate_button.setStyleSheet("padding: 6px 12px;")
-
-        buttons_layout.addStretch()
-        buttons_layout.addWidget(self.cancel_button)
-        buttons_layout.addWidget(self.calculate_button)
-        self.layout.addWidget(buttons_widget)
+        # Creación de botones
+        buttons = self.create_buttons()
+        self.layout.addWidget(buttons)
+        self.calculate_button.clicked.connect(self.execute_operation)
 
         self.setLayout(self.layout)
-
+        
     def format_expression(self):
         text = self.expression_input.toPlainText()
         try:

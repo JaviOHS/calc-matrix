@@ -3,13 +3,15 @@ from model.matrix_model import Matrix
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QVBoxLayout, QSpinBox, QScrollArea, QWidget, QTableWidget, QLabel, QPushButton, QHBoxLayout, QTableWidgetItem, QGridLayout, QSizePolicy)
 
-class MatrixAddSubWidget(MatrixOperationWidget):
+class MatrixSimpleOP(MatrixOperationWidget):
     def __init__(self, manager, controller, allow_multiple_matrices=True):
         super().__init__(manager, controller, allow_multiple_matrices)
+        self.setup_ui()
         
     def setup_ui(self):
         self.layout = QVBoxLayout()
         self.layout.setSpacing(15)
+        self.layout.setContentsMargins(10, 10, 10, 10)
 
         # Configuración de dimensiones
         config_widget = QWidget()
@@ -17,29 +19,32 @@ class MatrixAddSubWidget(MatrixOperationWidget):
         config_layout.setContentsMargins(0, 0, 0, 0)
 
         # Dimensiones
-        dim_label = QLabel("Dimensión de las matrices (n x n):")
-        dim_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.dim_label = QLabel("Dimensión de la matriz:" if not self.allow_multiple_matrices else "Dimensión de las matrices (n x n):")
+        self.dim_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.dim_spinbox = QSpinBox()
         self.dim_spinbox.setAlignment(Qt.AlignCenter)
         self.dim_spinbox.setRange(1, 10)
         self.dim_spinbox.setValue(4)
-        self.dim_spinbox.setObjectName("dim_spinbox")  
-        
-        # Cantidad de matrices
-        self.matrix_count_label = QLabel("Cantidad de matrices:")
-        self.matrix_count_label.setAlignment(Qt.AlignCenter)
-        self.matrix_count_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        self.matrix_count_spinbox = QSpinBox()
-        self.matrix_count_spinbox.setAlignment(Qt.AlignCenter)
-        self.matrix_count_spinbox.setObjectName("dim_spinbox")
-        
-        config_layout.addWidget(dim_label)
+        self.dim_spinbox.setObjectName("dim_spinbox")
+
+        config_layout.addWidget(self.dim_label)
         config_layout.addWidget(self.dim_spinbox)
         config_layout.addSpacing(20)
-        config_layout.addWidget(self.matrix_count_label)
-        config_layout.addWidget(self.matrix_count_spinbox)
-        config_layout.addStretch()
 
+        # Solo mostrar selector de cantidad si se permite más de una matriz
+        if self.allow_multiple_matrices:
+            self.matrix_count_label = QLabel("Cantidad de matrices:")
+            self.matrix_count_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            self.matrix_count_spinbox = QSpinBox()
+            self.matrix_count_spinbox.setAlignment(Qt.AlignCenter)
+            self.matrix_count_spinbox.setRange(2, 10)
+            self.matrix_count_spinbox.setValue(2)
+            self.matrix_count_spinbox.setObjectName("dim_spinbox")
+            
+            config_layout.addWidget(self.matrix_count_label)
+            config_layout.addWidget(self.matrix_count_spinbox)
+
+        config_layout.addStretch()
         self.layout.addWidget(config_widget)
 
         # Área de scroll principal
@@ -61,55 +66,31 @@ class MatrixAddSubWidget(MatrixOperationWidget):
         self.scroll_area.setWidget(self.scroll_content)
         self.layout.addWidget(self.scroll_area)
 
-        # Botones
-        buttons_widget = QWidget()
-        buttons_layout = QHBoxLayout(buttons_widget)
-        buttons_layout.setContentsMargins(0, 0, 0, 0)
-        
-        self.cancel_button = QPushButton("Cancelar")
-        self.calculate_button = QPushButton("Calcular")
-        
-        buttons_layout.addStretch()
-        buttons_layout.addWidget(self.cancel_button)
-        buttons_layout.addWidget(self.calculate_button)
-        
+        # Creación de botones
+        buttons_widget = self.create_buttons()
         self.layout.addWidget(buttons_widget)
 
         self.setLayout(self.layout)
 
         # Conexiones
         self.dim_spinbox.valueChanged.connect(self.update_matrix_tables)
-        self.matrix_count_spinbox.valueChanged.connect(self.update_matrix_tables)
-
-        self.configure_matrix_count_spinbox()
-        self.update_matrix_tables()
-
-    def configure_matrix_count_spinbox(self):
         if self.allow_multiple_matrices:
-            self.matrix_count_spinbox.setRange(2, 10)
-            self.matrix_count_spinbox.setValue(2)
-            self.matrix_count_spinbox.setEnabled(True)
-            self.matrix_count_label.show()
-            self.matrix_count_spinbox.show()
-        else:
-            self.matrix_count_spinbox.setRange(1, 1)
-            self.matrix_count_spinbox.setValue(1)
-            self.matrix_count_spinbox.setEnabled(False)
-            self.matrix_count_label.hide()
-            self.matrix_count_spinbox.hide()
-
+            self.matrix_count_spinbox.valueChanged.connect(self.update_matrix_tables)
+        
+        # Mostrar matrices iniciales solo si no es una operación especial
+        if not hasattr(self, 'skip_initial_matrices'):
+            self.update_matrix_tables()
+            
     def update_matrix_tables(self):
         """Actualiza las tablas mostrando todas las celdas sin scroll individual"""
-        # Limpiar el grid existente
-        for i in reversed(range(self.matrices_grid.count())): 
+        for i in reversed(range(self.matrices_grid.count())): # Limpiar el grid existente
             widget = self.matrices_grid.itemAt(i).widget()
             if widget:
                 widget.deleteLater()
         
         dimension = self.dim_spinbox.value()
-        matrix_count = self.matrix_count_spinbox.value()
-        
-        # Calcular tamaño necesario para las tablas
+        matrix_count = self.matrix_count_spinbox.value() if self.allow_multiple_matrices else 1
+
         cell_size = 40  # Tamaño de cada celda
         table_size = dimension * cell_size + 2  # +2 por los bordes
         
@@ -125,7 +106,7 @@ class MatrixAddSubWidget(MatrixOperationWidget):
             matrix_layout.setSpacing(5)
             
             # Etiqueta de la matriz
-            label = QLabel(f"Matriz {i+1}")
+            label = QLabel(f"Matriz {chr(65 + i)}") # A, B, C, ...
             label.setAlignment(Qt.AlignCenter)
             label.setStyleSheet("font-weight: bold;")
             
@@ -164,9 +145,8 @@ class MatrixAddSubWidget(MatrixOperationWidget):
     def validate_operation(self):
         dimension = self.dim_spinbox.value()
         matrix_count = self.matrix_count_spinbox.value()
-        
-        # Verificar que tenemos todas las tablas
-        actual_tables = 0
+        actual_tables = 0 # Verificar cuántas tablas hay en el grid
+
         for i in range(self.matrices_grid.count()):
             widget = self.matrices_grid.itemAt(i).widget()
             if widget and widget.findChild(QTableWidget):
@@ -185,8 +165,7 @@ class MatrixAddSubWidget(MatrixOperationWidget):
                         for c in range(dimension):
                             item = table.item(r, c)
                             if not item or not item.text().replace('.', '').replace('-', '').isdigit():
-                                return False, f"Valor inválido en Matriz {i+1}, fila {r+1}, columna {c+1}"
-        
+                                return False, f"Valor inválido en Matriz {chr(65 + i)}, fila {r+1}, columna {c+1}"
         return True, ""
     
     def collect_matrices(self):
@@ -206,3 +185,11 @@ class MatrixAddSubWidget(MatrixOperationWidget):
                     matrices.append(matrix)
         
         return matrices
+    
+class MatrixDeterminant(MatrixSimpleOP):
+    def __init__(self, manager, controller):
+        super().__init__(manager, controller, allow_multiple_matrices=False)
+        
+class MatrixInverse(MatrixSimpleOP):
+    def __init__(self, manager, controller):
+        super().__init__(manager, controller, allow_multiple_matrices=False)

@@ -9,6 +9,9 @@ class PolynomialManager:
             raise TypeError("Se intentó agregar algo que no es un polinomio.")
         self.polynomials.append(polynomial)
 
+    def clear(self):
+        self.polynomials.clear()
+
     def divide(self):
         if len(self.polynomials) != 2:
             raise ValueError("Se necesitan exactamente dos polinomios para dividir.")

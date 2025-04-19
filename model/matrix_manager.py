@@ -9,6 +9,9 @@ class MatrixManager:
             raise TypeError("Se intentó agregar una lista de matrices en lugar de una matriz individual.")
         self.matrices.append(matrix)
 
+    def clear(self):
+        self.matrices.clear()
+
     def sum_all(self):
         if not self.matrices:
             raise ValueError('No hay matrices para sumar.')

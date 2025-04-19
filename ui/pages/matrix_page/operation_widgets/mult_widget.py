@@ -1,139 +1,100 @@
-from ui.pages.matrix_page.operation_widgets.base_operation import MatrixOperationWidget
+from ui.pages.matrix_page.operation_widgets.matrix_op import MatrixSimpleOP
 from model.matrix_model import Matrix
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QTableWidget, QSpinBox, QPushButton, QHBoxLayout, QWidget, QTableWidgetItem, QVBoxLayout, QSpinBox, QScrollArea, QWidget, QTableWidget, QLabel, QPushButton, QHBoxLayout, QTableWidgetItem, QGridLayout, QSizePolicy
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QVBoxLayout, QLabel, QTableWidget, QHBoxLayout, QSpinBox, QWidget, QTableWidgetItem
 
-class MatrixMultiplicationWidget(MatrixOperationWidget):
+class MatrixMultiplicationWidget(MatrixSimpleOP):
     def __init__(self, manager, controller):
+        self.a_rows = None
+        self.a_cols = None
+        self.b_cols = None
+        self.tables = []
+        self.skip_initial_matrices = True
         super().__init__(manager, controller, allow_multiple_matrices=False)
 
     def setup_ui(self):
-        self.layout = QVBoxLayout()
-        self.layout.setSpacing(15)
+        super().setup_ui()
+        # Ocultar elementos de dimensiones no necesarios
+        self.dim_label.hide()
+        self.dim_spinbox.hide()
 
-        # Configuración de dimensiones
-        config_widget = QWidget()
-        config_layout = QHBoxLayout(config_widget)
+        # Configuración de dimensiones específicas para multiplicación
+        self.dim_config_widget = QWidget()
+        config_layout = QHBoxLayout(self.dim_config_widget)
         config_layout.setContentsMargins(0, 0, 0, 0)
 
+        # Crear spinboxes
         self.a_rows = QSpinBox()
         self.a_cols = QSpinBox()
         self.b_cols = QSpinBox()
+        
         for spin in [self.a_rows, self.a_cols, self.b_cols]:
             spin.setRange(1, 10)
-            spin.setValue(2)
+            spin.setValue(3)
+            spin.setAlignment(Qt.AlignCenter)
             spin.setObjectName("dim_spinbox")
-            spin.setAlignment(Qt.AlignCenter) # Aplicar centrado a todos
-            # spin.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred) # Expandir horizontalmente
 
-        config_layout.addWidget(QLabel("Filas de A:"), alignment=Qt.AlignRight)
+        # Añadir al layout existente (no crear uno nuevo)
+        config_layout.addWidget(QLabel("Filas de A:"))
         config_layout.addWidget(self.a_rows)
         config_layout.addSpacing(20)
-        config_layout.addWidget(QLabel("Columnas de A (y filas de B):"), alignment=Qt.AlignRight)
+        config_layout.addWidget(QLabel("Columnas de A (y filas de B):"))
         config_layout.addWidget(self.a_cols)
         config_layout.addSpacing(20)
-        config_layout.addWidget(QLabel("Columnas de B:"), alignment=Qt.AlignRight)
+        config_layout.addWidget(QLabel("Columnas de B:"))
         config_layout.addWidget(self.b_cols)
         config_layout.addStretch()
 
-        self.layout.addWidget(config_widget)
+        # Reemplazar el widget de configuración original
+        original_config_widget = self.layout.itemAt(0).widget()
+        self.layout.replaceWidget(original_config_widget, self.dim_config_widget)
+        original_config_widget.deleteLater()
 
-        #  Área de scroll principal
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        # Conexiones
+        self.a_rows.valueChanged.connect(self.update_matrix_tables)
+        self.a_cols.valueChanged.connect(self.update_matrix_tables)
+        self.b_cols.valueChanged.connect(self.update_matrix_tables)
 
-        self.scroll_content = QWidget()
-        self.scroll_layout = QVBoxLayout(self.scroll_content)
-        self.scroll_layout.setAlignment(Qt.AlignTop)
+        self.update_matrix_tables()
 
-        # Grid para matrices (2 por fila)
-        self.matrices_grid = QGridLayout()
-        self.matrices_grid.setVerticalSpacing(30)
-        self.matrices_grid.setHorizontalSpacing(50)
-
-        self.scroll_layout.addLayout(self.matrices_grid)
-        self.scroll_area.setWidget(self.scroll_content)
-        self.layout.addWidget(self.scroll_area)
-
-        # Botones
-        buttons_widget = QWidget()
-        buttons_layout = QHBoxLayout(buttons_widget)
-        buttons_layout.setContentsMargins(0, 0, 0, 0)
-
-        self.cancel_button = QPushButton("Cancelar")
-        self.calculate_button = QPushButton("Multiplicar")
-
-        buttons_layout.addStretch()
-        buttons_layout.addWidget(self.cancel_button)
-        buttons_layout.addWidget(self.calculate_button)
-
-        self.layout.addWidget(buttons_widget)
-        self.setLayout(self.layout)
-
-        # --- Conexiones ---
-        self.a_rows.valueChanged.connect(self.update_tables)
-        self.a_cols.valueChanged.connect(self.update_tables)
-        self.b_cols.valueChanged.connect(self.update_tables)
-
-        self.update_tables()
-
-    def update_tables(self):
-        ar = self.a_rows.value()
-        ac = self.a_cols.value()
-        bc = self.b_cols.value()
-
-        # Limpiar el grid existente
-        for i in reversed(range(self.matrices_grid.count())): 
+    def update_matrix_tables(self):
+        for i in reversed(range(self.matrices_grid.count())): # Limpiar el grid
             widget = self.matrices_grid.itemAt(i).widget()
             if widget:
                 widget.deleteLater()
 
-        cell_size = 40
-        size_a = QSize(ac * cell_size + 2, ar * cell_size + 2)
-        size_b = QSize(bc * cell_size + 2, ac * cell_size + 2)
+        ar = self.a_rows.value()
+        ac = self.a_cols.value()
+        bc = self.b_cols.value()
 
-        # Crear y agregar matriz A
-        widget_a = QWidget()
-        layout_a = QVBoxLayout(widget_a)
-        layout_a.setContentsMargins(0, 0, 0, 0)
-        layout_a.setSpacing(5)
+        self.tables = []
 
-        label_a = QLabel("Matriz A")
-        label_a.setAlignment(Qt.AlignCenter)
-        label_a.setStyleSheet("font-weight: bold;")
+        # Tabla A
+        table_a = self.create_table(ar, ac, "Matriz A")
+        self.tables.append(table_a)
 
-        self.table_a = QTableWidget()
-        self.setup_table(self.table_a, ar, ac, size_a)
+        # Tabla B
+        table_b = self.create_table(ac, bc, "Matriz B")
+        self.tables.append(table_b)
 
-        layout_a.addWidget(label_a)
-        layout_a.addWidget(self.table_a, 0, Qt.AlignCenter)
+        # Añadir al grid
+        self.matrices_grid.addWidget(table_a["widget"], 0, 0, Qt.AlignCenter)
+        self.matrices_grid.addWidget(table_b["widget"], 0, 1, Qt.AlignCenter)
 
-        # Crear y agregar matriz B
-        widget_b = QWidget()
-        layout_b = QVBoxLayout(widget_b)
-        layout_b.setContentsMargins(0, 0, 0, 0)
-        layout_b.setSpacing(5)
+    def create_table(self, rows, cols, label_text):
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(5)
 
-        label_b = QLabel("Matriz B")
-        label_b.setAlignment(Qt.AlignCenter)
-        label_b.setStyleSheet("font-weight: bold;")
+        label = QLabel(label_text)
+        label.setAlignment(Qt.AlignCenter)
+        label.setStyleSheet("font-weight: bold;")
 
-        self.table_b = QTableWidget()
-        self.setup_table(self.table_b, ac, bc, size_b)
-
-        layout_b.addWidget(label_b)
-        layout_b.addWidget(self.table_b, 0, Qt.AlignCenter)
-
-        # Agregar al grid
-        self.matrices_grid.addWidget(widget_a, 0, 0, Qt.AlignCenter)
-        self.matrices_grid.addWidget(widget_b, 0, 1, Qt.AlignCenter)
-
-    def setup_table(self, table, rows, cols, size: QSize):
-        table.clear()
+        table = QTableWidget()
         table.setRowCount(rows)
         table.setColumnCount(cols)
-        table.setFixedSize(size)
+        table.setFixedSize(cols * 40 + 2, rows * 40 + 2)
         table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         table.setSizeAdjustPolicy(QTableWidget.AdjustToContents)
@@ -149,14 +110,16 @@ class MatrixMultiplicationWidget(MatrixOperationWidget):
                 item.setTextAlignment(Qt.AlignCenter)
                 table.setItem(r, c, item)
 
-    def validate_operation(self):
-        ar = self.a_rows.value()
-        ac = self.a_cols.value()
-        bc = self.b_cols.value()
+        layout.addWidget(label)
+        layout.addWidget(table, 0, Qt.AlignCenter)
 
-        for table, rows, cols in [(self.table_a, ar, ac), (self.table_b, ac, bc)]:
-            for r in range(rows):
-                for c in range(cols):
+        return {"widget": widget, "table": table}
+
+    def validate_operation(self):
+        for t in self.tables:
+            table = t["table"]
+            for r in range(table.rowCount()):
+                for c in range(table.columnCount()):
                     item = table.item(r, c)
                     if not item or not item.text().replace('.', '').replace('-', '').isdigit():
                         return False, f"Valor inválido en la matriz en fila {r+1}, columna {c+1}"
@@ -170,12 +133,20 @@ class MatrixMultiplicationWidget(MatrixOperationWidget):
         A = Matrix(ar, ac)
         B = Matrix(ac, bc)
 
+        table_a = self.tables[0]["table"]
+        table_b = self.tables[1]["table"]
+
         for r in range(ar):
             for c in range(ac):
-                A.set_value(r, c, float(self.table_a.item(r, c).text()))
+                A.set_value(r, c, float(table_a.item(r, c).text()))
 
         for r in range(ac):
             for c in range(bc):
-                B.set_value(r, c, float(self.table_b.item(r, c).text()))
+                B.set_value(r, c, float(table_b.item(r, c).text()))
 
         return [A, B]
+
+    def perform_operation(self):
+        matrices = self.collect_matrices()
+        result = self.controller.multiply(matrices[0], matrices[1])
+        return result
