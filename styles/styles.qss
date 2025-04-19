@@ -102,7 +102,7 @@ QHeaderView::section {
     padding: 5px;            /* Espaciado interno */
     color: rgb(192, 192, 192);  /* Color del texto */
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 600;
 }
 
 QPushButton[class="operation-button"] {
@@ -123,7 +123,16 @@ QPushButton[class="operation-button"][active="true"] {
     background-color:  rgb(85, 90, 150);
     color: white;
 }
-# Estilo para la tabla
-            table.setStyleSheet("""
-                
-            """)
+
+QTextEdit {
+    background-color:rgb(39, 39, 51);
+    border: 1px solid #555a96;
+    border-radius: 6px;
+    color: #f0f0f0;
+}
+
+QLabel[class="preview-math"] {
+    font-family: 'Cambria Math';
+    color: #aaa;
+    padding: 4px;
+}

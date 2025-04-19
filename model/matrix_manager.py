@@ -1,5 +1,4 @@
 from model.matrix_model import Matrix
-import numpy as np
 
 class MatrixManager:
     def __init__(self):

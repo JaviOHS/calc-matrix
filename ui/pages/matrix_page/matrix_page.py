@@ -178,7 +178,7 @@ class MatrixPage(QWidget):
                 # Mostrar la primera inversa (opcionalmente puedes mostrar todas)
                 matrix = result[0][1]
                 dimension = matrix.rows
-                self.result_table.setRowCount(dimension)
+                self.resultMatrixManagerger_table.setRowCount(dimension)
                 self.result_table.setColumnCount(dimension)
                 self.result_table.setHorizontalHeaderLabels([str(i + 1) for i in range(dimension)])
                 self.result_table.setVerticalHeaderLabels([str(i + 1) for i in range(dimension)])
