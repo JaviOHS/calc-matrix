@@ -1,7 +1,7 @@
 
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QPushButton, QHBoxLayout, QStackedWidget, QMessageBox, QTableWidgetItem, QTableWidget, QSizePolicy
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QPushButton, QHBoxLayout, QStackedWidget, QMessageBox, QTableWidgetItem, QTableWidget, QSizePolicy, QGridLayout
 
 class BaseOperationPage(QWidget):
     def __init__(self, manager, controller, operations_dict, intro_text, intro_image_path, page_title):
@@ -40,53 +40,46 @@ class BaseOperationPage(QWidget):
         self.stacked_widget.addWidget(self.intro_widget)
         self.layout.addWidget(self.stacked_widget)
 
-        self.init_result_widget()
         self.setLayout(self.layout)
 
-    def init_result_widget(self):
-        self.result_widget = QWidget()
-        layout = QVBoxLayout()
-
-        # Mensaje superior (éxito o título del resultado)
-        self.result_label = QLabel()
-        self.result_label.setAlignment(Qt.AlignCenter)
-        self.result_label.setObjectName("success_message")
-        layout.addWidget(self.result_label)
-
-        # Tabla de resultados (matrices)
-        self.result_table = QTableWidget()
-        self.result_table.setObjectName("result_table")
-        layout.addWidget(self.result_table)
-
-        # Vista previa en texto enriquecido (polinomios u otros)
-        self.result_preview_label = QLabel()
-        self.result_preview_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.result_preview_label.setWordWrap(True)
-        self.result_preview_label.setAlignment(Qt.AlignCenter)
-        self.result_preview_label.setObjectName("result_preview_label")
-        layout.addWidget(self.result_preview_label)
-
-        # Botón para reiniciar
-        self.new_operation_btn = QPushButton("Nueva Operación")
-        self.new_operation_btn.setObjectName("new_operation_button")
-        self.new_operation_btn.clicked.connect(self.reset_interface)
-        layout.addWidget(self.new_operation_btn)
-
-        self.result_widget.setLayout(layout)
-
     def add_operation_buttons(self):
+        # Crear un layout de cuadrícula para mejor distribución
+        grid_layout = QGridLayout()
+        row, col = 0, 0
+        max_cols = 4  # Máximo de botones por fila
+        
         for label, (op_key, _) in self.operations.items():
             btn = QPushButton(label)
             btn.setProperty("class", "operation-button")
             btn.setCursor(Qt.PointingHandCursor)
             btn.setMinimumHeight(40)
-            btn.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+            btn.setMinimumWidth(120)  # Ancho mínimo para mantener legibilidad
             
             btn.clicked.connect(lambda _, k=label: self.prepare_operation(k))
-            self.operations_buttons.addWidget(btn)
+            
+            grid_layout.addWidget(btn, row, col)
             self.operation_buttons_map[label] = btn
+            
+            col += 1
+            if col >= max_cols:
+                col = 0
+                row += 1
+        
+        # Reemplazar el QHBoxLayout con el QGridLayout
+        self.operations_buttons.addLayout(grid_layout)
 
     def reset_interface(self):
+        # Si hay una operación actual, mantenerla activa
+        if self.current_operation:
+            widget = self.operation_widgets.get(self.current_operation)
+            if widget:
+                widget.cleanup()  # Limpiar datos anteriores
+                self.manager.clear()
+                self.stacked_widget.setCurrentWidget(widget)
+                return
+
+        # Si no hay operación actual, ir al intro
         self.current_operation = None
         self.title_label.setText(self.page_title)
         self.manager.clear()
@@ -128,47 +121,12 @@ class BaseOperationPage(QWidget):
         self.stacked_widget.setCurrentWidget(widget)
 
     def execute_current_operation(self):
-        widget = self.operation_widgets.get(self.current_operation)
-        if not widget:
-            QMessageBox.critical(self, "Error", "No se encontró el widget de la operación.")
-            return
-
-        is_valid, error_msg = widget.validate_operation()
-        if not is_valid:
-            QMessageBox.warning(self, "Validación", error_msg)
-            return
-
-        try:
-            result = self.controller.execute_operation(self.current_operation)
-            self.show_result(result, f"{self.current_operation.capitalize()} realizada correctamente")
-        except ValueError as e:
-            QMessageBox.critical(self, "Error", str(e))
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error inesperado: {str(e)}")
+        """Debe ser implementado por la subclase."""
+        raise NotImplementedError("Subclases deben implementar este método.")
 
     def show_result(self, result, message):
-        self.result_label.setText(message)
-
-        # Por defecto ocultar tabla y label
-        self.result_table.hide()
-        self.result_preview_label.hide()
-
-        # Mostrar tabla si es una matriz
-        if isinstance(result, list) and all(isinstance(row, list) for row in result):
-            self.result_table.setRowCount(len(result))
-            self.result_table.setColumnCount(len(result[0]) if result else 0)
-            for i, row in enumerate(result):
-                for j, value in enumerate(row):
-                    self.result_table.setItem(i, j, QTableWidgetItem(str(value)))
-            self.result_table.show()
-
-        # Mostrar label si es texto o HTML (polinomios)
-        elif hasattr(self, "result_preview_label"):
-            self.result_preview_label.setText(str(result))
-            self.result_preview_label.show()
-
-        self.stacked_widget.addWidget(self.result_widget)
-        self.stacked_widget.setCurrentWidget(self.result_widget)
+        """Interfaz :>"""
+        raise NotImplementedError("Subclases deben implementar este método.")
 
     def create_intro_widget(self):
         intro_widget = QWidget()

@@ -91,7 +91,7 @@ class MatrixSimpleOP(MatrixOperationWidget):
         dimension = self.dim_spinbox.value()
         matrix_count = self.matrix_count_spinbox.value() if self.allow_multiple_matrices else 1
 
-        cell_size = 40  # Tamaño de cada celda
+        cell_size = 50  # Tamaño de cada celda
         table_size = dimension * cell_size + 2  # +2 por los bordes
         
         # Crear matrices en grid de 2 columnas
@@ -119,6 +119,10 @@ class MatrixSimpleOP(MatrixOperationWidget):
             table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             table.setSizeAdjustPolicy(QTableWidget.AdjustToContents)
+
+            # Deshabilitar selección
+            table.setSelectionMode(QTableWidget.NoSelection)  # No permite selección alguna
+            table.setFocusPolicy(Qt.NoFocus)  # Elimina el rectángulo de enfoque
             
             # Tamaño fijo para mostrar todas las celdas
             table.setFixedSize(table_size, table_size)

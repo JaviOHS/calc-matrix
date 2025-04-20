@@ -94,12 +94,17 @@ class MatrixMultiplicationWidget(MatrixSimpleOP):
         table = QTableWidget()
         table.setRowCount(rows)
         table.setColumnCount(cols)
-        table.setFixedSize(cols * 40 + 2, rows * 40 + 2)
+        table.setFixedSize(cols * 50 + 2, rows * 50 + 2)
         table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         table.setSizeAdjustPolicy(QTableWidget.AdjustToContents)
+
         table.horizontalHeader().setVisible(False)
         table.verticalHeader().setVisible(False)
+        
+        table.setFocusPolicy(Qt.NoFocus)
+        table.setSelectionMode(QTableWidget.NoSelection)
+        
         table.setShowGrid(True)
         table.horizontalHeader().setDefaultSectionSize(40)
         table.verticalHeader().setDefaultSectionSize(40)

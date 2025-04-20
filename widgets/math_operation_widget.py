@@ -1,4 +1,5 @@
 from PySide6.QtWidgets import QWidget, QPushButton, QHBoxLayout
+from PySide6.QtCore import Qt
 
 class MathOperationWidget(QWidget):
     """Clase base para widgets de operaciones matemáticas"""
@@ -16,7 +17,9 @@ class MathOperationWidget(QWidget):
         buttons_layout = QHBoxLayout(buttons_widget)
         buttons_layout.setContentsMargins(0, 0, 0, 0)
         self.cancel_button = QPushButton(cancel_text)
+        self.cancel_button.setCursor(Qt.PointingHandCursor)
         self.calculate_button = QPushButton(action_text)
+        self.calculate_button.setCursor(Qt.PointingHandCursor)
         buttons_layout.addStretch()
         buttons_layout.addWidget(self.cancel_button)
         buttons_layout.addWidget(self.calculate_button)

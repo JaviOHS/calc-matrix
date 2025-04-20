@@ -1,7 +1,7 @@
 from ui.pages.matrix_page.operation_widgets.base_operation import MatrixOperationWidget
 from model.matrix_model import Matrix
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QVBoxLayout, QLabel, QTableWidget, QSpinBox, QFormLayout, QWidget, QTableWidgetItem, QSizePolicy, QScrollArea
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QTableWidget, QSpinBox, QWidget, QTableWidgetItem, QSizePolicy, QScrollArea, QHeaderView
 
 class MatrixSystemSolverWidget(MatrixOperationWidget):
     def __init__(self, manager, controller):
@@ -14,37 +14,38 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
     def setup_ui(self):
         self.layout = QVBoxLayout()
         self.layout.setSpacing(15)
-        
-        self._setup_config_ui() # Formulario de configuración
-        self._setup_scroll_area() # Área de scroll para la tabla
+        self.layout.setContentsMargins(10, 10, 10, 10)
 
-        # Creación de botones
+        self._setup_config_ui()
+        self._setup_scroll_area()
+
         buttons_widget = self.create_buttons()
         self.layout.addWidget(buttons_widget)
 
         self.setLayout(self.layout)
 
-        # Conexiones
         self.dim_spinbox.valueChanged.connect(self.update_table)
         self.update_table()
 
     def _setup_config_ui(self):
         config_widget = QWidget()
-        config_layout = QFormLayout(config_widget)
+        config_layout = QHBoxLayout(config_widget)
         config_layout.setContentsMargins(0, 0, 0, 0)
-        config_layout.setSpacing(20)
 
         label = QLabel("Número de incógnitas:")
-        label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
 
         self.dim_spinbox = QSpinBox()
         self.dim_spinbox.setAlignment(Qt.AlignCenter)
         self.dim_spinbox.setRange(2, 10)
         self.dim_spinbox.setValue(self.dim)
         self.dim_spinbox.setObjectName("dim_spinbox")
-        self.dim_spinbox.setMaximumWidth(40)
+        self.dim_spinbox.setMaximumWidth(60)
 
-        config_layout.addRow(label, self.dim_spinbox)
+        config_layout.addWidget(label)
+        config_layout.addWidget(self.dim_spinbox)
+        config_layout.addStretch()
+
         self.layout.addWidget(config_widget)
 
     def _setup_scroll_area(self):
@@ -103,15 +104,22 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
         self.system_table.setHorizontalHeaderLabels(headers)
 
         # Tamaño de celdas
-        cell_size = 40
+        cell_size = 50
         self.system_table.horizontalHeader().setDefaultSectionSize(cell_size)
         self.system_table.verticalHeader().setDefaultSectionSize(cell_size)
+        
+        # Configuración clave para deshabilitar el redimensionamiento
+        self.system_table.horizontalHeader().setSectionResizeMode(QHeaderView.Fixed)  # Deshabilita el redimensionamiento
+        self.system_table.horizontalHeader().setSectionsClickable(False)  # Deshabilita la interacción con los encabezados
+        self.system_table.horizontalHeader().setHighlightSections(False)  # Elimina el resaltado al pasar el mouse
 
         # Calcular tamaño total de la tabla
         table_width = (self.dim + 1) * cell_size + 2
         header_height = self.system_table.horizontalHeader().sizeHint().height()
         table_height = (self.dim * cell_size) + header_height + 2
         self.system_table.setFixedSize(table_width, table_height)
+        self.system_table.setSelectionMode(QTableWidget.NoSelection)  # No permite selección alguna
+        self.system_table.setFocusPolicy(Qt.NoFocus)  # Elimina el rectángulo de enfoque
 
         # Llenar la tabla con valores por defecto
         for r in range(self.dim):

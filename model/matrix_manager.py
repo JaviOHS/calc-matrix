@@ -78,3 +78,8 @@ class MatrixManager:
         A = self.matrices[0]
         B = self.matrices[1]
         return A.solve(B)
+    
+    def get_all_matrices(self):
+        if not self.matrices:
+            raise ValueError("No hay matrices para mostrar.")
+        return self.matrices
