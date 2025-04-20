@@ -37,7 +37,7 @@ class VectorController:
             return self.dot_product(expression)
         elif operation == "producto_cruzado":
             return self.cross_product(expression)
-        else:  # operaciones básicas
+        else:
             return self.evaluate_basic_expression(expression)
 
     def evaluate_basic_expression(self, expression):

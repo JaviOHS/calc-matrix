@@ -18,30 +18,6 @@ class Vector:
     def magnitude(self):
         """Calcula la magnitud del vector (norma)."""
         return np.linalg.norm(self.components)
-    
-    def sum(self, other):
-        """Suma este vector con otro."""
-        if len(self.components) != len(other.components):
-            raise ValueError("Los vectores deben tener la misma dimensión para la suma.")
-        return Vector(self.components + other.components)
-
-    def subtract(self, other):
-        """Resta este vector con otro."""
-        if len(self.components) != len(other.components):
-            raise ValueError("Los vectores deben tener la misma dimensión para la resta.")
-        return Vector(self.components - other.components)
-    
-    def division_by_scalar(self, escalar):
-        """Divide el vector por un escalar."""
-        if escalar == 0:
-            raise ValueError("No se puede dividir por cero.")
-        return Vector(self.components / escalar)
-    
-    def division_component_to_component(self, other):
-        """Divide este vector por otro componente a componente."""
-        if len(self.components) != len(other.components):
-            raise ValueError("Los vectores deben tener la misma dimensión para la división componente a componente.")
-        return Vector(self.components / other.components)
 
     def dot(self, other):
         """Realiza el producto punto entre este vector y otro."""

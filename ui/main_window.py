@@ -1,20 +1,26 @@
 from ui.sidebar import Sidebar
+
 from ui.pages.home_page import HomePage
 from ui.pages.matrix_page.matrix_page import MatrixPage
 from ui.pages.poly_page.poly_page import PolynomialPage
 from ui.pages.vector_page.vector_page import VectorPage
-from ui.pages.graph_page import GraphPage
-from ui.pages.derivative_page import DerivativePage
-from ui.pages.integral_page import IntegralPage
+from ui.pages.graph_page.graph_page import GraphPage
+from ui.pages.sym_cal_page.sym_cal_page import SymCalPage
 from ui.pages.about_page import AboutPage
+
 from model.matrix_manager import MatrixManager
 from model.polynomial_manager import PolynomialManager
 from model.vector_manager import VectorManager
+from model.graph_manager import GraphManager
+from model.sym_cal_manager import SymCalManager
+
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy
 
 matrix_manager = MatrixManager()
 polynomial_manager = PolynomialManager()
 vector_manager = VectorManager()
+graph_manager = GraphManager()
+symbolic_calculation_manager = SymCalManager()
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -28,7 +34,7 @@ class MainWindow(QMainWindow):
 
         # Layout principal sin márgenes 
         self.layout = QHBoxLayout(central_widget)
-        self.layout.setContentsMargins(0, 0, 0, 0)  # <-- importante para diseño limpio
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
         # Sidebar con nombre de objeto para aplicar estilos desde QSS 
@@ -42,13 +48,10 @@ class MainWindow(QMainWindow):
         self.page_layout = QVBoxLayout(self.page_container)
         self.page_layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.page_container)
-        # Color de fondo para el contenedor de páginas
-        # self.page_container.setStyleSheet("background-color: #f0f0f0;")
+         
+        self.pages = {} # Diccionario de páginas
 
-        # Diccionario de páginas 
-        self.pages = {}
-
-        self.current_page = None
+        self.current_page = None # Página actual
         self.show_page("home")
 
     def show_page(self, name):
@@ -69,11 +72,9 @@ class MainWindow(QMainWindow):
             elif name == "vector":
                 self.pages[name] = VectorPage(vector_manager)
             elif name == "graph":
-                self.pages[name] = GraphPage()
-            elif name == "derivative":
-                self.pages[name] = DerivativePage()
-            elif name == "integral":
-                self.pages[name] = IntegralPage()
+                self.pages[name] = GraphPage(graph_manager)
+            elif name == "sym_cal":
+                self.pages[name] = SymCalPage(symbolic_calculation_manager)
             elif name == "about":
                 self.pages[name] = AboutPage()
             else:

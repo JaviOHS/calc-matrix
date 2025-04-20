@@ -32,9 +32,10 @@ class BaseOperationPage(QWidget):
         label = QLabel("Opciones disponibles:")
         self.layout.addWidget(label)
 
-        self.operations_buttons = QHBoxLayout()
+        self.flow_layout_widget = QWidget()
+        self.operations_buttons = FlowLayout(self.flow_layout_widget)
+        self.layout.addWidget(self.flow_layout_widget)
         self.add_operation_buttons()
-        self.layout.addLayout(self.operations_buttons)
 
         self.stacked_widget = QStackedWidget()
         self.stacked_widget.addWidget(self.intro_widget)
@@ -43,31 +44,16 @@ class BaseOperationPage(QWidget):
         self.setLayout(self.layout)
 
     def add_operation_buttons(self):
-        # Crear un layout de cuadrícula para mejor distribución
-        grid_layout = QGridLayout()
-        row, col = 0, 0
-        max_cols = 4  # Máximo de botones por fila
-        
         for label, (op_key, _) in self.operations.items():
             btn = QPushButton(label)
             btn.setProperty("class", "operation-button")
             btn.setCursor(Qt.PointingHandCursor)
             btn.setMinimumHeight(40)
-            btn.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-            btn.setMinimumWidth(120)  # Ancho mínimo para mantener legibilidad
-            
+            btn.setMinimumWidth(120)
+            btn.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
             btn.clicked.connect(lambda _, k=label: self.prepare_operation(k))
-            
-            grid_layout.addWidget(btn, row, col)
             self.operation_buttons_map[label] = btn
-            
-            col += 1
-            if col >= max_cols:
-                col = 0
-                row += 1
-        
-        # Reemplazar el QHBoxLayout con el QGridLayout
-        self.operations_buttons.addLayout(grid_layout)
+            self.operations_buttons.addWidget(btn)
 
     def reset_interface(self):
         # Si hay una operación actual, mantenerla activa
@@ -168,3 +154,77 @@ class BaseOperationPage(QWidget):
         if self.operations:
             first_label = next(iter(self.operations))
             self.prepare_operation(first_label)
+
+from PySide6.QtWidgets import QLayout, QSizePolicy
+from PySide6.QtCore import QPoint, QRect, QSize
+
+class FlowLayout(QLayout):
+    def __init__(self, parent=None, margin=0, spacing=10):
+        super().__init__(parent)
+        self.setContentsMargins(margin, margin, margin, margin)
+        self.setSpacing(spacing)
+        self.item_list = []
+
+    def addItem(self, item):
+        self.item_list.append(item)
+
+    def count(self):
+        return len(self.item_list)
+
+    def itemAt(self, index):
+        if 0 <= index < len(self.item_list):
+            return self.item_list[index]
+        return None
+
+    def takeAt(self, index):
+        if 0 <= index < len(self.item_list):
+            return self.item_list.pop(index)
+        return None
+
+    def expandingDirections(self):
+        return Qt.Orientations(Qt.Orientation(0))
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        height = self.doLayout(QRect(0, 0, width, 0), True)
+        return height
+
+    def setGeometry(self, rect):
+        super().setGeometry(rect)
+        self.doLayout(rect, False)
+
+    def sizeHint(self):
+        return self.minimumSize()
+
+    def minimumSize(self):
+        size = QSize()
+        for item in self.item_list:
+            size = size.expandedTo(item.minimumSize())
+        size += QSize(2 * self.contentsMargins().top(), 2 * self.contentsMargins().top())
+        return size
+
+    def doLayout(self, rect, test_only):
+        x = rect.x()
+        y = rect.y()
+        line_height = 0
+
+        for item in self.item_list:
+            widget = item.widget()
+            space_x = self.spacing()
+            space_y = self.spacing()
+            next_x = x + item.sizeHint().width() + space_x
+            if next_x - space_x > rect.right() and line_height > 0:
+                x = rect.x()
+                y = y + line_height + space_y
+                next_x = x + item.sizeHint().width() + space_x
+                line_height = 0
+
+            if not test_only:
+                item.setGeometry(QRect(QPoint(x, y), item.sizeHint()))
+
+            x = next_x
+            line_height = max(line_height, item.sizeHint().height())
+
+        return y + line_height - rect.y()

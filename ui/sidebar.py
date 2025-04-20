@@ -39,8 +39,7 @@ class Sidebar(QWidget):
             "Polinomios": "polynomial",
             "Vectores": "vector",
             "Gráficas": "graph",
-            "Derivación": "derivative",
-            "Integral": "integral",
+            "C. Simbólico": "sym_cal",
             "Acerca de": "about",
         }
 
