@@ -1,6 +1,4 @@
-from PySide6.QtWidgets import (QDialog, QVBoxLayout, QLabel, QTableWidget, 
-                              QTableWidgetItem, QPushButton, QHBoxLayout, 
-                              QWidget, QGridLayout, QSpacerItem)
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout, QWidget, QGridLayout, QSpacerItem
 from PySide6.QtCore import Qt
 
 class MatrixResultDialog(QDialog):
@@ -87,6 +85,7 @@ class MatrixResultDialog(QDialog):
         
         close_btn = QPushButton("Cerrar")
         close_btn.setFixedWidth(120)
+        close_btn.setCursor(Qt.PointingHandCursor)
         close_btn.clicked.connect(self.accept)
         
         btn_layout.addStretch()

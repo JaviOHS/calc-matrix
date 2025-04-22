@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QHBoxLayout, QSpinBox
 from PySide6.QtCore import Qt
-from widgets.math_operation_widget import MathOperationWidget
+from ui.widgets.math_operation_widget import MathOperationWidget
 
 class Graph2DWidget(MathOperationWidget):
     def __init__(self, manager, controller, operation_type=None):

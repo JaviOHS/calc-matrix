@@ -1,88 +1,60 @@
-from widgets.math_operation_widget import MathOperationWidget
+from ui.widgets.expression_op_widget import ExpressionOpWidget
 from model.polynomial_manager import PolynomialManager
 from controller.polynomial_controller import PolynomialController
-from PySide6.QtWidgets import QVBoxLayout, QTextEdit, QLabel, QWidget, QMessageBox, QDoubleSpinBox, QHBoxLayout
+from PySide6.QtWidgets import QLabel, QWidget, QDoubleSpinBox, QHBoxLayout
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QTextCharFormat, QFont
-from utils.formatting import format_polynomial_html
+from utils.formatting import format_math_expression
 
-
-class PolynomialOpWidget(MathOperationWidget):
+class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
-        super().__init__(manager, controller, operation_type)
-        self.operation_type = operation_type
+        input_label = "Ingrese el polinomio y el valor a evaluar:"
+        super().__init__(manager, controller, operation_type, placeholder="Ejemplo: x^2 + 2x + 1", input_label=input_label)
         self.input_mode = "text"
         self.last_valid_text = ""
-        self.setup_ui()
+        self.custom_setup()
 
-    def setup_ui(self):
-        super().setup_ui()
-
-        self.layout = QVBoxLayout()
-        self.layout.setSpacing(15)
-
-        title_label = QLabel(f"Ingrese polinomio para realizar cálculo de {self.operation_type.replace('_', ' ')}")
-        title_label.setAlignment(Qt.AlignLeft)
-        self.layout.addWidget(title_label)
-
-        # Entrada de expresión
-        input_widget = QWidget()
-        input_layout = QVBoxLayout(input_widget)
-        input_layout.setContentsMargins(0, 0, 0, 0)
-        input_layout.setSpacing(8)
-
-        self.expression_input = QTextEdit()
-        self.expression_input.setPlaceholderText("Ejemplo: x^2 + 2x + 1")
-        self.expression_input.setMaximumHeight(100)
-        
-        self.expression_input.textChanged.connect(self.format_expression_in_input)
-        input_layout.addWidget(self.expression_input)
-
-        # Vista previa eliminada
-        self.preview_label = QLabel()
-        self.preview_label.setWordWrap(True)
-        self.preview_label.setProperty("class", "result-math")
-        input_layout.addWidget(self.preview_label)
-
-        self.layout.addWidget(input_widget)
-
+    def custom_setup(self):
         if self.operation_type == "evaluacion":
-            # Crear un widget contenedor para la entrada de x
-            x_input_widget = QWidget()
-            x_input_layout = QHBoxLayout(x_input_widget)
-            x_input_layout.setContentsMargins(0, 0, 0, 0)
+            # Crear un contenedor horizontal para toda la línea
+            top_row = QWidget()
+            top_layout = QHBoxLayout(top_row)
+            top_layout.setContentsMargins(0, 0, 0, 0)
+            top_layout.setSpacing(10)
             
-            self.x_input_label = QLabel("Ingrese valor de x:")
-            self.x_input_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+            # Texto descriptivo
+            instruction_label = QLabel("Ingrese el polinomio y el valor a evaluar:")
+            top_layout.addWidget(instruction_label)
             
-            # Usar QDoubleSpinBox en lugar de QTextEdit
+            # Contenedor para el input de x
+            x_container = QWidget()
+            x_layout = QHBoxLayout(x_container)
+            x_layout.setContentsMargins(0, 0, 0, 0)
+            
+            x_layout.addWidget(QLabel("x ="))
             self.x_input = QDoubleSpinBox()
-            self.x_input.setObjectName("dim_spinbox")
             self.x_input.setRange(-999999, 999999)
-            self.x_input.setSingleStep(0.1)
-            self.x_input.setDecimals(2)
-            self.x_input.setMaximumWidth(150)
+            self.x_input.setValue(1.0)
+            self.x_input.setFixedWidth(100)
             self.x_input.setAlignment(Qt.AlignCenter)
-            self.x_input.setValue(4.0)
+            self.x_input.setObjectName("dim_spinbox")
+            x_layout.addWidget(self.x_input)
             
-            x_input_layout.addWidget(self.x_input_label)
-            x_input_layout.addWidget(self.x_input)
-            x_input_layout.addStretch()
+            top_layout.addWidget(x_container)
+            top_layout.addStretch()  # Empuja todo a la izquierda
             
-            self.layout.addWidget(x_input_widget)
-
-        # Creación de botones
-        buttons = self.create_buttons()
-        self.layout.addWidget(buttons)
-        self.calculate_button.clicked.connect(self.execute_operation)
-
-        self.setLayout(self.layout)
-
+            # Reemplazar el título original
+            if self.layout.count() > 0:
+                old_item = self.layout.takeAt(0)
+                if old_item.widget():
+                    old_item.widget().deleteLater()
+            
+            self.layout.insertWidget(0, top_row)
+            
     def validate_operation(self):
         expr = self.expression_input.toPlainText().strip()
 
         if not expr:
-            return False, "La expresión no puede estar vacía"
+            return False, "La expresión no puede estar vacía. ¿Por qué no empezar con unos polinomios básicos?"
             
         try:
             self.controller.parser.parse_expression(expr)
@@ -105,84 +77,38 @@ class PolynomialOpWidget(MathOperationWidget):
 
     def execute_operation(self):
         expr = self.expression_input.toPlainText().strip()
-        valid, error_message = self.validate_operation()  # Validación inicial
+        valid, error_message = self.validate_operation()
 
         if not valid:
-            QMessageBox.warning(self, "Error", error_message)
-            return
-        try:
-            if self.operation_type == "evaluacion":
-                x_value = self.x_input.value()  # Obtenemos el valor del spinbox
+            raise ValueError(error_message)
+
+        if self.operation_type == "evaluacion":
+            x_value = self.x_input.value()
+            sym_expr = self.controller.parser.parse_expression(expr)
+            poly = self.controller.parser.to_polynomial(sym_expr)
+            self.controller.manager.add_polynomial(poly)
+            result = self.controller.execute_operation("evaluacion", float(x_value))
+            return [("P1", result[0])]
+        else:
+            if self.operation_type in {"derivacion", "integracion", "raices"}:
                 sym_expr = self.controller.parser.parse_expression(expr)
                 poly = self.controller.parser.to_polynomial(sym_expr)
                 self.controller.manager.add_polynomial(poly)
-                result = self.controller.execute_operation("evaluacion", float(x_value))
-                self.show_result([(f"P1", result[0])])
+                result = self.controller.execute_operation(self.operation_type)
+                return result
             else:
-                if self.operation_type in {"derivacion", "integracion", "raices"}:
-                    sym_expr = self.controller.parser.parse_expression(expr)
-                    poly = self.controller.parser.to_polynomial(sym_expr)
-                    self.controller.manager.add_polynomial(poly)
-                else:
-                    result = self.controller.execute_operation(self.operation_type, expr)
-                    self.show_result(result)
-                    return
-        except Exception as e:
-            QMessageBox.critical(self, "Error", f"Error al calcular la operación: {str(e)}")
-
-    def show_result(self, result):
-        expression = self.expression_input.toPlainText().strip()
-        formatted_expr = format_polynomial_html(expression)
-        formatted_result = format_polynomial_html(str(result))
-
-        self.preview_label.setText(
-            f"<span style='font-family: Dosis; color: #aaa;'>Resultado:</span><br>"
-            f"<span style='font-family: Cambria Math;'>{formatted_expr}</span> = "
-            f"<span style='font-family: Cambria Math; color: rgba(114, 228, 140, 0.7);'>{formatted_result}</span>"
-        )
-
+                result = self.controller.execute_operation(self.operation_type, expr)
+                return result
 
     def get_evaluation_value(self):
         return str(self.x_input.value())
 
-    def format_expression_in_input(self):
-        cursor = self.expression_input.textCursor()
-        position = cursor.position()
+    def prepare_result_display(self, result):
+        expression = self.expression_input.toPlainText().strip()
 
-        text = self.expression_input.toPlainText()
-
-        # Guardar el texto y evitar bucle de señal
-        self.expression_input.blockSignals(True)
-
-        # Vamos a construir un nuevo documento formateado
-        self.expression_input.clear()
-        new_cursor = self.expression_input.textCursor()
-
-        base_format = QTextCharFormat()
-        base_format.setFont(QFont("Cambria Math", 14))
-
-        super_format = QTextCharFormat(base_format)
-        super_format.setVerticalAlignment(QTextCharFormat.AlignSuperScript)
-
-        i = 0
-        while i < len(text):
-            if text[i] == '^':
-                new_cursor.insertText('^', base_format)  # Insertamos el carácter visible
-                i += 1
-                # Si hay un dígito (o varios) después de ^
-                start = i
-                while i < len(text) and text[i].isdigit():
-                    new_cursor.insertText(text[i], super_format)
-                    i += 1
-
-            else:
-                new_cursor.insertText(text[i], base_format)
-                i += 1
-
-        # Restaurar posición del cursor
-        new_cursor.setPosition(min(position, len(self.expression_input.toPlainText())))
-        self.expression_input.setTextCursor(new_cursor)
-
-        self.expression_input.blockSignals(False)
-
-    
+        if self.operation_type == "raices":
+            _, roots = result[0]  # resultado tipo ('P1', [...])
+            return format_math_expression(expression, roots, operation_type="roots")
+        else:
+            formatted_expr = format_math_expression(expression, result, operation_type="polynomial")  # Aquí se llama a la función
+            return formatted_expr  # Mostrar el resultado completo

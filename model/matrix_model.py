@@ -48,7 +48,8 @@ class Matrix:
     def determinant(self):
         if self.rows != self.cols:
             raise ValueError("La matriz debe ser cuadrada para calcular el determinante.")
-        return round(np.linalg.det(self.data), 2)
+        det = np.linalg.det(self.data)
+        return round(det, 2)
     
     def inverse(self):
         if self.rows != self.cols:

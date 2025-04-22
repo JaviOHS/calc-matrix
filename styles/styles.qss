@@ -2,8 +2,8 @@
 QWidget {
     font-family: "Dosis";
     font-size: 18px;
-    background-color: #1e1e28;
     color: rgb(192, 192, 192);
+    background-color: #1e1e28;
 }
 
 QLabel {
@@ -17,6 +17,7 @@ QLabel#title_label {
     font-weight: 700;
     margin-top: 20px;
     padding-bottom: 10px;
+    padding-right: 10px; /* Nuevo */
     border-bottom: 2px solid #555a96;
 }
 
@@ -65,16 +66,6 @@ QPushButton[class="sidebar-button"][active="true"] {
     padding-left: 11px;
 }
 
-QPushButton[class="operation-button"] {
-    margin-right: 6px;
-    padding: 10px 16px;
-    min-width: 120px;
-}
-
-QPushButton[class="operation-button"][active="true"] {
-    background-color: rgb(85, 90, 150);
-    color: white;
-}
 
 /* === INPUTS Y SPINBOX === */
 QAbstractSpinBox#dim_spinbox,
@@ -85,7 +76,6 @@ QAbstractSpinBox#matrix_count_spinbox {
     font-weight: 500;
     color: rgb(218, 218, 218);
     padding: 4px 8px;
-    margin-top: 4px;
 }
 
 QAbstractSpinBox#dim_spinbox:focus,
@@ -100,15 +90,13 @@ QAbstractSpinBox#dim_spinbox::down-button {
     border: none;
 }
 
-/* === ENTRADAS DE TEXTO GLOBALES === */
+/* === ENTRADAS DE TEXTO GLOBALES IMPORTANTE NO OLVIDAR === */
 QLineEdit {
-    background: transparent;
+    background: #232433; 
     border: none;
     border-bottom: 2px solid #555a96;
     font-weight: 500;
     color: rgb(218, 218, 218);
-    padding: 4px 8px;
-    margin-top: 4px;
 }
 
 /* === SPINBOX GLOBALES === */
@@ -119,7 +107,6 @@ QSpinBox {
     font-weight: 500;
     color: rgb(218, 218, 218);
     padding: 4px 8px;
-    margin-top: 4px;
 }
 
 QSpinBox::up-button,
@@ -136,15 +123,28 @@ QSpinBox:focus {
 
 /* === CAMPOS DE TEXTO === */
 QTextEdit {
-    background-color: rgb(39, 39, 51);
+    background-color: transparent;
     border: 1px solid #555a96;
     border-radius: 6px;
-    color: #f0f0f0;
+    color: #87878e;
     padding: 10px;
     margin-bottom: 10px;
+    font-family: Cambria Math;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* === CONTENEDOR PADRE DE LAS TABLAS === */
+
+QScrollArea { border: none; }
+
+#matrixContainer {
+    padding: 16px;
+    margin: 8px;
 }
 
 /* === TABLAS === */
+
 QTableWidget {
     border: none;
     background-color: rgba(30, 30, 40, 0.8);
@@ -169,47 +169,6 @@ QTableWidget::item:hover {
     background-color: rgba(85, 90, 150, 0.3);
 }
 
-/* Estilo especial para tablas tipo "matriz" */
-QTableWidget[class="matrix-table"] {
-    border: 2px solid #555a96;
-    border-radius: 0;
-    background-color: rgba(30, 30, 40, 0.7);
-}
-
-QTableWidget[class="matrix-table"]::item {
-    background-color: transparent;
-    border: 1px solid #555a96;
-    border-radius: 0;
-    margin: 0;
-}
-
-/* Tabla de resultados */
-QTableWidget#result_table {
-    border: 2px solid #555a96;
-    background-color: rgba(30, 30, 40, 0.9);
-    margin: 10px 0;
-}
-
-QTableWidget#result_table::item {
-    background-color: transparent;
-    border: 1px solid #555a96;
-    font-weight: 600;
-    color: rgb(240, 240, 240);
-}
-
-/* === CELDAS DESTACADAS Y MATRICES ESPECIALES === */
-.highlight-cell {
-    background-color: rgba(114, 228, 140, 0.2);
-    border: 1px solid rgba(114, 228, 140, 0.5);
-    color: rgb(240, 240, 240);
-    font-weight: 600;
-}
-
-.special-matrix {
-    border: 2px solid rgba(114, 228, 140, 0.7);
-    background-color: rgba(114, 228, 140, 0.1);
-}
-
 /* === ENCABEZADOS DE TABLAS === */
 QHeaderView::section {
     background: transparent;
@@ -221,7 +180,7 @@ QHeaderView::section {
     font-weight: 600;
 }
 
-/* Scrollbar minimalista */
+/* Scrollbar minimalista - Vertical */
 QScrollBar:vertical {
     border: none;
     background: transparent;
@@ -245,15 +204,65 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background: none;
 }
 
+/* Scrollbar minimalista - Horizontal */
+QScrollBar:horizontal {
+    border: none;
+    background: transparent;
+    height: 8px;
+    margin: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background: #555a96;
+    min-width: 20px;
+    border-radius: 4px;
+    margin: 2px;
+}
+
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    width: 0px;
+    background: none;
+}
+
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
 QDialog {
     border-radius: 15px;
     border: 3px solid #555a96;
 }
-
 
 QLabel[class="result-math"] {
     color: rgba(114, 228, 140, 0.7);  /* Verde brillante y translúcido */
     font-family: 'Cambria Math';
     padding: 5px;
     border-top: 2px solid #555a96;
+}
+
+#navbar {
+    background-color: #ffffff;
+    border-bottom: 2px solid #0077cc;  /* Línea inferior */
+}
+
+QPushButton[class="menu-button"]{
+    border: none;
+    background: #555a96;
+    padding: 6px;
+}
+
+QPushButton[class="menu-button"]:hover {
+    background-color: rgb(74, 83, 184);
+    border-radius: 6px;
+}
+
+QLabel[class="navbar-username"] {
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    font-weight: 600;
+}
+
+QLabel[class="navbar-avatar"] {
+    border-radius: 12px;
 }

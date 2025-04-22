@@ -1,50 +1,21 @@
-from widgets.math_operation_widget import MathOperationWidget
+from ui.widgets.expression_op_widget import ExpressionOpWidget
 from model.vector_manager import VectorManager
 from controller.vector_controller import VectorController
-from PySide6.QtWidgets import QVBoxLayout, QTextEdit, QLabel, QWidget
-from PySide6.QtCore import Qt
+import re
+from utils.formatting import format_math_expression
 
-class VectorOpWidget(MathOperationWidget):
+ALLOWED_VECTOR_CHARS = re.compile(r'^[\[\]\d,\s+\-*/.]*$') 
+class VectorOpWidget(ExpressionOpWidget):
     def __init__(self, manager=VectorManager, controller=VectorController, operation_type=None):
-        super().__init__(manager, controller, operation_type)
-        self.operation_type = operation_type
+        input_label = f"Ingrese vectores para realizar cálculo de {operation_type.replace('_', ' ')}"
+        placeholder = "Ejemplo: [2, 3, 4] + [1, 0, 2] - [0, 1, 1]"
+        super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label)
         self.input_mode = "text"
         self.last_valid_text = ""
-        self.setup_ui()
+        self.custom_setup()
 
-    def setup_ui(self):
-        super().setup_ui()
-
-        self.layout = QVBoxLayout()
-        self.layout.setSpacing(15)
-
-        title_label = QLabel(f"Ingrese vectores para realizar cálculo de {self.operation_type.replace('_', ' ')}")
-        title_label.setAlignment(Qt.AlignLeft)
-        self.layout.addWidget(title_label)
-
-        # Entrada de expresión
-        input_widget = QWidget()
-        input_layout = QVBoxLayout(input_widget)
-        input_layout.setContentsMargins(0, 0, 0, 0)
-        input_layout.setSpacing(8)
-
-        self.expression_input = QTextEdit()
-        self.expression_input.setPlaceholderText("Ejemplo: [2, 3, 4] + [1, 0, 2] - [0, 1, 1]")
-        self.expression_input.setMaximumHeight(100)
-        input_layout.addWidget(self.expression_input)
-
-        # Área de resultado bajo el input
-        self.result_display = QLabel()
-        self.result_display.setWordWrap(True)
-        self.result_display.setProperty("class", "result-math")
-        input_layout.addWidget(self.result_display)
-
-        self.layout.addWidget(input_widget)
-
-        # Creación de botones
-        buttons = self.create_buttons()
-        self.layout.addWidget(buttons)
-        self.setLayout(self.layout)
+    def custom_setup(self):
+        self.expression_input.textChanged.connect(self.filter_vector_input)
 
     def validate_operation(self):
         expr = self.expression_input.toPlainText().strip()
@@ -60,7 +31,6 @@ class VectorOpWidget(MathOperationWidget):
 
     def collect_vectors(self):
         expr = self.expression_input.toPlainText().strip()
-
         try:
             sym_expr = self.controller.parser.parse_expression(expr)
             vector = self.controller.parser.to_vector(sym_expr)
@@ -70,21 +40,31 @@ class VectorOpWidget(MathOperationWidget):
 
     def execute_operation(self):
         try:
-            expr = self.expression_input.toPlainText().strip()
-
+            expr = self.get_input_expression()
             valid, error = self.validate_operation()
             if not valid:
-                self.controller.show_result("Error", error)
+                self.display_result(f"<span style='color:red'>Error: {error}</span>")
                 return
 
             result = self.controller.execute_operation(self.operation_type, expr)
+            if result is None:
+                self.display_result("<span style='color:red'>Error en el cálculo</span>")
+                return
 
-            self.controller.show_result("Resultado", result)
+            # Usar el formateador unificado para vectores
+            formatted_output = format_math_expression(expr, result, "vector")
+            self.display_result(formatted_output)
+
         except Exception as e:
-            self.controller.show_result("Error", f"Operación fallida: {str(e)[:100]}")
-
-    def get_input_expression(self):
-        expr = self.expression_input.toPlainText().strip()
-        if not expr:
-            raise ValueError("La expresión no puede estar vacía")
-        return expr
+            self.display_result(f"<span style='color:red'>Error: {str(e)[:100]}</span>")
+            
+    def filter_vector_input(self):
+        current_text = self.expression_input.toPlainText()
+        if ALLOWED_VECTOR_CHARS.match(current_text):
+            self.last_valid_text = current_text
+        else:
+            cursor = self.expression_input.textCursor()
+            self.expression_input.blockSignals(True)
+            self.expression_input.setPlainText(self.last_valid_text)
+            self.expression_input.blockSignals(False)
+            self.expression_input.setTextCursor(cursor)

@@ -68,5 +68,3 @@ class MatrixController:
             return result
         except ValueError as e:
             raise ValueError(f"Error al resolver el sistema: {e}")
-        
-        

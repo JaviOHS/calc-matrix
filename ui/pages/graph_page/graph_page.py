@@ -1,7 +1,7 @@
-from ui.pages.base_page import BaseOperationPage
+from ui.widgets.base_page_widget import BaseOperationPage
 from controller.graph_controller import GraphController
 from model.graph_manager import GraphManager
-from ui.pages.graph_page.graph_operation import Graph2DWidget, Graph3DWidget
+from ui.pages.graph_page.graph_op import Graph2DWidget, Graph3DWidget
 
 class GraphPage(BaseOperationPage):
     def __init__(self, manager: GraphManager):
@@ -17,7 +17,7 @@ class GraphPage(BaseOperationPage):
             "Aquí podrás visualizar gráficas en 2 y en 3 dimensiones\n"
         )
 
-        intro_image_path = "assets/images/graph_intro.png"
+        intro_image_path = "assets/images/intro/graph.png"
         page_title = "Creación de Gráficas"
         super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
         

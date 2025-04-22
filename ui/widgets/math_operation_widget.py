@@ -36,3 +36,4 @@ class MathOperationWidget(QWidget):
     def cleanup(self):
         """Limpia los recursos de la operación"""
         self.manager.clear()
+        

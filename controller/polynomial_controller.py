@@ -1,6 +1,8 @@
 from model.polynomial_model import Polynomial
 from sympy.parsing.sympy_parser import parse_expr, standard_transformations, implicit_multiplication_application, convert_xor, implicit_application
 import sympy as sp
+import re
+from utils.validators import validar_exponentes
 
 class SympyPolynomialParser:
     def __init__(self):
@@ -10,23 +12,65 @@ class SympyPolynomialParser:
             (implicit_multiplication_application, convert_xor, implicit_application)
         )
 
+    def sanitize_expression(self, expression: str) -> str:
+        replacements = {
+            "−": "-",  # signo menos Unicode
+            "×": "*",  # signo de multiplicación
+            "÷": "/",  # signo de división
+            "·": "*",  # punto medio
+            "^": "**", # caret
+            "[": "(", "]": ")",
+            "{": "(", "}": ")",
+        }
+        for bad, good in replacements.items():
+            expression = expression.replace(bad, good)
+
+        # Insertar multiplicación implícita: 2( → 2*(
+        expression = re.sub(r'(?<=\d)(\s*\()', r'*(', expression)
+
+        # Corregir divisiones ambiguas tipo: /2(x+1) o /x(x+1)
+        expression = re.sub(
+            r'/\s*([a-zA-Z0-9.]+)\s*\(',  # algo como /2( o /x(
+            lambda m: f'/({m.group(1)}*(', expression
+        )
+
+        # Cerrar paréntesis abiertos automáticamente si hicimos /(x*(...
+        open_count = expression.count('(')
+        close_count = expression.count(')')
+        if close_count < open_count:
+            expression += ')' * (open_count - close_count)
+
+        return expression
+
     def parse_expression(self, expression: str):
         """Convierte una expresión en una estructura evaluable por sympy"""
         try:
-            parsed_expr = parse_expr(expression, transformations=self.transformations, local_dict={"x": self.x})
+            if not validar_exponentes(expression):
+                raise ValueError("El exponente ingresado es demasiado alto. Por favor, utilice exponentes menores a 1000 para evitar bloqueos.")
+
+            clean_expr = self.sanitize_expression(expression)
+            parsed_expr = parse_expr(clean_expr, transformations=self.transformations, local_dict={"x": self.x})
             simplified_expr = sp.expand(parsed_expr)
             return simplified_expr
+        except ValueError as ve:
+            # Propagar errores personalizados
+            raise ve
         except Exception as e:
-            raise ValueError(f"Error al parsear la expresión: {e}")
+            # Solo capturar errores generales
+            raise ValueError("Error al parsear la expresión: Asegúrese de que la expresión sea válida.")
 
     def to_polynomial(self, sympy_expr):
         try:
             poly_expr = sp.Poly(sympy_expr, self.x, domain='QQ')  # QQ fuerza coeficientes racionales
             coeffs = poly_expr.all_coeffs()
             return Polynomial([sp.Rational(c) for c in coeffs])
-        except Exception as e:
-            raise ValueError(f"No se pudo convertir a polinomio: {e}")
-        
+        except Exception:
+            raise ValueError(
+                "La expresión no representa un polinomio válido. "
+                "Asegúrese de que la expresión contenga sólo potencias enteras de x con coeficientes numéricos. "
+                "Ejemplos válidos: 'x^2 + 2x + 1'. Ejemplos inválidos: 'sin(x)', '1/x', 'x^a', 'log(x)'."
+            )
+    
 class PolynomialController:
     def __init__(self, manager):
         self.manager = manager

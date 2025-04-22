@@ -1,7 +1,6 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
-from PySide6.QtGui import QIcon, QPixmap, QFont
+from PySide6.QtGui import QIcon, QPixmap
 from PySide6.QtCore import QSize, Qt
-
 
 class Sidebar(QWidget):
     def __init__(self, switch_page_callback):
@@ -70,3 +69,4 @@ class Sidebar(QWidget):
             btn.style().unpolish(btn)
             btn.style().polish(btn)
             btn.update()
+            

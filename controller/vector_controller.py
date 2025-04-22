@@ -47,7 +47,7 @@ class VectorController:
             result = eval(expr, {}, vector_map)
             return result
         except Exception as e:
-            raise ValueError(f"Error al evaluar la operación: {e}")
+            raise ValueError(f"Error al evaluar la operación: Ingrese vectores válidos.")
 
     def calculate_magnitude(self, expression):
         expr, vector_map = self.parser.parse_expression(expression)

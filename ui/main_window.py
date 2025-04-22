@@ -1,6 +1,8 @@
 from ui.sidebar import Sidebar
+from ui.navbar import TopNavbar
+import getpass
 
-from ui.pages.home_page import HomePage
+from ui.pages.home_page import MainHomePage
 from ui.pages.matrix_page.matrix_page import MatrixPage
 from ui.pages.poly_page.poly_page import PolynomialPage
 from ui.pages.vector_page.vector_page import VectorPage
@@ -15,6 +17,8 @@ from model.graph_manager import GraphManager
 from model.sym_cal_manager import SymCalManager
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy
+from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt
 
 matrix_manager = MatrixManager()
 polynomial_manager = PolynomialManager()
@@ -25,10 +29,10 @@ symbolic_calculation_manager = SymCalManager()
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.setWindowIcon(QIcon("assets/icons/ico.png"))
         self.setWindowTitle("CalcMatrix")
         self.resize(1000, 600)
 
-        # Widget central 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
 
@@ -37,16 +41,30 @@ class MainWindow(QMainWindow):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
 
-        # Sidebar con nombre de objeto para aplicar estilos desde QSS 
         self.sidebar = Sidebar(self.show_page)
         self.sidebar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Expanding)
         self.layout.addWidget(self.sidebar)
         self.sidebar.setMinimumWidth(200)
-        
-        # Contenedor de páginas 
+
+        # Para sidebar oculto por defecto
+        # self.sidebar.setVisible(False)
+
+        # Contenedor de páginas con encabezado y contenido
         self.page_container = QWidget()
-        self.page_layout = QVBoxLayout(self.page_container)
+        self.page_container_layout = QVBoxLayout(self.page_container)
+        self.page_container_layout.setContentsMargins(0, 0, 0, 0)
+        self.page_container_layout.setSpacing(0)
+
+        username = getpass.getuser()
+        self.navbar = TopNavbar(self.toggle_sidebar, username=username.upper())
+        self.page_container_layout.addWidget(self.navbar)
+
+        # Widget de contenido real (donde irán las páginas)
+        self.page_widget = QWidget()
+        self.page_layout = QVBoxLayout(self.page_widget)
         self.page_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.page_container_layout.addWidget(self.page_widget)
         self.layout.addWidget(self.page_container)
          
         self.pages = {} # Diccionario de páginas
@@ -54,8 +72,11 @@ class MainWindow(QMainWindow):
         self.current_page = None # Página actual
         self.show_page("home")
 
+    def toggle_sidebar(self):
+        visible = self.sidebar.isVisible()
+        self.sidebar.setVisible(not visible)
+
     def show_page(self, name):
-        # Eliminar página 
         for i in reversed(range(self.page_layout.count())):
             widget = self.page_layout.itemAt(i).widget()
             if widget is not None:
@@ -64,7 +85,7 @@ class MainWindow(QMainWindow):
         # Agregar nueva página 
         if name not in self.pages:
             if name == "home":
-                self.pages[name] = HomePage()
+                self.pages[name] = MainHomePage()
             elif name == "matrix":
                 self.pages[name] = MatrixPage(matrix_manager)
             elif name == "polynomial":

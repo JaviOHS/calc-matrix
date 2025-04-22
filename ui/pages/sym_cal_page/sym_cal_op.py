@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QSpinBox
-from widgets.math_operation_widget import MathOperationWidget
+from ui.widgets.math_operation_widget import MathOperationWidget
 
 class SymCalOpWidget(MathOperationWidget):
     def __init__(self, manager, controller, operation_type=None):
