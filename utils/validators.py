@@ -8,7 +8,7 @@ def is_valid_number(value):
     except ValueError:
         return False
     
-def validar_exponentes(expression: str, max_exponente: int = 1000) -> bool:
+def exponents_validator(expression: str, max_exponente: int = 1000) -> bool:
     """
     Devuelve True si los exponentes están dentro del límite permitido, False si no.
     """

@@ -3,14 +3,16 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QTextEdit, QHBoxLayout
 from ui.widgets.math_operation_widget import MathOperationWidget
 from PySide6.QtGui import QTextCharFormat, QFont, QPixmap
+from ui.dialogs.message_dialog import MessageDialog
 
 class ExpressionOpWidget(MathOperationWidget):
-    def __init__(self, manager, controller, operation_type=None, placeholder="", input_label="", image_path="assets/images/placeholder.png"):
+    def __init__(self, manager, controller, operation_type=None, placeholder="", input_label="", image_path="assets/images/placeholder.png", use_dialog_for_result: bool = False):
         super().__init__(manager, controller, operation_type)
         self.operation_type = operation_type
         self.placeholder = placeholder
         self.input_label_text = input_label
         self.image_path = image_path
+        self.use_dialog_for_result = use_dialog_for_result
         self.setup_ui() # Para botones de cancelar y calcular
 
     def setup_ui(self):
@@ -31,42 +33,46 @@ class ExpressionOpWidget(MathOperationWidget):
         self.expression_input.setMaximumHeight(100)
         input_layout.addWidget(self.expression_input)
 
-        self.result_container = QWidget()
-        result_layout = QHBoxLayout(self.result_container)
-        result_layout.setContentsMargins(0, 0, 0, 0)
-        result_layout.setSpacing(8)
+        if not self.use_dialog_for_result:
+            self.result_container = QWidget()
+            result_layout = QHBoxLayout(self.result_container)
+            result_layout.setContentsMargins(0, 0, 0, 0)
+            result_layout.setSpacing(8)
 
-        self.result_display = QTextEdit()
-        self.result_display.setReadOnly(True)
-        self.result_display.setFrameStyle(QTextEdit.NoFrame)
-        self.result_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
-        self.result_display.setMinimumHeight(70)
-        self.result_display.setStyleSheet("font-family: Dosis; font-size: 18px; font-weight: 600;")
-        self.result_display.setText("⭐ Aquí se mostrará la solución")
-        result_layout.addWidget(self.result_display, stretch=1)
+            self.result_display = QTextEdit()
+            self.result_display.setReadOnly(True)
+            self.result_display.setFrameStyle(QTextEdit.NoFrame)
+            self.result_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
+            self.result_display.setMinimumHeight(70)
+            self.result_display.setStyleSheet("font-family: Dosis; font-size: 18px; font-weight: 600;")
+            self.result_display.setText("⭐ Aquí se mostrará la solución")
+            result_layout.addWidget(self.result_display, stretch=1)
 
-        if self.image_path:
-            self.preview_image = QLabel()
-            pixmap = QPixmap(self.image_path)
-            if not pixmap.isNull():
-                pixmap = pixmap.scaledToHeight(120, Qt.SmoothTransformation)
-                self.preview_image.setPixmap(pixmap)
-            result_layout.addWidget(self.preview_image, alignment=Qt.AlignRight)
+            if self.image_path:
+                self.preview_image = QLabel()
+                pixmap = QPixmap(self.image_path)
+                if not pixmap.isNull():
+                    pixmap = pixmap.scaledToHeight(120, Qt.SmoothTransformation)
+                    self.preview_image.setPixmap(pixmap)
+                result_layout.addWidget(self.preview_image, alignment=Qt.AlignRight)
 
-        input_layout.addWidget(self.result_container)
-        self.layout.addWidget(input_widget)
+            input_layout.addWidget(self.result_container)
+
 
         buttons = self.create_buttons()
+        self.layout.addWidget(input_widget, alignment=Qt.AlignTop)
+        self.layout.addStretch()
         self.layout.addWidget(buttons)
         self.setLayout(self.layout)
-
         self.setup_expression_formatting()
 
     def get_input_expression(self):
         return self.expression_input.toPlainText().strip()
 
     def display_result(self, html):
-        self.result_display.setText(html)
+        if not self.use_dialog_for_result and hasattr(self, 'result_display'):
+            self.result_display.setText(html)
+
 
     def setup_expression_formatting(self):
         """Configura el formateo automático de expresiones"""
@@ -107,3 +113,15 @@ class ExpressionOpWidget(MathOperationWidget):
         new_cursor.setPosition(min(position, len(self.expression_input.toPlainText())))
         self.expression_input.setTextCursor(new_cursor)
         self.expression_input.blockSignals(False)
+
+    def show_canvas_dialog(self, canvas):
+        if canvas:
+            canvas.setFixedSize(500, 300)
+            canvas.draw()
+            dialog = MessageDialog(
+                title="🟢 ÉXITO GENERANDO GRÁFICA",
+                image_name="success.png",
+                parent=self,
+                custom_widget=canvas
+            )
+            dialog.exec()

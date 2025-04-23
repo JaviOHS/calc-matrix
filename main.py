@@ -1,8 +1,14 @@
 from PySide6.QtWidgets import QApplication
 from ui.main_window import MainWindow
 from PySide6.QtGui import QFontDatabase, QFont
-
+import os 
 import sys
+
+def resource_path(relative_path):
+    """Obtiene la ruta correcta tanto en dev como en el ejecutable .exe"""
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
 
 app = QApplication(sys.argv)
 

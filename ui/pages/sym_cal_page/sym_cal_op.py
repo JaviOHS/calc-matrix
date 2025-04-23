@@ -1,69 +1,74 @@
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QSpinBox
-from ui.widgets.math_operation_widget import MathOperationWidget
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QSpinBox, QTextEdit, QWidget
+from PySide6.QtCore import Qt
+from ui.widgets.expression_op_widget import ExpressionOpWidget
+from utils.formatting import format_math_expression
 
-class SymCalOpWidget(MathOperationWidget):
+class SymCalOpWidget(ExpressionOpWidget):
     def __init__(self, manager, controller, operation_type=None):
-        super().__init__(manager, controller, operation_type)
-        self.setup_ui()
+        self.manager = manager
+        self.controller = controller
+        self.operation_type = operation_type
 
-    def setup_ui(self):
-        layout = QVBoxLayout(self)
-        layout.setSpacing(15)
+        input_label = f"Ingresa una expresión para realizar cálculo de {operation_type.replace('_', ' ')}:"
+        placeholder = "Ejemplo: 2x^2 + 2x"
 
-        func_layout = QHBoxLayout()
-        func_layout.addWidget(QLabel("f(x) ="))
-        self.function_input = QLineEdit("x**2 + 3*x")
-        func_layout.addWidget(self.function_input)
-        layout.addLayout(func_layout)
+        super().__init__(
+            manager,
+            controller,
+            operation_type=operation_type,
+            placeholder=placeholder,
+            input_label=input_label,
+            use_dialog_for_result=False
+        )
 
+        self.add_additional_inputs()
+
+    def add_additional_inputs(self):
         if self.operation_type == "integrales":
-            limits_layout = QHBoxLayout()
+            self.limits_widget = QWidget()
+            limits_layout = QHBoxLayout(self.limits_widget)
+            limits_layout.setContentsMargins(0, 0, 0, 0)
+
             limits_layout.addWidget(QLabel("Desde x ="))
             self.lower_limit = QSpinBox()
             self.lower_limit.setRange(-1000, 1000)
             self.lower_limit.setValue(0)
+            self.lower_limit.setAlignment(Qt.AlignCenter)
             limits_layout.addWidget(self.lower_limit)
 
             limits_layout.addWidget(QLabel("Hasta x ="))
             self.upper_limit = QSpinBox()
             self.upper_limit.setRange(-1000, 1000)
             self.upper_limit.setValue(1)
+            self.upper_limit.setAlignment(Qt.AlignCenter)
             limits_layout.addWidget(self.upper_limit)
-            layout.addLayout(limits_layout)
+            limits_layout.addStretch() # Problema
 
-        buttons_widget = self.create_buttons("Cancelar", "Calcular")
-        self.cancel_button.clicked.connect(self.cleanup)
-        self.calculate_button.clicked.connect(self.on_calculate_clicked)
-        layout.addWidget(buttons_widget)
+            self.layout.insertWidget(1, self.limits_widget)
 
-        # Área donde se mostrará el resultado
-        self.result_area = QVBoxLayout()
-        layout.addLayout(self.result_area)
+    def validate_operation(self):
+        expression = self.get_input_expression().strip()
+        if not expression:
+            return False, "Por favor ingresa una expresión para continuar."
+        try:
+            # Validación tentativa
+            self.controller.parser.parse_expression(expression)
+            return True, ""
+        except Exception as e:
+            return False, f"Expresión inválida: {str(e)}"
 
-    def get_inputs(self):
-        inputs = {"expression": self.function_input.text()}
-        if self.operation_type == "integrales":
-            inputs["limits"] = (self.lower_limit.value(), self.upper_limit.value())
-        return inputs
-
-    def on_calculate_clicked(self):
-        data = self.get_inputs()
+    def execute_operation(self):
+        expression = self.get_input_expression().strip()
         if self.operation_type == "derivadas":
-            result = self.controller.compute_derivative(data["expression"])
+            result = self.controller.compute_derivative(expression)
         elif self.operation_type == "integrales":
-            result = self.controller.compute_integral(data["expression"], data["limits"])
+            limits = (self.lower_limit.value(), self.upper_limit.value())
+            result = self.controller.compute_integral(expression, limits)
         else:
-            result = "Operación desconocida"
-        self.display_result(str(result))
+            raise ValueError("Tipo de operación desconocido.")
+        return result
 
-    def display_result(self, result_text):
-        self.clear_result()
-        result_label = QLabel(f"Resultado:\n{result_text}")
-        result_label.setWordWrap(True)
-        self.result_area.addWidget(result_label)
-
-    def clear_result(self):
-        while self.result_area.count():
-            child = self.result_area.takeAt(0)
-            if child.widget():
-                child.widget().deleteLater()
+    def prepare_result_display(self, result):
+        expr = self.get_input_expression().strip()
+        return format_math_expression(expr, result, operation_type="polynomial")
+    

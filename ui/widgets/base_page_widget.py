@@ -2,10 +2,11 @@ from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtCore import Qt, QSize, QPoint
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QLabel, QSizePolicy
 import os
+
 from ui.dialogs.message_dialog import MessageDialog
 from ui.widgets.floating_sidebar import FloatingSidebar
 
-class BaseOperationPage(QWidget):
+class Ba10seOperationPage(QWidget):
     def __init__(self, manager, controller, operations_dict, intro_text, intro_image_path, page_title):
         super().__init__()
         self.setGeometry(100, 100, 800, 600)
@@ -152,20 +153,30 @@ class BaseOperationPage(QWidget):
                 self.toggle_button.move(self.width() - self.toggle_button.width() - margin_right, button_vertical_position)
             else:
                 self.toggle_button.move(self.width() - self.toggle_button.width() - margin_right, button_initial_y)
-
+    
     def create_intro_widget(self):
         intro_widget = QWidget()
-        main_layout = QHBoxLayout()
-        main_layout.setContentsMargins(0, 60, 20, 20)
 
+        # Layout principal con márgenes y espaciado igual a MainHomePage
+        main_layout = QVBoxLayout(intro_widget)
+        main_layout.setContentsMargins(10, 10, 10, 10)  # Mismos márgenes
+        main_layout.setSpacing(30)  # Mismo espaciado
+
+        # Layout horizontal para la imagen a la izquierda y contenido a la derecha
+        h_layout = QHBoxLayout()
+
+        # Layout para contenido textual
         left_layout = QVBoxLayout()
         left_layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        left_layout.setSpacing(20)
 
+        # Texto introductorio
         intro_label = QLabel(self.intro_text)
         intro_label.setWordWrap(True)
         intro_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         left_layout.addWidget(intro_label)
 
+        # Botón "Empezar"
         start_button = QPushButton("Empezar")
         start_button.setFixedWidth(150)
         start_button.setObjectName("start_button")
@@ -173,16 +184,20 @@ class BaseOperationPage(QWidget):
         start_button.clicked.connect(self.start_first_operation)
         left_layout.addWidget(start_button, alignment=Qt.AlignLeft)
 
-        main_layout.addLayout(left_layout)
+        # Añadir la sección de contenido textual al layout horizontal
+        h_layout.addLayout(left_layout)
 
+        # Imagen decorativa a la derecha
         if self.intro_image_path:
             pixmap = QPixmap(self.intro_image_path)
             image_label = QLabel()
             image_label.setPixmap(pixmap.scaled(400, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            image_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            main_layout.addWidget(image_label)
+            image_label.setAlignment(Qt.AlignCenter)
+            h_layout.addWidget(image_label)
 
-        intro_widget.setLayout(main_layout)
+        # Añadir el layout horizontal al layout principal
+        main_layout.addLayout(h_layout)
+
         return intro_widget
 
     def start_first_operation(self):

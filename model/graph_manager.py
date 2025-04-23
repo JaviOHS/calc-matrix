@@ -4,8 +4,8 @@ class GraphManager:
     def __init__(self):
         self.current_model = None
 
-    def create_model(self, expression, x_range):
-        self.current_model = GraphModel(expression, x_range)
+    def create_model(self, expression, x_range, y_range=None):
+        self.current_model = GraphModel(expression, x_range, y_range)
 
     def get_model(self):
         return self.current_model

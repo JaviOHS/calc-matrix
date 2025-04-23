@@ -19,7 +19,11 @@ class Sidebar(QWidget):
         self.layout.addWidget(logo_label)
 
         # Nombre de la aplicación 
-        name_label = QLabel("CalcMatrix")
+        name_label = QLabel("""
+            <span style='font-size:28px; font-weight:bold; color:white;'>
+                <span style='color:#e74c3c;'>Calc</span><span style='color:#3498db;'>Matrix</span>
+            </span>
+        """)
         name_label.setAlignment(Qt.AlignCenter)
         name_label.setProperty("class", "sidebar-title")
         self.layout.addWidget(name_label)

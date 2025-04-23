@@ -7,10 +7,12 @@ from utils.formatting import format_math_expression
 
 class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
-        input_label = "Ingrese el polinomio y el valor a evaluar:"
-        super().__init__(manager, controller, operation_type, placeholder="Ejemplo: x^2 + 2x + 1", input_label=input_label)
+        input_label = f"Ingrese el polinomio para realizar cálculo de {operation_type.replace("_", " ")}:"
+        placeholder = "Ejemplo: x^2 + 2x + 1"
+        super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label)
         self.input_mode = "text"
         self.last_valid_text = ""
+        self._parsed_expr = None 
         self.custom_setup()
 
     def custom_setup(self):
@@ -22,7 +24,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
             top_layout.setSpacing(10)
             
             # Texto descriptivo
-            instruction_label = QLabel("Ingrese el polinomio y el valor a evaluar:")
+            instruction_label = QLabel("Ingrese el polinomio y el valor de x, a evaluar:") # Mismo label para valores de x
             top_layout.addWidget(instruction_label)
             
             # Contenedor para el input de x
@@ -57,7 +59,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
             return False, "La expresión no puede estar vacía. ¿Por qué no empezar con unos polinomios básicos?"
             
         try:
-            self.controller.parser.parse_expression(expr)
+            self._parsed_expr = self.controller.parser.parse_expression(expr)
             return True, ""
         except ValueError as e:
             return False, str(e)
@@ -67,9 +69,8 @@ class PolynomialOpWidget(ExpressionOpWidget):
 
         if self.operation_type in {"raices", "derivacion", "integracion", "evaluacion"}:
             try:
-                sym_expr = self.controller.parser.parse_expression(expr)
-                poly = self.controller.parser.to_polynomial(sym_expr)
-                return [poly]  # Para operaciones de polinomios, se convierte a polinomio
+                poly = self.controller.parser.to_polynomial(self._parsed_expr)
+                return [poly] # Para operaciones de polinomios, se convierte a polinomio
             except Exception as e:
                 raise ValueError(f"Error al convertir la expresión a polinomio: {str(e)}")
         else:
@@ -82,24 +83,23 @@ class PolynomialOpWidget(ExpressionOpWidget):
         if not valid:
             raise ValueError(error_message)
 
+        # Reusar self._parsed_expr en lugar de parsear de nuevo
         if self.operation_type == "evaluacion":
             x_value = self.x_input.value()
-            sym_expr = self.controller.parser.parse_expression(expr)
-            poly = self.controller.parser.to_polynomial(sym_expr)
+            poly = self.controller.parser.to_polynomial(self._parsed_expr)
             self.controller.manager.add_polynomial(poly)
             result = self.controller.execute_operation("evaluacion", float(x_value))
             return [("P1", result[0])]
         else:
             if self.operation_type in {"derivacion", "integracion", "raices"}:
-                sym_expr = self.controller.parser.parse_expression(expr)
-                poly = self.controller.parser.to_polynomial(sym_expr)
+                poly = self.controller.parser.to_polynomial(self._parsed_expr)
                 self.controller.manager.add_polynomial(poly)
                 result = self.controller.execute_operation(self.operation_type)
                 return result
             else:
                 result = self.controller.execute_operation(self.operation_type, expr)
                 return result
-
+            
     def get_evaluation_value(self):
         return str(self.x_input.value())
 

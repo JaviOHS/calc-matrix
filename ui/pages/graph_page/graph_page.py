@@ -20,28 +20,45 @@ class GraphPage(BaseOperationPage):
         intro_image_path = "assets/images/intro/graph.png"
         page_title = "Creación de Gráficas"
         super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
-        
-    def prepare_operation(self, operation_key):
-        op_key, widget_class = self.operations[operation_key]
-        self.current_operation = op_key
-        super().prepare_operation(operation_key)
-        self.title_label.setText(f"{self.page_title} - {operation_key}")
 
     def execute_current_operation(self):
-        widget = self.operation_widgets.get(self.current_operation)
+        # Encontrar la clave visible desde la clave interna
+        visible_key = next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)
+        if not visible_key:
+            self.show_message_dialog("🔴 ERROR", "No se encontró una operación visible para la clave interna")
+            return
+
+        widget = self.operation_widgets.get(visible_key)
         if not widget:
+            self.show_message_dialog("🔴 ERROR", "No se encontró el widget de la operación.")
             return
 
-        inputs = widget.get_inputs()
-        self.manager.set_inputs(self.current_operation, inputs)
+        try:
+            op_key = self.current_operation
+            inputs = widget.get_inputs()
 
-        # Verificar si es operación 2D o 3D
-        if self.current_operation == "graficas_2d":
-            canvas = self.controller.generate_canvas_2d(inputs)
-        else:
-            return
-            
-        widget.display_result(canvas)
+            if not inputs.get("expression"):
+                self.show_message_dialog("🟡 VALIDACIÓN", "Se necesita una expresión para evaluar")
+                return
+
+            result = self.controller.execute_operation(op_key, inputs)
+            self.show_result("Resultado", result)
+
+        except ValueError as e:
+            self.show_message_dialog("🔴 ERROR", str(e))
+        except Exception as e:
+            self.show_message_dialog("🔴 ERROR", f"Error inesperado: {str(e)}")
 
     def show_result(self, message, result):
-        pass
+        try:
+            visible_key = next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)
+            if not visible_key:
+                return
+
+            widget = self.operation_widgets.get(visible_key)
+            if not widget:
+                return
+
+            widget.display_result(result)
+        except Exception as e:
+            self.show_message_dialog("🔴 ERROR", f"Error inesperado: {str(e)}")

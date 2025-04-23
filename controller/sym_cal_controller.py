@@ -1,36 +1,26 @@
-from sympy import sympify, symbols
+from parsers.expression_parser import ExpressionParser
 
 class SymCalController:
     def __init__(self, manager):
         self.manager = manager
+        self.parser = ExpressionParser()
 
     def compute_derivative(self, expression):
-        try:
-            # Validación de la expresión
-            if not expression:
-                raise ValueError("La expresión para derivar no puede estar vacía.")
-            
-            try:
-                sympified_expr = sympify(expression)
-            except Exception as e:
-                raise ValueError(f"Expresión inválida: {e}")
-
-            return self.manager.get_derivative(expression)
+        if not expression:
+            raise ValueError("La expresión para derivar no puede estar vacía.")
         
-        except ValueError as ve:
-            print(f"Error: {ve}")
-            return None
+        try:
+            parsed_expr = self.parser.parse_expression(expression)
+            return self.manager.get_derivative(parsed_expr)
+        except Exception as e:
+            raise ValueError(str(e))
 
     def compute_integral(self, expression, limits=None):
-        """Calcula la integral de la expresión con validación."""
+        if not expression:
+            raise ValueError("La expresión para integrar no puede estar vacía.")
+        
         try:
-            if not expression:
-                raise ValueError("La expresión para integrar no puede estar vacía.")
-            
-            try:
-                sympified_expr = sympify(expression)
-            except Exception as e:
-                raise ValueError(f"Expresión inválida: {e}")
+            parsed_expr = self.parser.parse_expression(expression)
 
             if limits:
                 if len(limits) != 2:
@@ -40,12 +30,10 @@ class SymCalController:
                 if limits[0] >= limits[1]:
                     raise ValueError("El límite inferior debe ser menor que el límite superior.")
             
-            # Calculamos la integral
-            return self.manager.get_integral(expression, limits)
-
-        except ValueError as ve:
-            print(f"Error: {ve}")
-            return None
+            return self.manager.get_integral(parsed_expr, limits)
+        
+        except Exception as e:
+            raise ValueError(f"Error al calcular la integral: {str(e)}")
 
     def get_history(self):
         """Obtiene el historial de operaciones realizadas."""

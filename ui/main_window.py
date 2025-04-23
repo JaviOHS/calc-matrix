@@ -18,7 +18,6 @@ from model.sym_cal_manager import SymCalManager
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy
 from PySide6.QtGui import QIcon
-from PySide6.QtCore import Qt
 
 matrix_manager = MatrixManager()
 polynomial_manager = PolynomialManager()
@@ -55,7 +54,7 @@ class MainWindow(QMainWindow):
         self.page_container_layout.setContentsMargins(0, 0, 0, 0)
         self.page_container_layout.setSpacing(0)
 
-        username = getpass.getuser()
+        username = f'@{getpass.getuser()}'
         self.navbar = TopNavbar(self.toggle_sidebar, username=username.upper())
         self.page_container_layout.addWidget(self.navbar)
 
@@ -85,7 +84,7 @@ class MainWindow(QMainWindow):
         # Agregar nueva página 
         if name not in self.pages:
             if name == "home":
-                self.pages[name] = MainHomePage()
+                self.pages[name] = MainHomePage(navigate_callback=self.show_page) # IMPORTANTE: 
             elif name == "matrix":
                 self.pages[name] = MatrixPage(matrix_manager)
             elif name == "polynomial":
