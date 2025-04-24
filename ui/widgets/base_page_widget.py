@@ -6,7 +6,7 @@ import os
 from ui.dialogs.message_dialog import MessageDialog
 from ui.widgets.floating_sidebar import FloatingSidebar
 
-class Ba10seOperationPage(QWidget):
+class BaseOperationPage(QWidget):
     def __init__(self, manager, controller, operations_dict, intro_text, intro_image_path, page_title):
         super().__init__()
         self.setGeometry(100, 100, 800, 600)
