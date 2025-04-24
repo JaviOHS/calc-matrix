@@ -1,7 +1,7 @@
+from utils.resources import resource_path
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QSizePolicy
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
-import os
 
 class MessageDialog(QDialog):
     def __init__(self, title: str, message: str = "", image_name: str = "success.png", parent=None, custom_widget: QWidget = None):
@@ -27,7 +27,7 @@ class MessageDialog(QDialog):
 
         # Imagen (izquierda)
         if image_name:
-            image_path = os.path.join("assets", "images", "dialogs", image_name)
+            image_path = resource_path(f"assets/images/{image_name}")
             pixmap = QPixmap(image_path).scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             image_label = QLabel()
             image_label.setPixmap(pixmap)

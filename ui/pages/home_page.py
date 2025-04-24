@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton,QSizePolicy, QGridLayout, QHBoxLayout, QFrame
-from PySide6.QtCore import Qt, QSize
-from PySide6.QtGui import QIcon, QPixmap, QPainter, QColor
+from utils.resources import resource_path
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton, QHBoxLayout
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 class MainHomePage(QWidget):
     def __init__(self, navigate_callback=None):
@@ -76,7 +77,7 @@ class MainHomePage(QWidget):
         image_layout.setSpacing(20)
 
         image_label = QLabel()
-        pixmap = QPixmap("assets/images/intro/deco.png")
+        pixmap = QPixmap(resource_path("assets/images/intro/deco.png"))
         image_label.setPixmap(pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         image_label.setAlignment(Qt.AlignCenter)
         image_layout.addWidget(image_label)

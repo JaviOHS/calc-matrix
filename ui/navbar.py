@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel, QPushButton
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QIcon
+from utils.resources import resource_path
 
 class TopNavbar(QWidget):
     def __init__(self, toggle_sidebar_callback, username="Usuario"):
@@ -15,7 +16,8 @@ class TopNavbar(QWidget):
 
         # Botón de menú (icono SVG)
         self.menu_button = QPushButton()
-        self.menu_button.setIcon(QIcon("assets/icons/menu.svg"))
+        icon_path = resource_path("assets/icons/menu.svg")
+        self.menu_button.setIcon(QIcon(icon_path))
         self.menu_button.setIconSize(QSize(24, 24))
         self.menu_button.setCursor(Qt.PointingHandCursor)
         self.menu_button.clicked.connect(toggle_sidebar_callback)

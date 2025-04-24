@@ -1,3 +1,4 @@
+from utils.resources import resource_path
 from PySide6.QtGui import QPixmap, QIcon
 from PySide6.QtCore import Qt, QSize, QPoint
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QLabel, QSizePolicy
@@ -189,7 +190,7 @@ class BaseOperationPage(QWidget):
 
         # Imagen decorativa a la derecha
         if self.intro_image_path:
-            pixmap = QPixmap(self.intro_image_path)
+            pixmap = QPixmap(resource_path(self.intro_image_path))
             image_label = QLabel()
             image_label.setPixmap(pixmap.scaled(400, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
             image_label.setAlignment(Qt.AlignCenter)

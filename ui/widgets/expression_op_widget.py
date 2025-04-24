@@ -1,4 +1,4 @@
-from PySide6.QtGui import QPixmap
+from utils.resources import resource_path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QTextEdit, QHBoxLayout
 from ui.widgets.math_operation_widget import MathOperationWidget
@@ -50,7 +50,7 @@ class ExpressionOpWidget(MathOperationWidget):
 
             if self.image_path:
                 self.preview_image = QLabel()
-                pixmap = QPixmap(self.image_path)
+                pixmap = QPixmap(resource_path(self.image_path))
                 if not pixmap.isNull():
                     pixmap = pixmap.scaledToHeight(120, Qt.SmoothTransformation)
                     self.preview_image.setPixmap(pixmap)

@@ -1,3 +1,4 @@
+from utils.resources import resource_path
 from ui.sidebar import Sidebar
 from ui.navbar import TopNavbar
 import getpass
@@ -28,7 +29,8 @@ symbolic_calculation_manager = SymCalManager()
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowIcon(QIcon("assets/icons/ico.png"))
+
+        self.setWindowIcon(QIcon(resource_path("assets/icons/ico.ico")))
         self.setWindowTitle("CalcMatrix")
         self.resize(1000, 600)
 

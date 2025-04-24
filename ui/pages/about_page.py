@@ -1,3 +1,4 @@
+from utils.resources import resource_path
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon, QDesktopServices, QPixmap
@@ -49,7 +50,7 @@ class AboutPage(QWidget):
 
         # Botón GitHub
         github_button = QPushButton(" Ver repositorio en GitHub")
-        github_icon = QIcon("assets/icons/github.svg")
+        github_icon = QIcon(resource_path("assets/icons/github.svg"))
         github_button.setIcon(github_icon)
         github_button.setCursor(Qt.PointingHandCursor)
         github_button.setFixedSize(260, 45)
@@ -67,7 +68,7 @@ class AboutPage(QWidget):
 
         # Imagen decorativa a la derecha (opcional)
         image_label = QLabel()
-        pixmap = QPixmap("assets/images/intro/about.png")  # Reutiliza la misma imagen de bienvenida si gustas
+        pixmap = QPixmap(resource_path("assets/images/intro/about.png"))
         image_label.setPixmap(pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         image_label.setAlignment(Qt.AlignCenter)
 

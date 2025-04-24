@@ -1,6 +1,8 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
-from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtGui import QIcon
 from PySide6.QtCore import QSize, Qt
+from PySide6.QtGui import QPixmap
+from utils.resources import resource_path
 
 class Sidebar(QWidget):
     def __init__(self, switch_page_callback):
@@ -13,7 +15,8 @@ class Sidebar(QWidget):
 
         # Logo e ícono 
         logo_label = QLabel()
-        pixmap = QPixmap("assets/icons/app.png")
+        image_path = resource_path("assets/icons/app.png")
+        pixmap = QPixmap(image_path)
         logo_label.setPixmap(pixmap.scaled(120, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         logo_label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(logo_label)
@@ -51,7 +54,8 @@ class Sidebar(QWidget):
             btn = QPushButton(name)
             btn.setProperty("class", "sidebar-button")
             btn.setProperty("active", False)  # Importante
-            icon = QIcon(f"assets/icons/{key.lower()}.svg")
+            icon_path = resource_path(f"assets/icons/{key.lower()}.svg")
+            icon = QIcon(icon_path)
             btn.setIcon(icon)
             btn.setIconSize(QSize(24, 24))
             btn.setCursor(Qt.PointingHandCursor)
