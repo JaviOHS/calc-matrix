@@ -56,8 +56,9 @@ class BaseOperationPage(QWidget):
         self.content_layout.addWidget(self.stacked_widget, 1)
 
         # Botón flotante
+        button_path = resource_path("assets/icons/options.svg")
         self.toggle_button = QPushButton(self.content_container)
-        self.toggle_button.setIcon(QIcon(os.path.join("assets", "icons", "options.svg")))
+        self.toggle_button.setIcon(QIcon(button_path))
         self.toggle_button.setText("Opciones")
         self.toggle_button.setIconSize(QSize(24, 24))
         self.toggle_button.clicked.connect(self.toggle_sidebar)

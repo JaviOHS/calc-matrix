@@ -27,7 +27,7 @@ class MessageDialog(QDialog):
 
         # Imagen (izquierda)
         if image_name:
-            image_path = resource_path(f"assets/images/{image_name}")
+            image_path = resource_path(f"assets/images/dialogs/{image_name}")
             pixmap = QPixmap(image_path).scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             image_label = QLabel()
             image_label.setPixmap(pixmap)

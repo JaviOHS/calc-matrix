@@ -35,7 +35,8 @@ class TopNavbar(QWidget):
 
         # Avatar
         self.avatar = QLabel()
-        pixmap = QPixmap("assets/icons/user.svg")
+        user_icon_path = resource_path("assets/icons/user.svg")
+        pixmap = QPixmap(user_icon_path)
         self.avatar.setPixmap(pixmap.scaled(36, 36, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         self.avatar.setFixedSize(36, 36)
         self.avatar.setProperty("class", "navbar-avatar")
