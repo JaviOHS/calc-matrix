@@ -20,7 +20,7 @@ class Sidebar(QWidget):
 
         name_label = QLabel("""
             <span style='font-size:28px; font-weight:bold; color:white;'>
-                <span style='color:#e74c3c;'>Calc</span><span style='color:#3498db;'>Matrix</span>
+                Calc<span style='color:#ff8103;'>Matrix</span>
             </span>
         """)
         name_label.setAlignment(Qt.AlignCenter)

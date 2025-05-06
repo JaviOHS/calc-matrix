@@ -4,7 +4,7 @@ from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 
 class MessageDialog(QDialog):
-    def __init__(self, title: str, message: str = "", image_name: str = "success.png", parent=None, custom_widget: QWidget = None):
+    def __init__(self, title: str, title_color: str,message: str = "", image_name: str = "success.png", parent=None, custom_widget: QWidget = None):
         super().__init__(parent)
 
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
@@ -18,7 +18,7 @@ class MessageDialog(QDialog):
         # Título
         title_label = QLabel(title)
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-weight: bold; font-size: 20px;")
+        title_label.setStyleSheet(f"font-weight: bold; font-size: 20px; color: {title_color};")
         main_layout.addWidget(title_label)
 
         # Contenedor horizontal
@@ -41,7 +41,7 @@ class MessageDialog(QDialog):
             message_label = QLabel(message)
             message_label.setWordWrap(True)
             message_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-            message_label.setStyleSheet("font-size: 18px;")
+            message_label.setStyleSheet("font-size: 16px;")
             message_label.setTextInteractionFlags(Qt.TextSelectableByMouse)
             content_layout.addWidget(message_label)
 
@@ -49,6 +49,7 @@ class MessageDialog(QDialog):
 
         # Botón cerrar
         button = QPushButton("Aceptar")
+        button.setObjectName("ctaButton")
         button.setCursor(Qt.PointingHandCursor)
         button.clicked.connect(self.accept)
         button.setFixedWidth(150)

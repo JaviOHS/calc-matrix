@@ -3,8 +3,10 @@ import sympy
 from sympy import lambdify
 
 class GraphModel:
-    def __init__(self, expression, x_range, y_range=None):
-        self.expression = expression
+    def __init__(self, expressions, x_range, y_range=None):
+        if isinstance(expressions, str):
+            expressions = [expressions]
+        self.expressions = expressions
         self.x_min, self.x_max = x_range
         self.y_min, self.y_max = y_range if y_range else x_range
 

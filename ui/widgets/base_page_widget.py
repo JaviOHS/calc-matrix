@@ -241,8 +241,8 @@ class BaseOperationPage(QWidget):
             first_label = next(iter(self.operations))
             self.prepare_operation(first_label)
 
-    def show_message_dialog(self, title: str, message: str, image_name: str = "error.png"):
-        dialog = MessageDialog(title, message, image_name, parent=self)
+    def show_message_dialog(self, title: str, title_color: str, message: str, image_name: str = "error.png"):
+        dialog = MessageDialog(title, title_color, message, image_name, parent=self)
         dialog.exec()
 
     def execute_current_operation(self):

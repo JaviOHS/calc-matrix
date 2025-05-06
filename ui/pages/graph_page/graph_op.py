@@ -1,15 +1,16 @@
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QSpinBox, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QVBoxLayout, QHBoxLayout, QDoubleSpinBox, QVBoxLayout, QWidget
+from PySide6.QtCore import Qt
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from controller.graph_controller import GraphController
 
 class Graph2DWidget(ExpressionOpWidget):
     def __init__(self, manager=GraphController, controller=GraphController, operation_type=None):
         input_label = f"Ingrese una función para realizar {operation_type.replace('_', ' ')}:"
-        placeholder = "Ejemplo: x^2 + 2^x + 1"
+        placeholder = "Puede ingresar varias funciones separadas por comas. Ejemplo: x^2, x^3, x^4"
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=True)
         self.canvas = None
         self.add_range_inputs()
-        
+
     def add_range_inputs(self):
         self.range_widget = QWidget()
         x_layout = QHBoxLayout(self.range_widget)
@@ -20,20 +21,28 @@ class Graph2DWidget(ExpressionOpWidget):
         x_label_from.setFixedWidth(70)
         x_layout.addWidget(x_label_from)
 
-        self.x_min = QSpinBox()
-        self.x_min.setRange(-100, 100)
-        self.x_min.setValue(-10)
+        self.x_min = QDoubleSpinBox()
+        self.x_min.setRange(-100.0, 100.0)
+        self.x_min.setDecimals(2)
+        self.x_min.setSingleStep(0.5)
+        self.x_min.setValue(-10.0)
         self.x_min.setFixedWidth(80)
+        self.x_min.setAlignment(Qt.AlignCenter)
+        self.x_min.setObjectName("input_double_spinbox")
         x_layout.addWidget(self.x_min)
 
         x_label_to = QLabel("Hasta x:")
         x_label_to.setFixedWidth(70)
         x_layout.addWidget(x_label_to)
 
-        self.x_max = QSpinBox()
-        self.x_max.setRange(-100, 100)
-        self.x_max.setValue(10)
+        self.x_max = QDoubleSpinBox()
+        self.x_max.setRange(-100.0, 100.0)
+        self.x_max.setDecimals(2)
+        self.x_max.setSingleStep(0.5)
+        self.x_max.setValue(10.0)
         self.x_max.setFixedWidth(80)
+        self.x_max.setAlignment(Qt.AlignCenter)
+        self.x_max.setObjectName("input_double_spinbox")
         x_layout.addWidget(self.x_max)
 
         x_layout.addStretch()
@@ -47,7 +56,6 @@ class Graph2DWidget(ExpressionOpWidget):
 
     def display_result(self, result):
         if self.use_dialog_for_result:
-            # Si es canvas, lo mostramos en el dialogo personalizado
             if hasattr(result, 'draw'):
                 self.show_canvas_dialog(result)
         else:
@@ -60,13 +68,16 @@ class Graph2DWidget(ExpressionOpWidget):
             self.canvas = None
 
     def validate_operation(self):
-        expr = self.get_input_expression()
+        expressions = self.get_input_expression()
         try:
-            if not expr:
-                raise ValueError("La expresión no puede estar vacía.")
+            if not expressions:
+                raise ValueError("Debe ingresar al menos una función.")
+            if len(expressions) > 5:
+                raise ValueError("Máximo 5 funciones permitidas.")
             return True, ""
         except ValueError as e:
             return False, str(e)
+
 
     def perform_operation(self):
         valid, msg = self.validate_operation()
@@ -85,7 +96,7 @@ class Graph2DWidget(ExpressionOpWidget):
     def cleanup(self):
         self.clear_result()
         super().cleanup()
-    
+
 class Graph3DWidget(ExpressionOpWidget):
     def __init__(self, manager=GraphController, controller=GraphController, operation_type=None):
         input_label = f"Ingrese una función para realizar {operation_type.replace('_', ' ')}:"
@@ -96,11 +107,11 @@ class Graph3DWidget(ExpressionOpWidget):
 
     def add_range_inputs(self):
         self.range_widget = QWidget()
-        main_layout = QVBoxLayout(self.range_widget)  # Layout principal vertical
+        main_layout = QVBoxLayout(self.range_widget)
         main_layout.setContentsMargins(20, 0, 0, 0)
         main_layout.setSpacing(10)
 
-        # Layout para X
+        # X Range
         x_layout = QHBoxLayout()
         x_layout.setSpacing(10)
 
@@ -108,26 +119,34 @@ class Graph3DWidget(ExpressionOpWidget):
         x_label_from.setFixedWidth(70)
         x_layout.addWidget(x_label_from)
 
-        self.x_min = QSpinBox()
-        self.x_min.setRange(-100, 100)
-        self.x_min.setValue(-10)
+        self.x_min = QDoubleSpinBox()
+        self.x_min.setRange(-100.0, 100.0)
+        self.x_min.setDecimals(2)
+        self.x_min.setSingleStep(0.5)
+        self.x_min.setValue(-10.0)
         self.x_min.setFixedWidth(80)
+        self.x_min.setAlignment(Qt.AlignCenter)
+        self.x_min.setObjectName("input_double_spinbox")
         x_layout.addWidget(self.x_min)
 
         x_label_to = QLabel("Hasta x:")
         x_label_to.setFixedWidth(70)
         x_layout.addWidget(x_label_to)
 
-        self.x_max = QSpinBox()
-        self.x_max.setRange(-100, 100)
-        self.x_max.setValue(10)
+        self.x_max = QDoubleSpinBox()
+        self.x_max.setRange(-100.0, 100.0)
+        self.x_max.setDecimals(2)
+        self.x_max.setSingleStep(0.5)
+        self.x_max.setValue(10.0)
         self.x_max.setFixedWidth(80)
+        self.x_max.setAlignment(Qt.AlignCenter)
+        self.x_max.setObjectName("input_double_spinbox")
         x_layout.addWidget(self.x_max)
 
         x_layout.addStretch()
-        main_layout.addLayout(x_layout)  # Añadir layout de X al principal
+        main_layout.addLayout(x_layout)
 
-        # Layout para Y
+        # Y Range
         y_layout = QHBoxLayout()
         y_layout.setSpacing(10)
 
@@ -135,20 +154,28 @@ class Graph3DWidget(ExpressionOpWidget):
         y_label_from.setFixedWidth(70)
         y_layout.addWidget(y_label_from)
 
-        self.y_min = QSpinBox()
-        self.y_min.setRange(-100, 100)
-        self.y_min.setValue(-10)
+        self.y_min = QDoubleSpinBox()
+        self.y_min.setRange(-100.0, 100.0)
+        self.y_min.setDecimals(2)
+        self.y_min.setSingleStep(0.5)
+        self.y_min.setValue(-10.0)
         self.y_min.setFixedWidth(80)
+        self.y_min.setAlignment(Qt.AlignCenter)
+        self.y_min.setObjectName("input_double_spinbox")
         y_layout.addWidget(self.y_min)
 
         y_label_to = QLabel("Hasta y:")
         y_label_to.setFixedWidth(70)
         y_layout.addWidget(y_label_to)
 
-        self.y_max = QSpinBox()
-        self.y_max.setRange(-100, 100)
-        self.y_max.setValue(10)
+        self.y_max = QDoubleSpinBox()
+        self.y_max.setRange(-100.0, 100.0)
+        self.y_max.setDecimals(2)
+        self.y_max.setSingleStep(0.5)
+        self.y_max.setValue(10.0)
         self.y_max.setFixedWidth(80)
+        self.y_max.setAlignment(Qt.AlignCenter)
+        self.y_max.setObjectName("input_double_spinbox")
         y_layout.addWidget(self.y_max)
 
         y_layout.addStretch()
@@ -167,7 +194,6 @@ class Graph3DWidget(ExpressionOpWidget):
 
     def display_result(self, result):
         if self.use_dialog_for_result:
-            # Si es canvas, lo mostramos en el dialogo personalizado
             if hasattr(result, 'draw'):
                 self.show_canvas_dialog(result)
         else:
@@ -187,22 +213,24 @@ class Graph3DWidget(ExpressionOpWidget):
             return True, ""
         except ValueError as e:
             return False, str(e)
-        
+
     def perform_operation(self):
         valid, msg = self.validate_operation()
         try:
             if not valid:
                 raise ValueError(msg)
-            # Debes capturar y retornar el resultado del controlador
             result = self.controller.generate_canvas_3d(self.get_inputs())
-            return True, result  # Retornar estado y resultado
+            return True, result
         except Exception as e:
             return False, str(e)
 
     def on_calculate_clicked(self):
-        result = self.perform_operation()
-        if result:
+        success, result = self.perform_operation()
+        if success:
             self.display_result(result)
+        else:
+            # Mostrar el error si deseas
+            print("Error:", result)
 
     def cleanup(self):
         self.clear_result()

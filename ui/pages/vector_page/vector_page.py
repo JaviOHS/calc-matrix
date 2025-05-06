@@ -30,12 +30,12 @@ class VectorPage(BaseOperationPage):
         # Encontrar la clave visible desde la clave interna
         visible_key = next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)
         if not visible_key:
-            self.show_message_dialog("🔴 ERROR", "No se encontró una operación visible para la clave interna")
+            self.show_message_dialog("🔴 ERROR", "#f44336", "No se encontró una operación visible para la clave interna")
             return
 
         widget = self.operation_widgets.get(visible_key)
         if not widget:
-            self.show_message_dialog("🔴 ERROR", "No se encontró el widget de la operación.")
+            self.show_message_dialog("🔴 ERROR", "#f44336", "No se encontró el widget de la operación.")
             return
 
         try:
@@ -43,16 +43,16 @@ class VectorPage(BaseOperationPage):
             expression = widget.get_input_expression()
             
             if not expression:
-                self.show_message_dialog("🟡 VALIDACIÓN", "Se necesita una expresión para evaluar")
+                self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", "Se necesita una expresión para evaluar")
                 return
 
             result = self.controller.execute_operation(op_key, expression)
             self.show_result("Resultado", result)
 
         except ValueError as e:
-            self.show_message_dialog("🔴 ERROR", str(e))
+            self.show_message_dialog("🔴 ERROR", "#f44336", str(e))
         except Exception as e:
-            self.show_message_dialog("🔴 ERROR", f"Error inesperado: {str(e)}")
+            self.show_message_dialog("🔴 ERROR", "#f44336", f"Error inesperado: {str(e)}")
 
     def show_result(self, message, result):
         try:

@@ -30,17 +30,17 @@ class PolynomialPage(BaseOperationPage):
         # Encontrar la clave visible desde la clave interna
         visible_key = next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)
         if not visible_key:
-            self.show_message_dialog("🔴 ERROR", f"No se encontró una operación visible para la clave interna '{self.current_operation}'")
+            self.show_message_dialog("🔴 ERROR", "#f44336", f"No se encontró una operación visible para la clave interna '{self.current_operation}'")
             return
 
         widget = self.operation_widgets.get(visible_key)
         if not widget:
-            self.show_message_dialog("🔴 ERROR", "No se encontró el widget de la operación.")
+            self.show_message_dialog("🔴 ERROR", "#f44336", "No se encontró el widget de la operación.")
             return
 
         is_valid, error_msg = widget.validate_operation()
         if not is_valid:
-            self.show_message_dialog("🟡 VALIDACIÓN", error_msg)
+            self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", error_msg)
             return
 
         try:
@@ -49,24 +49,24 @@ class PolynomialPage(BaseOperationPage):
             if op_key == "operaciones_combinadas":
                 expression = widget.collect_polynomials()[0]
                 if not expression:
-                    self.show_message_dialog("Validación", "Se necesita una expresión para evaluar")
+                    self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", "Se necesita una expresión para evaluar")
                     return
                 result = self.controller.execute_operation(op_key, expression)
 
             elif op_key == "evaluacion":
                 x_value = widget.get_evaluation_value()
                 if x_value is None or x_value.strip() == "":
-                    self.show_message_dialog("Validación", "Se necesita un valor x para evaluar los polinomios")
+                    self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", "Se necesita un valor x para evaluar los polinomios")
                     return
                 try:
                     x_value = float(x_value)
                 except ValueError:
-                    self.show_message_dialog("🟡 VALIDACIÓN", "El valor de x no es válido")
+                    self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", "El valor de x no es válido")
                     return
                 
                 polynomials = widget.collect_polynomials()
                 if not polynomials:
-                    self.show_message_dialog("🟡 ADVERTENCIA", "No hay polinomios para evaluar")
+                    self.show_message_dialog("🟡 ADVERTENCIA", "#ffcc32", "No hay polinomios para evaluar")
                     return
 
                 self.manager.polynomials.clear()
@@ -77,7 +77,7 @@ class PolynomialPage(BaseOperationPage):
             else:
                 polynomials = widget.collect_polynomials()
                 if not polynomials:
-                    self.show_message_dialog("🟡 ADVERTENCIA", "No hay polinomios para operar")
+                    self.show_message_dialog("🟡 ADVERTENCIA", "#ffcc32", "No hay polinomios para operar.")
                     return
 
                 self.manager.polynomials.clear()
@@ -89,9 +89,9 @@ class PolynomialPage(BaseOperationPage):
             self.show_result(result, html)
 
         except ValueError as e:
-            self.show_message_dialog("🔴 ERROR", str(e))
+            self.show_message_dialog("🔴 ERROR", "#f44336", str(e))
         except Exception as e:
-            self.show_message_dialog("🔴 ERROR", f"Error inesperado: {str(e)}")
+            self.show_message_dialog("🔴 ERROR", "#f44336", f"Error inesperado: {str(e)}")
 
     def show_result(self, result, message):
         widget = self.operation_widgets.get(

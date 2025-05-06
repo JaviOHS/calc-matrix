@@ -117,7 +117,7 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
         # Validar la operación
         is_valid, error_message = self.validate_operation()
         if not is_valid:
-            self.show_message_dialog("Error", error_message)
+            self.show_message_dialog("🔴 ERROR", "#f44336", error_message)
             return
 
         # Recoger las matrices de la tabla

@@ -1,115 +1,72 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout, QWidget, QGridLayout, QSpacerItem
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout, QWidget, QGridLayout, QSpacerItem, QSizePolicy
 from PySide6.QtCore import Qt
 
 class MatrixResultDialog(QDialog):
     def __init__(self, matrices, result_matrix, operation="", parent=None):
         super().__init__(parent)
 
-        self.setWindowFlags(Qt.FramelessWindowHint) # Para quitar título
-
-        # Hacer que la ventana sea movible
+        self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setMouseTracking(True)
         self._drag_position = None
-        
-        # Configuración principal del layout
-        main_layout = QVBoxLayout()
-        main_layout.setSpacing(15)
-        main_layout.setContentsMargins(15, 15, 15, 15)
-        self.setLayout(main_layout)
 
-        # Mostrar operación realizada
-        if operation:
-            op_label = QLabel(f"Operación: {operation}")
-            op_label.setAlignment(Qt.AlignCenter)
-            op_label.setStyleSheet("font-weight: bold;")
-            main_layout.addWidget(op_label)
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(20, 20, 20, 20)
+        main_layout.setSpacing(20)
 
-        # Contenedor para matrices de entrada
+        # Contenedor horizontal
+        content_layout = QHBoxLayout()
+        content_layout.setSpacing(30)
+
+        # Widget personalizado (derecha)
+        custom_widget = QWidget()
+        custom_layout = QVBoxLayout(custom_widget)
+        custom_layout.setContentsMargins(0, 0, 0, 0)
+        custom_layout.setSpacing(15)
+
+        # Matrices de entrada
         input_container = QWidget()
-        input_layout = QVBoxLayout(input_container)
+        input_layout = QGridLayout(input_container)
+        input_layout.setHorizontalSpacing(30)
+        input_layout.setVerticalSpacing(20)
         input_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Grid para matrices de entrada (2 columnas, múltiples filas)
-        matrices_grid = QWidget()
-        grid_layout = QGridLayout(matrices_grid)
-        grid_layout.setHorizontalSpacing(30)
-        grid_layout.setVerticalSpacing(20)
-        grid_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Calcular tamaño máximo para centrado uniforme
         max_width = max([matrix.cols * 45 + 20 for matrix in matrices] + [result_matrix.cols * 45 + 20])
-        max_height = max([matrix.rows * 45 + 30 for matrix in matrices] + [result_matrix.rows * 45 + 30])
-        
-        # Mostrar matrices de entrada en grid 2 columnas
         for idx, matrix in enumerate(matrices):
-            row = idx // 2  # Calcula la fila basada en el índice
-            col = idx % 2   # Alterna entre columna 0 y 1
-            
-            # Crear widget de matriz
             matrix_widget = self._create_matrix_widget(matrix, f"Matriz {chr(65 + idx)}", max_width)
-            grid_layout.addWidget(matrix_widget, row, col, Qt.AlignCenter)
+            input_layout.addWidget(matrix_widget, idx // 2, idx % 2, Qt.AlignCenter)
 
-        # Ajustar el grid para que ocupe todo el espacio horizontal
-        grid_layout.setColumnStretch(0, 1)
-        grid_layout.setColumnStretch(1, 1)
-        
-        input_layout.addWidget(matrices_grid, 0, Qt.AlignHCenter)
-        main_layout.addWidget(input_container)
+        custom_layout.addWidget(input_container)
 
-        # Mostrar matriz resultado
-        result_container = QWidget()
-        result_layout = QVBoxLayout(result_container)
-        result_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Título "Resultado"
-        result_title = QLabel("Resultado:")
-        result_title.setAlignment(Qt.AlignCenter)
-        result_title.setStyleSheet("font-weight: bold; color: #72e48c;")
-        result_layout.addWidget(result_title)
+        # Resultado
+        result_label = QLabel(f"🟢 RESULTADO DE {operation.upper():}")
 
-        # Widget de matriz resultado
-        # Mostrar resultado especial si no es Matrix tradicional
+        result_label.setAlignment(Qt.AlignCenter)
+        result_label.setStyleSheet("font-weight: bold; color: #72e48c; font-size: 20px;")
+        custom_layout.addWidget(result_label)
+
         if hasattr(result_matrix, 'rows') and hasattr(result_matrix, 'cols'):
             result_widget = self._create_matrix_widget(result_matrix, "", max_width)
         else:
             result_widget = self._create_special_result_widget(result_matrix)
-        result_layout.addWidget(result_widget, 0, Qt.AlignHCenter)
-        
-        main_layout.addWidget(result_container)
-        main_layout.addStretch()
+        custom_layout.addWidget(result_widget, alignment=Qt.AlignCenter)
 
-        # Botón para cerrar
-        btn_container = QWidget()
-        btn_layout = QHBoxLayout(btn_container)
-        btn_layout.setContentsMargins(0, 0, 0, 0)
-        
-        close_btn = QPushButton("Cerrar")
-        close_btn.setFixedWidth(120)
-        close_btn.setCursor(Qt.PointingHandCursor)
-        close_btn.clicked.connect(self.accept)
-        
-        btn_layout.addStretch()
-        btn_layout.addWidget(close_btn)
-        btn_layout.addStretch()
-        
-        main_layout.addWidget(btn_container)
+        content_layout.addWidget(custom_widget)
+        main_layout.addLayout(content_layout)
+
+        # Botón cerrar
+        button = QPushButton("Aceptar")
+        button.setObjectName("ctaButton")
+        button.setCursor(Qt.PointingHandCursor)
+        button.clicked.connect(self.accept)
+        button.setFixedWidth(150)
+
+        button_layout = QHBoxLayout()
+        button_layout.addStretch()
+        button_layout.addWidget(button)
+        button_layout.addStretch()
+        main_layout.addLayout(button_layout)
+
         self.adjustSize()
-
-    def mousePressEvent(self, event):
-        """Captura la posición del ratón para mover la ventana."""
-        if event.button() == Qt.LeftButton:
-            self._drag_position = event.globalPosition().toPoint()
-
-    def mouseMoveEvent(self, event):
-        """Permite mover la ventana arrastrando."""
-        if self._drag_position:
-            delta = event.globalPosition().toPoint() - self._drag_position
-            self.move(self.pos() + delta)
-            self._drag_position = event.globalPosition().toPoint()
-
-    def mouseReleaseEvent(self, event):
-        """Libera la posición de arrastre."""
-        self._drag_position = None
 
     def _create_matrix_widget(self, matrix, title, max_width=None):
         """Crea un widget de matriz con estilo consistente"""

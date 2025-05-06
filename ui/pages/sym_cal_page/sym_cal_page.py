@@ -12,7 +12,7 @@ class SymCalPage(BaseOperationPage):
             "Integrales": ("integrales", SymCalOpWidget),
         }
 
-        page_title = "Operaciones {Simbólicas}"
+        page_title = "Cálculo Simbólico de {Funciones}"
         intro_text = (
             "👋 Bienvenido a la sección de operaciones simbólicas\n\n"
             "📌 En esta sección podrás ingresar funciones y ecuaciones para resolver operaciones simbólicas.\n"
@@ -25,17 +25,17 @@ class SymCalPage(BaseOperationPage):
     def execute_current_operation(self):
         visible_key = next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)
         if not visible_key:
-            self.show_message_dialog("🔴 ERROR", f"No se encontró operación para clave '{self.current_operation}'")
+            self.show_message_dialog("🔴 ERROR", "#f44336", f"No se encontró operación para clave '{self.current_operation}'")
             return
 
         widget = self.operation_widgets.get(visible_key)
         if not widget:
-            self.show_message_dialog("🔴 ERROR", "No se encontró el widget de la operación.")
+            self.show_message_dialog("🔴 ERROR", "#f44336", "No se encontró el widget de la operación.")
             return
 
         is_valid, error_msg = widget.validate_operation()
         if not is_valid:
-            self.show_message_dialog("🟡 VALIDACIÓN", error_msg)
+            self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", error_msg)
             return
 
         try:
@@ -43,9 +43,9 @@ class SymCalPage(BaseOperationPage):
             html = widget.prepare_result_display(result)
             self.show_result(result, html)
         except ValueError as e:
-            self.show_message_dialog("🔴 ERROR", str(e))
+            self.show_message_dialog("🔴 ERROR", "#f44336", str(e))
         except Exception as e:
-            self.show_message_dialog("🔴 ERROR", f"Error inesperado: {str(e)}")
+            self.show_message_dialog("🔴 ERROR", "#f44336", f"Error inesperado: {str(e)}")
 
     def show_result(self, result, message):
         widget = self.operation_widgets.get(

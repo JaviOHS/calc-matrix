@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QSpinBox, QTextEdit, QWidget
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QSpinBox, QWidget
 from PySide6.QtCore import Qt
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from utils.formatting import format_math_expression

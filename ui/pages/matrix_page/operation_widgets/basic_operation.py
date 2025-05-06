@@ -1,7 +1,7 @@
 from model.matrix_manager import MatrixManager
 from controller.matrix_controller import MatrixController
 from ui.widgets.math_operation_widget import MathOperationWidget
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QTableWidget, QLabel, QTableWidgetItem, QSpinBox, QScrollArea, QSizePolicy, QGridLayout, QHBoxLayout
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QTableWidget, QLabel, QTableWidgetItem, QSpinBox, QScrollArea, QSizePolicy, QGridLayout, QHBoxLayout, QHeaderView
 from PySide6.QtCore import QEvent, Qt
 from model.matrix_model import Matrix
 from utils.validators import is_valid_number
@@ -119,17 +119,14 @@ class MatrixOperationWidget(MathOperationWidget):
         table.setShowGrid(True)
         
         # Configurar tamaño de celdas
-        table.horizontalHeader().setDefaultSectionSize(cell_size)
-        table.verticalHeader().setDefaultSectionSize(cell_size)
+        table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        table.verticalHeader().setSectionResizeMode(QHeaderView.Stretch)
         table.horizontalHeader().setMinimumSectionSize(30)
         table.verticalHeader().setMinimumSectionSize(30)
         table.setWordWrap(False)
         
-        # Ajustar el tamaño de la tabla al contenido
-        table.setFixedSize(
-            cols * cell_size + 2,  # +2 para los bordes
-            rows * cell_size + 2 + label.sizeHint().height()  # +2 para bordes + altura de la etiqueta
-        )
+        table.setMaximumSize(cols * cell_size + 4, rows * cell_size + 4)
+
 
         # Llenar la tabla con valores predeterminados (1 en todas las celdas)
         for r in range(rows):
@@ -159,22 +156,22 @@ class MatrixOperationWidget(MathOperationWidget):
         spacing = self.matrices_grid.horizontalSpacing()
 
         # Calcular el número máximo de columnas que caben
-        min_table_width = dimension * 30  # Ancho mínimo basado en celdas de 30px
+        min_table_width = dimension * 50  # Ancho mínimo basado en celdas de 30px
         max_columns = max(1, available_width // (min_table_width + spacing))
         max_columns = min(max_columns, matrix_count)  # No más columnas que matrices
 
         # Calcular el tamaño de celda óptimo
         if max_columns > 0:
-            cell_size_width = max(30, (available_width - (spacing * (max_columns - 1))) // (max_columns * dimension))
+            cell_size_width = max(50, (available_width - (spacing * (max_columns - 1))) // (max_columns * dimension))
             
             # También considerar la altura disponible
             estimated_label_height = 20  # Altura estimada de la etiqueta
             rows_needed = (matrix_count + max_columns - 1) // max_columns
             cell_size_height = max(30, (available_height - (spacing * (rows_needed - 1) - estimated_label_height * rows_needed)) // (rows_needed * dimension))
             
-            cell_size = min(cell_size_width, cell_size_height, 40)  # Usar el menor de los dos y limitar a 60px máximo
+            cell_size = min(cell_size_width, cell_size_height, 60)  # Usar el menor de los dos y limitar a 60px máximo
         else:
-            cell_size = 40  # Valor por defecto
+            cell_size = 60  # Valor por defecto
 
         self.tables = []  # Limpiar tablas previas
 

@@ -39,7 +39,7 @@ class MatrixPage(BaseOperationPage):
         
         if not label_key:
             error_msg = f"No se encontró el widget para la operación: {self.current_operation}"
-            self.show_message_dialog("Error", error_msg)
+            self.show_message_dialog("🔴 ERROR", "#f44336", error_msg)
             return
 
         widget = self.operation_widgets.get(label_key)
@@ -54,10 +54,10 @@ class MatrixPage(BaseOperationPage):
             self.show_result(result, f"{self.current_operation.capitalize()} realizada correctamente", label_key)
 
         except ValueError as e:
-            self.show_message_dialog("🔴 ERROR", str(e))
+            self.show_message_dialog("🔴 ERROR", "#f44336", str(e))
 
         except Exception as e:
-            self.show_message_dialog("🔴 ERROR", f"Error inesperado: {str(e)}")
+            self.show_message_dialog("🔴 ERROR", "#f44336", f"Error inesperado: {str(e)}")
             
     def show_result(self, result, message, operation_name=""):
         mostrar_matrices = ["Determinante", "Inversa", "Sistema de Ecuaciones"] # Implementar solución para determinante e inversa en el futuro :)
@@ -77,7 +77,7 @@ class MatrixPage(BaseOperationPage):
                         dialog = MatrixResultDialog([], inverse_matrix, operation=operation_name, parent=self)
                         dialog.exec()
                     else:  # Si es un error (string), muestra el mensaje
-                        self.show_message_dialog("🔴 ERROR", inverse_matrix)
+                        self.show_message_dialog("🔴 ERROR", "#f44336", inverse_matrix)
                 return
 
         if isinstance(result, Matrix):

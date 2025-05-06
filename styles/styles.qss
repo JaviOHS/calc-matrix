@@ -51,15 +51,9 @@ QPushButton[class="sidebar-button"][active="true"] {
     color: rgb(28, 44, 66);
 }
 
-/* === INPUTS Y SPINBOX === {
-    background-color: #2a2a3d;
-    border: 2px solid #1c2c42;
-    border-radius: 16px;
-    padding: 16px;
-}
-
 QAbstractSpinBox#dim_spinbox,
-QAbstractSpinBox#matrix_count_spinbox {
+QAbstractSpinBox#matrix_count_spinbox,
+QAbstractSpinBox#input_double_spinbox {
     background: transparent;
     border: none;
     border-bottom: 2px solid #1c2c42;
@@ -69,7 +63,8 @@ QAbstractSpinBox#matrix_count_spinbox {
 }
 
 QAbstractSpinBox#dim_spinbox:focus,
-QAbstractSpinBox#matrix_count_spinbox:focus {
+QAbstractSpinBox#matrix_count_spinbox:focus,
+QAbstractSpinBox#input_double_spinbox:focus {
     border-bottom: 2px solid #ff8103;
 }
 

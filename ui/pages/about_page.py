@@ -1,82 +1,142 @@
 from utils.resources import resource_path
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QIcon, QDesktopServices, QPixmap
-from PySide6.QtCore import QUrl
+from utils.icon_utils import colored_svg_icon
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy
+from PySide6.QtCore import Qt, QUrl, QSize
+from PySide6.QtGui import QDesktopServices, QPixmap, QColor
 
 class AboutPage(QWidget):
-    def __init__(self, parent=None):
-        super(AboutPage, self).__init__(parent)
+    def __init__(self, navigate_callback=None):
+        super(AboutPage, self).__init__()
+        self.navigate_callback = navigate_callback
+        self.setup_ui()
 
-        # Layout principal similar al de MainHomePage
+    def setup_ui(self):
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(50, 30, 50, 30)
-        main_layout.setSpacing(40)
+        main_layout.setContentsMargins(40, 30, 40, 30)
+        main_layout.setSpacing(0)
 
-        # Contenedor de contenido con margen y separación
-        content_container = QWidget()
-        content_layout = QHBoxLayout(content_container)
-        content_layout.setContentsMargins(0, 0, 0, 0)
-        content_layout.setSpacing(40)
+        container = QWidget()
+        container.setObjectName("mainContainer")
+        container_layout = QHBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(40)
 
-        # Texto informativo alineado a la izquierda
-        text_container = QWidget()
-        text_layout = QVBoxLayout(text_container)
-        text_layout.setContentsMargins(0, 0, 0, 0)
+        text_widget = QWidget()
+        text_widget.setObjectName("textSection")
+        text_layout = QVBoxLayout(text_widget)
+        text_layout.setContentsMargins(30, 40, 30, 40)
         text_layout.setSpacing(20)
 
-        # Título principal
-        title_label = QLabel("""
-            <span style='font-size:38px; font-weight:bold; color:white;'>
-                Acerca de <span style='color:#e74c3c;'>Calc</span><span style='color:#3498db;'>Matrix</span>
-            </span>
-        """)
-        title_label.setTextFormat(Qt.RichText)
-        text_layout.addWidget(title_label)
+        title = QLabel("Información sobre el desarrollo")
+        title.setObjectName("heroTitle")
+        title.setStyleSheet("font-size: 36px; font-weight: bold; color: white;")
+        text_layout.addWidget(title)
 
-        # Info autor y docente
-        info_label = QLabel("""
-            <p style='font-size:18px; color:#c0c0c0; line-height:1.6;'>
-                <b>Javier Haro Soledispa</b><br>
-                Estudiante de Ingeniería de Software - 6to semestre<br><br>
-                <b>Docente:</b> Ing. Fabricio Morales Torres <br><br>
-                <b>Proyecto para la asignatura:</b><br>
-                <i>Modelos Matemáticos y Simulación</i>
-            </p>
-        """)
-        info_label.setTextFormat(Qt.RichText)
-        info_label.setWordWrap(True)
-        text_layout.addWidget(info_label)
+        subtitle_highlight = QLabel("De CalcMatrix 🧑‍💻")
+        subtitle_highlight.setObjectName("heroHighlight")
+        subtitle_highlight.setStyleSheet("font-size: 24px; font-weight: bold; color: #ff8103;")
+        text_layout.addWidget(subtitle_highlight)
 
-        # Botón GitHub
-        github_button = QPushButton(" Ver repositorio en GitHub")
-        github_icon = QIcon(resource_path("assets/icons/github.svg"))
-        github_button.setIcon(github_icon)
+        # Información del desarrollador
+        info_widget = QWidget()
+        info_layout = QVBoxLayout(info_widget)
+        info_layout.setSpacing(12)
+
+        author_info = self.create_info_item("👤", "Javier Haro Soledispa - jharos@unemi.edu.ec")
+        faculty_info = self.create_info_item("🏛️", "Facultad de Ciencias e Ingeniería")
+        career_info = self.create_info_item("🎓", "Carrera de Ingeniería de Software")
+        semester_info = self.create_info_item("📚", "Sexto Semestre - Modelos matemáticos y simulación")
+        teacher_info = self.create_info_item("👨‍🏫", "Ing. Isidro Morales Torres")
+
+        info_layout.addWidget(author_info)
+        info_layout.addWidget(faculty_info)
+        info_layout.addWidget(career_info)
+        info_layout.addWidget(semester_info)
+        info_layout.addWidget(teacher_info)
+
+        info_widget.setStyleSheet("background-color: #1f2b3d; border-radius: 10px; padding: 20px;")
+        info_widget.setMaximumWidth(500)
+        text_layout.addWidget(info_widget)
+
+        # Botón de GitHub
+        button_container = QWidget()
+        button_layout = QHBoxLayout(button_container)
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.setSpacing(20)
+
+        github_button = QPushButton("Repositorio GitHub")
+        github_button.setObjectName("ctaButton")
         github_button.setCursor(Qt.PointingHandCursor)
-        github_button.setFixedSize(260, 45)
-        github_button.setStyleSheet("""
-            QPushButton {
-                font-size: 15px;
-                padding: 10px;
-                color: white;
-                border-radius: 8px;
-            }
-        """)
-        github_button.clicked.connect(self.open_github_repo)
-        text_layout.addWidget(github_button, alignment=Qt.AlignLeft)
+        icon_path = resource_path("assets/icons/github.svg")
+        icon = colored_svg_icon(icon_path, QColor(28, 44, 66))
+        github_button.setIcon(icon)
+        github_button.setIconSize(QSize(20, 20))
+        github_button.clicked.connect(self.open_github)
+
+        button_layout.addWidget(github_button)
+        button_layout.addStretch()
+
+        text_layout.addWidget(button_container)
         text_layout.addStretch()
 
-        # Imagen decorativa a la derecha (opcional)
-        image_label = QLabel()
-        pixmap = QPixmap(resource_path("assets/images/intro/about.png"))
-        image_label.setPixmap(pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        image_label.setAlignment(Qt.AlignCenter)
+        # Imagen (puedes cambiarla por una relevante)
+        image_widget = QWidget()
+        image_widget.setObjectName("imageSection")
+        image_layout = QVBoxLayout(image_widget)
+        image_layout.setContentsMargins(0, 0, 0, 0)
 
-        # Agregar al layout principal
-        content_layout.addWidget(text_container, 1)
-        content_layout.addWidget(image_label, 0, Qt.AlignTop)
-        main_layout.addWidget(content_container)
+        image_container = QWidget()
+        image_container.setObjectName("imageContainer")
+        image_container_layout = QVBoxLayout(image_container)
+        image_container_layout.setContentsMargins(0, 0, 0, 0)
 
-    def open_github_repo(self):
-        url = QUrl("https://github.com/TU_USUARIO/TU_REPOSITORIO")  # Reemplázalo con tu URL real
-        QDesktopServices.openUrl(url)
+        image = QLabel()
+        pixmap = QPixmap(resource_path("assets/images/intro/about.png"))  # Puedes cambiar esta imagen
+        image.setPixmap(pixmap.scaled(230, 230, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        image.setAlignment(Qt.AlignCenter)
+        image_container_layout.addWidget(image)
+
+        image_layout.addWidget(image_container)
+
+        container_layout.addWidget(text_widget, 5)
+        container_layout.addWidget(image_widget, 4)
+
+        main_layout.addWidget(container)
+
+    def create_info_item(self, icon, text):
+        widget = QWidget()
+        layout = QHBoxLayout(widget)
+        layout.setContentsMargins(6, 4, 6, 4)
+        layout.setSpacing(8)
+
+        icon_label = QLabel(icon)
+        icon_label.setObjectName("featureIcon")
+        icon_label.setAlignment(Qt.AlignCenter)
+        icon_label.setStyleSheet("font-size: 24px; color: #ff8103;")
+        icon_label.setFixedWidth(32)
+
+        text_label = QLabel(text)
+        text_label.setObjectName("featureText")
+        text_label.setStyleSheet("""
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            padding-left: 6px;
+            border-left: 2px solid #ff8103;
+        """)
+        text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+        layout.addWidget(icon_label)
+        layout.addWidget(text_label)
+
+        widget.setStyleSheet("""
+            background-color: #2e3b4e;
+            border-radius: 6px;
+            padding: 6px;
+        """)
+
+        return widget
+
+    def open_github(self):
+        github_url = QUrl("https://github.com/JaviOHS/calc-matrix")
+        QDesktopServices.openUrl(github_url)

@@ -121,6 +121,7 @@ class ExpressionOpWidget(MathOperationWidget):
             canvas.draw()
             dialog = MessageDialog(
                 title="🟢 ÉXITO GENERANDO GRÁFICA",
+                title_color="#7cb342",
                 image_name="success.png",
                 parent=self,
                 custom_widget=canvas

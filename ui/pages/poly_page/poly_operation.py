@@ -38,7 +38,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
             self.x_input.setValue(1.0)
             self.x_input.setFixedWidth(100)
             self.x_input.setAlignment(Qt.AlignCenter)
-            self.x_input.setObjectName("dim_spinbox")
+            self.x_input.setObjectName("input_double_spinbox")
             x_layout.addWidget(self.x_input)
             
             top_layout.addWidget(x_container)
