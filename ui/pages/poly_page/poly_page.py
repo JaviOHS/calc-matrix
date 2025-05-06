@@ -15,14 +15,14 @@ class PolynomialPage(BaseOperationPage):
             "Evaluación": ("evaluacion", PolynomialOpWidget),
         }
 
+        page_title = "Operaciones con {Polinomios}"
         intro_text = (
-            "Bienvenido a la sección de operaciones con polinomios.\n\n"
-            "Puedes realizar operaciones combinadas (suma, resta, multiplicación, división),\n"
-            "obtener raíces, derivadas, integrales y evaluación de polinomios.\n"
+            "👋 Bienvenido a la sección de operaciones con polinomios.\n\n"
+            "📌 En esta sección podrás realizar operaciones combinadas con polinomios.\n"
+            "📌 Tambien podrás calcular raíces, derivadas, integrales y evaluar polinomios.\n"
         )
 
         intro_image_path = "assets/images/intro/polynomial.png"
-        page_title = "Operaciones con Polinomios"
 
         super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
 

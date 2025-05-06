@@ -7,7 +7,7 @@ import sys
 app = QApplication(sys.argv)
 
 # Configurar la fuente principal 
-font_path = resource_path("assets/fonts/Dosis-Regular.ttf")
+font_path = resource_path("assets/fonts/FiraSans-Regular.ttf")
 font_id = QFontDatabase.addApplicationFont(font_path)
 families = QFontDatabase.applicationFontFamilies(font_id)
 

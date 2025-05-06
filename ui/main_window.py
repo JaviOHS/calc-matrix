@@ -2,6 +2,7 @@ from utils.resources import resource_path
 from ui.sidebar import Sidebar
 from ui.navbar import TopNavbar
 import getpass
+from PySide6.QtCore import Qt
 
 from ui.pages.home_page import MainHomePage
 from ui.pages.matrix_page.matrix_page import MatrixPage
@@ -56,8 +57,8 @@ class MainWindow(QMainWindow):
         self.page_container_layout.setContentsMargins(0, 0, 0, 0)
         self.page_container_layout.setSpacing(0)
 
-        username = f'@{getpass.getuser()}'
-        self.navbar = TopNavbar(self.toggle_sidebar, username=username.upper())
+        username = f'@{getpass.getuser().capitalize()}'
+        self.navbar = TopNavbar(self, self.toggle_sidebar, username=username)
         self.page_container_layout.addWidget(self.navbar)
 
         # Widget de contenido real (donde irán las páginas)
@@ -72,6 +73,9 @@ class MainWindow(QMainWindow):
 
         self.current_page = None # Página actual
         self.show_page("home")
+        self.setWindowFlags(Qt.FramelessWindowHint)
+        self.show()
+        self.showMaximized()
 
     def toggle_sidebar(self):
         visible = self.sidebar.isVisible()
@@ -104,3 +108,4 @@ class MainWindow(QMainWindow):
         
         self.current_page = self.pages[name]
         self.page_layout.addWidget(self.current_page)
+        self.sidebar.set_active_button(name)

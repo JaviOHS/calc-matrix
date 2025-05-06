@@ -22,10 +22,11 @@ class ExpressionOpWidget(MathOperationWidget):
         title_label = QLabel(self.input_label_text)
         title_label.setAlignment(Qt.AlignLeft)
         self.layout.addWidget(title_label)
+        title_label.setContentsMargins(20, 0, 0, 0)
 
         input_widget = QWidget()
         input_layout = QVBoxLayout(input_widget)
-        input_layout.setContentsMargins(0, 0, 0, 0)
+        input_layout.setContentsMargins(20, 0, 0, 0)
         input_layout.setSpacing(8)
 
         self.expression_input = QTextEdit()
@@ -44,7 +45,7 @@ class ExpressionOpWidget(MathOperationWidget):
             self.result_display.setFrameStyle(QTextEdit.NoFrame)
             self.result_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
             self.result_display.setMinimumHeight(70)
-            self.result_display.setStyleSheet("font-family: Dosis; font-size: 18px; font-weight: 600;")
+            self.result_display.setStyleSheet("font-size: 18px; font-weight: 600;")
             self.result_display.setText("⭐ Aquí se mostrará la solución")
             result_layout.addWidget(self.result_display, stretch=1)
 

@@ -27,7 +27,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         if self.operation_type == "integrales":
             self.limits_widget = QWidget()
             limits_layout = QHBoxLayout(self.limits_widget)
-            limits_layout.setContentsMargins(0, 0, 0, 0)
+            limits_layout.setContentsMargins(20, 0, 0, 0)
 
             limits_layout.addWidget(QLabel("Desde x ="))
             self.lower_limit = QSpinBox()

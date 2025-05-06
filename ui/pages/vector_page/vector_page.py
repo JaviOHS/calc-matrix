@@ -16,14 +16,14 @@ class VectorPage(BaseOperationPage):
             "Producto cruzado": ("producto_cruzado", VectorOpWidget),
         }
 
+        page_title = "Operaciones con {Vectores}"
         intro_text = (
-            "Bienvenido a la sección de operaciones con vectores.\n\n"
-            "Puedes realizar operaciones básicas (suma, resta, división, división por escalar),\n"
-            "obtener magnitud y operaciones para hallar el producto de vectores.\n"
+            "👋 Bienvenido a la sección de operaciones con vectores.\n\n"
+            "📌 Podrás realizar operaciones básicas con vectores, como: suma, resta, división por escalar).\n"
+            "📌 Tambien podrás obtener la magnitud de un vector y realizar operaciones para hallar el producto de vectores.\n"
         )
 
         intro_image_path = "assets/images/intro/vector.png"
-        page_title = "Operaciones con Vectores"
         super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
         
     def execute_current_operation(self):

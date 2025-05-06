@@ -24,7 +24,7 @@ class MatrixOperationWidget(MathOperationWidget):
         # Configuración de dimensiones
         config_widget = QWidget()
         config_layout = QHBoxLayout(config_widget)
-        config_layout.setContentsMargins(0, 0, 0, 0)
+        config_layout.setContentsMargins(20, 0, 0, 0)
 
         # Dimensiones
         self.dim_label = QLabel("Dimensión de la matriz:" if not self.allow_multiple_matrices else "Dimensión de las matrices (n x n):")
@@ -88,7 +88,6 @@ class MatrixOperationWidget(MathOperationWidget):
             self.update_matrix_tables()
 
         self.scroll_area.viewport().installEventFilter(self)
-
 
     def create_table(self, rows, cols, label_text, cell_size=50):
         widget = QWidget()
@@ -204,7 +203,6 @@ class MatrixOperationWidget(MathOperationWidget):
         # Forzar actualización del layout
         self.scroll_content.updateGeometry()
         self.scroll_area.updateGeometry()
-
 
     def collect_matrices(self):
         matrices = []

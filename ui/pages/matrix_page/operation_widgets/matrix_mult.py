@@ -16,7 +16,7 @@ class MatrixMultiplicationWidget(MatrixOperationWidget):
         # Crear widgets para la configuración específica de la multiplicación
         self.dim_config_widget = QWidget()
         config_layout = QHBoxLayout(self.dim_config_widget)
-        config_layout.setContentsMargins(0, 0, 0, 0)
+        config_layout.setContentsMargins(20, 0, 0, 0)
 
         # Crear spinboxes para dimensiones de las matrices
         self.a_rows = QSpinBox()

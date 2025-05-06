@@ -20,11 +20,11 @@ class PolynomialOpWidget(ExpressionOpWidget):
             # Crear un contenedor horizontal para toda la línea
             top_row = QWidget()
             top_layout = QHBoxLayout(top_row)
-            top_layout.setContentsMargins(0, 0, 0, 0)
+            top_layout.setContentsMargins(20, 0, 0, 0)
             top_layout.setSpacing(10)
             
             # Texto descriptivo
-            instruction_label = QLabel("Ingrese el polinomio y el valor de x, a evaluar:") # Mismo label para valores de x
+            instruction_label = QLabel("Ingrese el polinomio y el valor de `x` a evaluar:") # Mismo label para valores de x
             top_layout.addWidget(instruction_label)
             
             # Contenedor para el input de x

@@ -1,7 +1,7 @@
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
 import matplotlib.pyplot as plt
 from sympy import lambdify
-from parsers.expression_parser import ExpressionParser
+from utils.parsers.expression_parser import ExpressionParser
 
 class GraphController:
     def __init__(self, manager):

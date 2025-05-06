@@ -12,13 +12,13 @@ class GraphPage(BaseOperationPage):
             "Gráficas 3D": ("graficas_3d", Graph3DWidget),
         }
 
+        page_title = "Creación de {Gráficas}"
         intro_text = (
-            "Bienvenido a la sección de gráfica de funciones.\n\n"
-            "Aquí podrás visualizar gráficas en 2 y en 3 dimensiones\n"
+            "👋 Bienvenido a la sección de gráfica de funciones.\n\n"
+            "📌 Aquí podrás ingresar funciones para visualizar gráficas en 2D y 3D.\n"
         )
 
         intro_image_path = "assets/images/intro/graph.png"
-        page_title = "Creación de Gráficas"
         super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
 
     def execute_current_operation(self):

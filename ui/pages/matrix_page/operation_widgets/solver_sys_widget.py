@@ -58,7 +58,7 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
         self.system_table.setHorizontalHeaderLabels(headers)
 
         # Tamaño de celdas
-        cell_size = 40
+        cell_size = 50
         self.system_table.horizontalHeader().setDefaultSectionSize(cell_size)
         self.system_table.verticalHeader().setDefaultSectionSize(cell_size)
         self.system_table.setFixedSize((self.dim + 1) * cell_size + 2, (self.dim * cell_size) + self.system_table.horizontalHeader().sizeHint().height() + 2)
@@ -132,3 +132,4 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
             self.show_message_dialog("Error", str(e))
         except Exception as e:
             self.show_message_dialog("Error", f"Error inesperado: {str(e)}")
+            

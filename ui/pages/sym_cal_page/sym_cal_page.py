@@ -12,13 +12,14 @@ class SymCalPage(BaseOperationPage):
             "Integrales": ("integrales", SymCalOpWidget),
         }
 
+        page_title = "Operaciones {Simbólicas}"
         intro_text = (
-            "Bienvenido a la sección de operaciones simbólicas\n\n"
-            "Puedes resolver operaciones como derivadas e integrales.\n"
+            "👋 Bienvenido a la sección de operaciones simbólicas\n\n"
+            "📌 En esta sección podrás ingresar funciones y ecuaciones para resolver operaciones simbólicas.\n"
+            "📌 Integrales, derivadas y ecuaciones diferenciales."
         )
 
         intro_image_path = "assets/images/intro/sym_cal.png"
-        page_title = "Operaciones Simbólicas"
         super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
         
     def execute_current_operation(self):

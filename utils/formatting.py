@@ -64,15 +64,15 @@ def format_math_expression(expr, result, operation_type="generic"):
 
         # Encabezado del resultado
         header = (
-            f"<div style='font-family: Dosis, sans-serif;'>"
+            f"<div>"
             f"<span style='font-weight: 600; color: #4CAF50;'>🟢 Resultado de la operación:</span>"
-            f"<div style='font-family: Dosis; font-weight: 600;'>"
+            f"<div style='font-weight: 600;'>"
             f"Polinomio: <span style='font-family: Cambria Math; color: #666;'>{formatted_expr}</span><br>"
             f"</div>"
         )
 
         title_html = (
-            "<span style='font-family: Dosis; font-weight: 600;'>"
+            "<span style='font-weight: 600;'>"
             "Raíces encontradas:</span><br>"
         )
 
@@ -107,7 +107,7 @@ def format_math_expression(expr, result, operation_type="generic"):
         formatted_result = format_vector(result)
         
         return (
-            f"<div style='font-family: Dosis, sans-serif;'>"
+            f"<div>"
             f"<span style='font-weight: 600; color: #4CAF50;'>🟢 Resultado de la operación:</span>"
             f"<div style='margin: 8px 0; font-family: Cambria Math;'>"
             f"<span>{formatted_expr}</span> = <span style='color: #2196F3;'>{formatted_result}</span>"
@@ -121,7 +121,7 @@ def format_math_expression(expr, result, operation_type="generic"):
         formatted_result = format_polynomial(result)
         
         return (
-            f"<div style='font-family: Dosis, sans-serif;'>"
+            f"<div>"
             f"<span style='font-weight: 600; color: #4CAF50;'>🟢 Resultado de la operación:</span>"
             f"<div style='margin: 8px 0; font-family: Cambria Math, serif;'>"
             f"<span>{formatted_expr}</span> = <span style='color: #2196F3;'>{formatted_result}</span>"

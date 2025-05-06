@@ -1,19 +1,16 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
-from PySide6.QtGui import QIcon
+from PySide6.QtGui import QColor, QPixmap
 from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QPixmap
 from utils.resources import resource_path
+from utils.icon_utils import colored_svg_icon
 
 class Sidebar(QWidget):
     def __init__(self, switch_page_callback):
         super().__init__()
-
-        # Configuración de la barra lateral 
         self.setFixedWidth(200)
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(10, 10, 10, 10)  # Margenes de Sidebar
+        self.layout.setContentsMargins(10, 10, 10, 10)
 
-        # Logo e ícono 
         logo_label = QLabel()
         image_path = resource_path("assets/icons/app.png")
         pixmap = QPixmap(image_path)
@@ -21,24 +18,18 @@ class Sidebar(QWidget):
         logo_label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(logo_label)
 
-        # Nombre de la aplicación 
         name_label = QLabel("""
             <span style='font-size:28px; font-weight:bold; color:white;'>
                 <span style='color:#e74c3c;'>Calc</span><span style='color:#3498db;'>Matrix</span>
             </span>
         """)
         name_label.setAlignment(Qt.AlignCenter)
-        name_label.setProperty("class", "sidebar-title")
         self.layout.addWidget(name_label)
-
-        # Espacio entre encabezado y botones 
         self.layout.addSpacing(10)
 
-        # Para botones activos
         self.buttons = {}
         self.active_button = None
 
-        # Botones de la barra lateral 
         items = {
             "Inicio": "home",
             "Matrices": "matrix",
@@ -49,18 +40,24 @@ class Sidebar(QWidget):
             "Acerca de": "about",
         }
 
-        # Estilo de botones 
         for name, key in items.items():
             btn = QPushButton(name)
             btn.setProperty("class", "sidebar-button")
-            btn.setProperty("active", False)  # Importante
+            btn.setProperty("active", False)
+
             icon_path = resource_path(f"assets/icons/{key.lower()}.svg")
-            icon = QIcon(icon_path)
+            icon = colored_svg_icon(icon_path, QColor(154, 154, 155))
             btn.setIcon(icon)
             btn.setIconSize(QSize(24, 24))
             btn.setCursor(Qt.PointingHandCursor)
             self.layout.addWidget(btn)
-            self.buttons[key] = btn
+
+            # Guardamos tanto el botón como el path del ícono
+            self.buttons[key] = {
+                "button": btn,
+                "icon_path": icon_path
+            }
+
             btn.clicked.connect(lambda _, k=key: self.on_button_clicked(k, switch_page_callback))
 
         self.layout.addStretch()
@@ -71,10 +68,15 @@ class Sidebar(QWidget):
         callback(key)
 
     def set_active_button(self, key):
-        for k, btn in self.buttons.items():
+        for k, data in self.buttons.items():
+            btn = data["button"]
+            icon_path = data["icon_path"]
             is_active = (k == key)
+
             btn.setProperty("active", is_active)
             btn.style().unpolish(btn)
             btn.style().polish(btn)
             btn.update()
-            
+
+            color = QColor(28, 44, 66) if is_active else QColor(154, 154, 155)
+            btn.setIcon(colored_svg_icon(icon_path, color))

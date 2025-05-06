@@ -1,5 +1,5 @@
 import numpy as np
-from parsers.vector_parser import VectorParser
+from utils.parsers.vector_parser import VectorParser
 
 class VectorController:
     def __init__(self, manager):

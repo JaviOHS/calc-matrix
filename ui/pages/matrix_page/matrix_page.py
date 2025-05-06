@@ -23,22 +23,16 @@ class MatrixPage(BaseOperationPage):
             "Sistema de Ecuaciones": ("sistema", MatrixSystemSolverWidget)
         }
 
+        page_title = "Operaciones con {Matrices}"
         intro_text = (
-            "Bienvenido a la sección de operaciones con matrices.\n\n"
-            "Puedes realizar suma, resta, multiplicación, obtener determinantes,\n"
-            "inversas o resolver sistemas de ecuaciones lineales.\n"
+            "👋 Bienvenido a la sección de operaciones con matrices.\n\n"
+            "📌 Puedes realizar operaciones básicas con matrices, como: suma, resta, multiplicación.\n"
+            "📌 Támbien puedes obtener el determinante, calcular inversas o resolver sistemas de ecuaciones lineales.\n"
         )
 
         intro_image_path = "assets/images/intro/matrix.png"
-        page_title = "Operaciones con Matrices"
 
         super().__init__(manager, self.controller, operations, intro_text, intro_image_path, page_title)
-
-    # def prepare_operation(self, operation_key):
-    #     op_key, widget_class = self.operations[operation_key]
-    #     self.current_operation = op_key
-    #     super().prepare_operation(operation_key)
-    #     self.title_label.setText(f"{self.page_title} - {operation_key}")
     
     def execute_current_operation(self):
         label_key = next((label for label, (op_key, _) in self.operations.items() if op_key == self.current_operation), None)

@@ -1,11 +1,9 @@
 from utils.resources import resource_path
-from PySide6.QtGui import QPixmap, QIcon
+from PySide6.QtGui import QPixmap, QAction, QColor
 from PySide6.QtCore import Qt, QSize, QPoint
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QLabel, QSizePolicy
-import os
-
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QLabel, QMenu
 from ui.dialogs.message_dialog import MessageDialog
-from ui.widgets.floating_sidebar import FloatingSidebar
+from utils.icon_utils import colored_svg_icon
 
 class BaseOperationPage(QWidget):
     def __init__(self, manager, controller, operations_dict, intro_text, intro_image_path, page_title):
@@ -19,7 +17,7 @@ class BaseOperationPage(QWidget):
 
         self.intro_text = intro_text
         self.intro_image_path = intro_image_path
-        self.page_title = page_title
+        self.page_title = page_title  # Formato: "Operaciones con {Ej. Matrices}"
 
         self.intro_widget = self.create_intro_widget()
         self.init_ui()
@@ -27,110 +25,187 @@ class BaseOperationPage(QWidget):
     def init_ui(self):
         # Layout principal
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setContentsMargins(40, 30, 40, 30)  # Márgenes similares a MainHomePage
         self.layout.setSpacing(0)
 
-        # Contenedor principal para el contenido
-        self.content_container = QWidget()
-        self.content_container.setObjectName("contentContainer")
-        self.content_layout = QVBoxLayout(self.content_container)
-        self.content_layout.setContentsMargins(10, 10, 10, 10)
-        self.content_layout.setSpacing(0)
+        # Contenedor para el título de operación (visible solo durante operaciones)
+        self.operation_title_container = QWidget()
+        self.operation_title_container.setObjectName("operationTitleContainer")
+        self.operation_title_container.hide()  # Oculto inicialmente
+        
+        operation_title_layout = QHBoxLayout(self.operation_title_container)
+        operation_title_layout.setContentsMargins(30, 20, 10, 10)
+        
+        self.operation_title_label = QLabel()
+        self.operation_title_label.setObjectName("operationTitle")
+        self.operation_title_label.setStyleSheet("""
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+        """)
+        
+        operation_title_layout.addWidget(self.operation_title_label)
+        operation_title_layout.addStretch()
+        
+        self.layout.addWidget(self.operation_title_container)
 
-        # Contenedor para el título
-        title_container = QWidget()
-        title_layout = QHBoxLayout(title_container)
-        title_layout.setContentsMargins(0, 0, 0, 0)
+        # Contenedor principal (texto izquierda, imagen derecha)
+        container = QWidget()
+        container.setObjectName("mainContainer")
+        container_layout = QHBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(40)
 
-        # Título
-        self.title_label = QLabel(self.page_title)
-        self.title_label.setObjectName("title_label")
-        self.title_label.setAlignment(Qt.AlignLeft)
-        title_layout.addWidget(self.title_label)
+        # --- Sección de texto (izquierda) ---
+        text_widget = QWidget()
+        text_widget.setObjectName("textSection")
+        text_layout = QVBoxLayout(text_widget)
+        text_layout.setContentsMargins(30, 40, 30, 40)  # Añadidos márgenes internos como en MainHomePage
+        text_layout.setSpacing(20)
 
-        self.content_layout.addWidget(title_container)
-
-        # Stacked widget para el contenido principal
-        self.stacked_widget = QStackedWidget()
-        self.stacked_widget.addWidget(self.intro_widget)
-        self.content_layout.addWidget(self.stacked_widget, 1)
-
-        # Botón flotante
-        button_path = resource_path("assets/icons/options.svg")
-        self.toggle_button = QPushButton(self.content_container)
-        self.toggle_button.setIcon(QIcon(button_path))
-        self.toggle_button.setText("Opciones")
-        self.toggle_button.setIconSize(QSize(24, 24))
-        self.toggle_button.clicked.connect(self.toggle_sidebar)
-        self.toggle_button.setObjectName("toggle_button")
-        self.toggle_button.setCursor(Qt.PointingHandCursor)
-        self.toggle_button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
-        self.toggle_button.adjustSize()
-
-        # Colocar el botón inicialmente
-        self.toggle_button.move(self.width() - self.toggle_button.width() - 10, 60)
-
-        # Sidebar
-        self.sidebar = FloatingSidebar()
-        self.sidebar.setVisible(False)
-        self.add_operation_buttons()
-
-        # Añadir al layout principprepare_operational
-        self.layout.addWidget(self.content_container)
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        self.update_button_position()
-
-
-    def toggle_sidebar(self):
-        if self.sidebar.isVisible():
-            self.sidebar.hide()
+        # Título con formato especial para la parte naranja
+        title_label = QLabel()
+        title_label.setObjectName("heroTitle")
+        
+        # Procesamos el título para separar la parte naranja
+        if "{" in self.page_title and "}" in self.page_title:
+            parts = self.page_title.split("{")
+            main_text = parts[0]
+            orange_text = parts[1].replace("}", "")
+            title_label.setText(f"{main_text}<span style='color:#ff8103;'>{orange_text}</span>")
         else:
-            self.sidebar.show()
-            self.sidebar.raise_()
-            # Posicionamos el sidebar relativo al botón
-            button_pos = self.toggle_button.pos()
-            sidebar_pos = self.content_container.mapToGlobal(button_pos)
-            sidebar_pos += QPoint(-self.sidebar.width() // 2 + self.toggle_button.width() // 2, 
-                                self.toggle_button.height() + 5)
-            self.sidebar.move(self.mapFromGlobal(sidebar_pos))
+            title_label.setText(self.page_title)
+            
+        title_label.setStyleSheet("""
+            font-size: 36px; 
+            font-weight: bold; 
+            color: white;
+        """)
+        text_layout.addWidget(title_label)
 
-    def add_operation_buttons(self):
+        # Descripción con viñetas
+        description = QLabel(self.intro_text)
+        description.setObjectName("heroDescription")
+        description.setWordWrap(True)
+        description.setStyleSheet("""
+            color: #bbb; 
+            font-size: 16px; 
+            line-height: 1.5;
+            margin-top: 10px;
+        """)
+        text_layout.addWidget(description)
+
+        # Contenedor para botón y texto
+        button_container = QWidget()
+        button_layout = QHBoxLayout(button_container)
+        button_layout.setContentsMargins(0, 0, 0, 0)
+        button_layout.setSpacing(20)
+
+        button = QPushButton("Empezar")
+        button.setObjectName("ctaButton")
+        button.setCursor(Qt.PointingHandCursor)
+        icon_path = resource_path("assets/icons/go.svg")
+        icon = colored_svg_icon(icon_path, QColor(28, 44, 66)) 
+        button.setIcon(icon)
+        button.setIconSize(QSize(20, 20))
+
+        button.clicked.connect(self.start_first_operation)
+
+        # Texto al lado del botón
+        footer_text = QLabel("📚 Disfruta del mundo de las matemáticas. ")
+        footer_text.setObjectName("footerText")
+        footer_text.setStyleSheet("color: #aaa; font-size: 14px;")
+
+        button_layout.addWidget(button)
+        button_layout.addWidget(footer_text)
+        button_layout.addStretch()
+
+        text_layout.addWidget(button_container)
+        text_layout.addStretch()
+
+        # Añadir sección de texto al contenedor principal (izquierda)
+        container_layout.addWidget(text_widget, 6)  # Mayor peso para el texto
+
+        # --- Sección de imagen (derecha) ---
+        if self.intro_image_path:
+            image_widget = QWidget()
+            image_widget.setObjectName("imageSection")
+            image_layout = QVBoxLayout(image_widget)
+            image_layout.setContentsMargins(30, 40, 30, 40)  # Añadidos márgenes internos
+            image_layout.setSpacing(0)
+
+            # Contenedor de imagen con sombra
+            image_container = QWidget()
+            image_container.setObjectName("imageContainer")
+            image_container_layout = QVBoxLayout(image_container)
+            image_container_layout.setContentsMargins(0, 0, 0, 0)
+
+            # Cargar y mostrar imagen
+            image = QLabel()
+            pixmap = QPixmap(resource_path(self.intro_image_path))
+            image.setPixmap(pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+            image.setAlignment(Qt.AlignCenter)
+            image_container_layout.addWidget(image)
+
+            image_layout.addWidget(image_container)
+            container_layout.addWidget(image_widget, 4)  # Menor peso para la imagen
+
+        # Stacked widget para manejar la vista de introducción vs operación
+        self.stacked_widget = QStackedWidget()
+        self.stacked_widget.addWidget(container)
+        self.layout.addWidget(self.stacked_widget)
+
+        # --- Botón de opciones alineado a la derecha ---
+        self.toggle_button = QPushButton("Opciones")
+        self.toggle_button.setObjectName("ctaButton")
+        option_icon = colored_svg_icon(resource_path("assets/icons/options.svg"), QColor(28, 44, 66))
+        self.toggle_button.setIcon(option_icon)
+        self.toggle_button.setIconSize(QSize(20, 20))
+        self.toggle_button.setCursor(Qt.PointingHandCursor)
+        self.toggle_button.clicked.connect(self.show_dropdown_menu)
+        self.toggle_button.hide()
+
+        button_row = QWidget()
+        button_layout = QHBoxLayout(button_row)
+        button_layout.setContentsMargins(30, 0, 30, 20)  # Ajustados márgenes para alineación
+        button_layout.addStretch()
+        button_layout.addWidget(self.toggle_button)
+
+        self.layout.addWidget(button_row)
+
+    def create_intro_widget(self):
+        return QWidget()
+
+    def show_dropdown_menu(self):
+        menu = QMenu(self)
         for label, (op_key, _) in self.operations.items():
-            self.sidebar.add_button(label, lambda _, k=label: self.prepare_operation(k))
-
-    def reset_interface(self):
-        if self.current_operation:
-            widget = self.operation_widgets.get(self.current_operation)
-            if widget:
-                widget.cleanup()
-                self.manager.clear()
-                self.stacked_widget.setCurrentWidget(widget)
-                return
-
-        self.current_operation = None
-        self.title_label.setText(self.page_title)
-        self.manager.clear()
-
-        for widget in self.operation_widgets.values():
-            widget.cleanup()
-
-        self.stacked_widget.setCurrentWidget(self.intro_widget)
-        self.sidebar.set_active(None)
+            action = QAction(label, self)
+            action.triggered.connect(lambda _, k=label: self.prepare_operation(k))
+            menu.addAction(action)
+        menu.exec_(self.toggle_button.mapToGlobal(QPoint(0, self.toggle_button.height())))
 
     def prepare_operation(self, operation_key):
+        self.toggle_button.show()
+        if hasattr(self, 'main_title_container'):
+            self.main_title_container.hide()
         op_key, widget_class = self.operations[operation_key]
         self.current_operation = op_key
-        self.title_label.setText(self.page_title)
-
-        self.sidebar.set_active(operation_key)
-
+        
+        # Actualizar título de operación
+        object_name = self.get_object_name()
+        operation_title = f"{operation_key} de <span style='color:#ff8103;'>{object_name}</span>"
+        self.operation_title_label.setText(operation_title)
+        self.operation_title_container.show()
+        
         if operation_key not in self.operation_widgets:
             try:
                 widget = widget_class(self.manager, self.controller, op_key)
             except TypeError:
                 widget = widget_class(self.manager, self.controller)
+
+            # Configurar título en el widget si es necesario
+            if hasattr(widget, 'set_operation_title'):
+                widget.set_operation_title(operation_title)
 
             widget.calculate_button.clicked.connect(self.execute_current_operation)
             widget.cancel_button.clicked.connect(self.reset_interface)
@@ -140,67 +215,26 @@ class BaseOperationPage(QWidget):
 
         widget = self.operation_widgets[operation_key]
         self.stacked_widget.setCurrentWidget(widget)
-        self.toggle_button.setText(operation_key)
         self.toggle_button.adjustSize()
-        self.update_button_position()
 
-    def update_button_position(self):
-        if hasattr(self, 'toggle_button') and hasattr(self, 'title_label'):
-            margin_right = 10
-            button_initial_y = 28
+    def get_object_name(self):
+        if "{" in self.page_title and "}" in self.page_title:
+            return self.page_title.split("{")[1].replace("}", "")
+        return "Objeto"
 
-            if self.height() > 600:
-                title_height = self.title_label.height()
-                button_vertical_position = self.title_label.pos().y() + title_height // 2 - self.toggle_button.height() // 2
-                self.toggle_button.move(self.width() - self.toggle_button.width() - margin_right, button_vertical_position)
-            else:
-                self.toggle_button.move(self.width() - self.toggle_button.width() - margin_right, button_initial_y)
-    
-    def create_intro_widget(self):
-        intro_widget = QWidget()
+    def reset_interface(self):
+        self.toggle_button.hide()
 
-        # Layout principal con márgenes y espaciado igual a MainHomePage
-        main_layout = QVBoxLayout(intro_widget)
-        main_layout.setContentsMargins(10, 10, 10, 10)  # Mismos márgenes
-        main_layout.setSpacing(30)  # Mismo espaciado
-
-        # Layout horizontal para la imagen a la izquierda y contenido a la derecha
-        h_layout = QHBoxLayout()
-
-        # Layout para contenido textual
-        left_layout = QVBoxLayout()
-        left_layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        left_layout.setSpacing(20)
-
-        # Texto introductorio
-        intro_label = QLabel(self.intro_text)
-        intro_label.setWordWrap(True)
-        intro_label.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        left_layout.addWidget(intro_label)
-
-        # Botón "Empezar"
-        start_button = QPushButton("Empezar")
-        start_button.setFixedWidth(150)
-        start_button.setObjectName("start_button")
-        start_button.setCursor(Qt.PointingHandCursor)
-        start_button.clicked.connect(self.start_first_operation)
-        left_layout.addWidget(start_button, alignment=Qt.AlignLeft)
-
-        # Añadir la sección de contenido textual al layout horizontal
-        h_layout.addLayout(left_layout)
-
-        # Imagen decorativa a la derecha
-        if self.intro_image_path:
-            pixmap = QPixmap(resource_path(self.intro_image_path))
-            image_label = QLabel()
-            image_label.setPixmap(pixmap.scaled(400, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            image_label.setAlignment(Qt.AlignCenter)
-            h_layout.addWidget(image_label)
-
-        # Añadir el layout horizontal al layout principal
-        main_layout.addLayout(h_layout)
-
-        return intro_widget
+        if self.current_operation:
+            widget = self.operation_widgets.get(self.current_operation)
+            if widget:
+                widget.cleanup()
+                self.manager.clear()
+                
+        self.current_operation = None
+        self.operation_title_container.hide()
+        self.stacked_widget.setCurrentIndex(0)
+        self.layout.update()
 
     def start_first_operation(self):
         if self.operations:

@@ -13,7 +13,7 @@ class Graph2DWidget(ExpressionOpWidget):
     def add_range_inputs(self):
         self.range_widget = QWidget()
         x_layout = QHBoxLayout(self.range_widget)
-        x_layout.setContentsMargins(0, 0, 0, 0)
+        x_layout.setContentsMargins(20, 0, 0, 0)
         x_layout.setSpacing(10)
 
         x_label_from = QLabel("Desde x:")
@@ -97,7 +97,7 @@ class Graph3DWidget(ExpressionOpWidget):
     def add_range_inputs(self):
         self.range_widget = QWidget()
         main_layout = QVBoxLayout(self.range_widget)  # Layout principal vertical
-        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.setContentsMargins(20, 0, 0, 0)
         main_layout.setSpacing(10)
 
         # Layout para X

@@ -31,19 +31,3 @@ def slide_to_widget(stacked_widget, new_widget, direction='left', duration=300):
 
     # Prevenir garbage collection
     new_widget._slide_anim = (anim_old, anim_new)
-
-def fade_to_widget(stacked_widget, new_widget, duration=400):
-    stacked_widget.addWidget(new_widget)
-    stacked_widget.setCurrentWidget(new_widget)
-
-    effect = QGraphicsOpacityEffect()
-    new_widget.setGraphicsEffect(effect)
-
-    anim = QPropertyAnimation(effect, b"opacity")
-    anim.setDuration(duration)
-    anim.setStartValue(0.0)
-    anim.setEndValue(1.0)
-    anim.start()
-
-    # Prevenir garbage collection
-    new_widget._fade_anim = anim
