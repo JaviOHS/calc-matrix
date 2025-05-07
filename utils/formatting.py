@@ -2,6 +2,36 @@ import re
 import sympy as sp
 import numpy as np
 
+# Paleta de colores consistente
+COLORS = {
+    'primary': '#037df5',    # Azul principal
+    'secondary': '#fc7e00',  # Naranja para encabezados secundarios
+    'success': '#02dc0d',    # Verde para resultados exitosos
+    'error': '#D32F2F',      # Rojo para errores
+    'neutral': '#616161',    # Gris para texto auxiliar
+    'light': '#e0e0e0'       # Gris claro
+}
+
+# Iconos para diferentes tipos de secciones
+ICONS = {
+    'input': '🔍',
+    'operation': '🟠',
+    'result': '🔵',
+    'roots': '📌',
+    'error': '❌',
+    'matrix': '📊',
+}
+
+def create_section(title, content, color, icon=None):
+    """Helper para crear secciones consistentes"""
+    icon_html = f"{icon} " if icon else ""
+    return (
+        f"<div style='margin-bottom: 15px;'>"
+        f"<span style='font-weight: bold; color: {color}; margin-bottom: 5px;'>{icon_html} {title}</span>"
+        f"<span style='margin-left: 15px;'>{content}</span>"
+        f"</div>"
+    )
+
 def format_math_expression(expr, result, operation_type="generic", method=None):
     def clean_number(n):
         """Formatea números para mostrar enteros como enteros y floats con decimales significativos"""
@@ -61,26 +91,13 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             )
 
         formatted_expr = format_polynomial(expression)
+        html_result = []
 
-        header = (
-            f"<div style='margin-bottom: 15px;'>"
-            f"<div style='font-weight: bold; color: #02dc0d; margin-bottom: 8px;'>"
-            f"🔍 Análisis de Raíces"
-            f"</div>"
-            f"<div>"
-            f"<span style='font-weight: bold;'>Polinomio:</span> {formatted_expr}"
-            f"</div>"
-            f"</div>"
-        )
-
-        roots_section = (
-            "<div style='margin-top: 10px;'>"
-            "<div style='font-weight: bold; color: #02dc0d; margin-bottom: 8px;'>"
-            "📌 Raíces encontradas:"
-            "</div>"
-        )
-
-        roots_html = ""
+        # Encabezado con el polinomio
+        html_result.append(create_section('Polinomio:', formatted_expr, COLORS['secondary'], ICONS['operation']))
+        
+        # Sección de raíces
+        roots_html = "<div style='margin-left: 15px;'>"
         for idx, root in enumerate(roots):
             try:
                 root_expr = to_unicode_repr(root)
@@ -92,32 +109,27 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
                     approx_str = str(approx.evalf(6)).replace('*I', 'i').replace(' ', '')
                 
                 roots_html += (
-                    f"<div style='margin: 6px 0 6px 20px;'>"
-                    f"<span style='color: #D32F2F; font-weight: bold;'>x<sub>{idx + 1}</sub></span> "
-                    f"≈ <span style='color: #1976D2;'>{approx_str}</span>"
-                    f"<span style='color: #616161; margin-left: 10px;'>(forma exacta: {root_expr})</span>"
+                    f"<div style='margin: 6px 0;'>"
+                    f"<span style='color: {COLORS['error']}; font-weight: bold;'>x<sub>{idx + 1}</sub></span> "
+                    f"≈ <span style='color: {COLORS['primary']};'>{approx_str}</span>"
+                    f"<span style='color: {COLORS['neutral']}; margin-left: 10px;'>(forma exacta: {root_expr})</span>"
                     f"</div>"
                 )
             except Exception as e:
                 roots_html += (
-                    f"<div style='margin: 6px 0 6px 20px; color: #D32F2F;'>"
-                    f"❌ Error en raíz x<sub>{idx + 1}</sub>: {str(e)}"
+                    f"<div style='margin: 6px 0; color: {COLORS['error']};'>"
+                    f"{ICONS['error']} Error en raíz x<sub>{idx + 1}</sub>: {str(e)}"
                     f"</div>"
                 )
-        return header + roots_section + roots_html + "</div></div>"
+        roots_html += "</div>"
+        
+        html_result.append(create_section('Raíces encontradas:', roots_html, COLORS['success'], ICONS['roots']))
+        
+        return "".join(html_result)
 
-    def create_section(title, content, color, icon=None):
-        """Helper para crear secciones consistentes"""
-        icon_html = f"{icon} " if icon else ""
-        return (
-            f"<div style='margin-bottom: 15px;'>"
-            f"<span style='font-weight: bold; color: {color}; margin-bottom: 5px;'>{icon_html} {title}</span>"
-            f"<span style='margin-left: 15px;'>{content}</span>"
-            f"</div>"
-        )
-    
     def format_diff_eq(equation, solution):
         """Formateador especializado para ecuaciones diferenciales"""
+        html_result = []
 
         try:
             if hasattr(equation, 'lhs') and hasattr(equation, 'rhs'):
@@ -136,7 +148,6 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
                 sol_text = sol_text.replace("Eq(y(x),", "y(x) =")
             else:
                 sol_text = str(solution)
-                # sol_text = sp.sstr(solution.rhs, full_prec=False)
 
             # Sustituir derivados simbólicos
             eq_text = eq_text.replace("Derivative(y(x), (x, 2))", "y''(x)")
@@ -152,14 +163,27 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             eq_text = format_polynomial(eq_text)
             sol_text = format_polynomial(sol_text)
 
-            return (
-                f"<div style='margin-bottom: 20px;'>"
-                f"{create_section('Ecuación Diferencial: ', eq_text, '#fc7e00', '🟠')}"
-                f"{create_section('Solución General: ', sol_text, '#037df5', '🔵')}"
-                f"</div>"
-            )
+            html_result.append(create_section('Ecuación Diferencial:<br>', eq_text, COLORS['secondary'], ICONS['operation']))
+            html_result.append(create_section('Solución General:<br>', sol_text, COLORS['primary'], ICONS['result']))
+            
+            return "".join(html_result)
         except AttributeError:
-            return "<div style='color: red;'>❌ Error: La ecuación no está bien formada como objeto Eq</div>"
+            return create_section('Error:', 'La ecuación no está bien formada como objeto Eq', COLORS['error'], ICONS['error'])
+
+    def format_euler_method(result):
+        """Formato para resultados del método de Euler"""
+        table_html = (
+            "<div style='margin-left: 15px;'>"
+            "<table border='1' style='border-collapse: collapse; width: 100%;'>"
+            "<tr style='background-color: #616161; color: f4ffff;'><th>x</th><th>y</th></tr>"
+        )
+        
+        for x, y in result:
+            table_html += f"<tr><td>{x:.4f}</td><td>{y:.4f}</td></tr>"
+        
+        table_html += "</table></div>"
+        
+        return create_section('Solución por Método de Euler:', table_html, COLORS['secondary'], ICONS['operation'])
 
     # Formatear según el tipo de operación
     if operation_type in ["vector", "matrix"]:
@@ -167,29 +191,24 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         formatted_result = format_vector(result)
         
         return (
-            f"{create_section('Operación con Vectores/Matrices: ', formatted_expr, '#e0e0e0', '⚪')}"
-            f"{create_section('Resultado: ', formatted_result, '#037df5', '🔵')}"
+            create_section('Operación con Vectores/Matrices: ', formatted_expr, COLORS['secondary'], ICONS['matrix']) +
+            create_section('Resultado: ', formatted_result, COLORS['primary'], ICONS['result'])
         )
         
     elif operation_type == "roots":
         return format_roots_result(expr, result)
+    
     elif operation_type == "ecuaciones_diferenciales":
         if method == "euler":
-            html = "<h3>🔧 Solución por Método de Euler</h3>"
-            html += "<table border='1' style='border-collapse: collapse; width: 100%;'>"
-            html += "<tr><th>x</th><th>y</th></tr>"
-            for x, y in result:
-                html += f"<tr><td>{x:.4f}</td><td>{y:.4f}</td></tr>"
-            html += "</table>"
-            return html
+            return format_euler_method(result)
         else:
             return format_diff_eq(expr, result)
+    
     else:  # Polinomios y expresiones genéricas
         formatted_expr = format_polynomial(expr)
         formatted_result = format_polynomial(result)
         
         return (
-            f"{create_section('Expresión Original: ', formatted_expr, '#1976d2', '🔵')}"
-            f"{create_section('Resultado Simplificado: ', formatted_result, '#02dc0d', '🟢')}"
+            create_section('Expresión Original: ', formatted_expr, COLORS['secondary'], ICONS['operation']) +
+            create_section('Resultado Simplificado: ', formatted_result, COLORS['primary'], ICONS['result'])
         )
-    

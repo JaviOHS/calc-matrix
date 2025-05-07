@@ -26,7 +26,7 @@ class MessageDialog(QDialog):
         content_layout.setSpacing(30)
 
         # Imagen (izquierda)
-        if image_name:
+        if image_name:  # Solo agregar imagen si se proporciona un nombre
             image_path = resource_path(f"assets/images/dialogs/{image_name}")
             pixmap = QPixmap(image_path).scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
             image_label = QLabel()

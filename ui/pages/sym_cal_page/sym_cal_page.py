@@ -33,28 +33,13 @@ class SymCalPage(BaseOperationPage):
         if not widget:
             self.show_message_dialog("🔴 ERROR", "#f44336", "No se encontró el widget de la operación.")
             return
-
-        is_valid, error_msg = widget.validate_operation()
-        if not is_valid:
-            self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", error_msg)
-            return
-
-        try:
-            result = widget.execute_operation()
-            html = widget.prepare_result_display(result)
-            
-            # Asegúrate de que el widget tenga un QLabel para mostrar resultados
-            if hasattr(widget, 'result_display'):
-                widget.result_display.setText(html)
-                widget.result_display.show()
-            else:
-                self.show_message_dialog("🔴 ERROR", "#f44336", "El widget no tiene un área de visualización de resultados.")
-                
-        except ValueError as e:
-            self.show_message_dialog("🔴 ERROR", "#f44336", str(e))
-        except Exception as e:
-            self.show_message_dialog("🔴 ERROR", "#f44336", f"Error inesperado: {str(e)}")
-
+        
+        # Capturar el resultado y posible error del widget
+        success, message = widget.on_calculate_clicked()
+        if not success:
+            # Mostrar mensaje de error en un diálogo
+            self.show_message_dialog("🔴 ERROR", "#f44336", message)
+    
     def show_result(self, result, message):
         widget = self.operation_widgets.get(
             next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)

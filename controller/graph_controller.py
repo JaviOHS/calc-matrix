@@ -100,4 +100,49 @@ class GraphController:
 
         except Exception as e:
             raise ValueError(f"Error al generar gráfica 3D: {str(e)}")
-
+    
+    def generate_ode_solution_canvas(self, equation, solution_points, initial_condition=None, x_range=None, title=None):
+        """
+        Genera un canvas con la solución gráfica de una ecuación diferencial.
+        
+        Args:
+            equation: String representando la ecuación diferencial (para el título)
+            solution_points: Lista de tuplas (x, y) con los puntos de solución
+            initial_condition: Tupla (x0, y0) de la condición inicial
+            x_range: Rango de x para mostrar en la gráfica
+            title: Título personalizado (opcional)
+        
+        Returns:
+            Un objeto FigureCanvas de matplotlib
+        """
+        try:
+            # Extraer los puntos x, y
+            x_vals, y_vals = zip(*solution_points)
+            
+            # Crear la figura y ejes
+            fig, ax = plt.subplots()
+            
+            # Graficar la solución numérica
+            ax.plot(x_vals, y_vals, 'b-o', markersize=3, label='Solución numérica')
+            
+            # Marcar la condición inicial
+            if initial_condition:
+                ax.plot(initial_condition[0], initial_condition[1], 'ro', markersize=6, label='Condición inicial')
+            
+            # Configurar apariencia
+            ax.set_title(title if title else f"Solución de: {equation}")
+            ax.set_xlabel("x")
+            ax.set_ylabel("y")
+            ax.grid(True, linestyle='--', alpha=0.7)
+            ax.legend()
+            
+            # Ajustar los límites del eje x si se proporciona un rango
+            if x_range:
+                ax.set_xlim(x_range)
+            
+            # Crear el canvas para Qt
+            canvas = FigureCanvas(fig)
+            return canvas
+            
+        except Exception as e:
+            raise ValueError(f"Error al generar gráfica de solución ODE: {str(e)}")

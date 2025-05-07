@@ -19,7 +19,7 @@ class Sidebar(QWidget):
         self.layout.addWidget(logo_label)
 
         name_label = QLabel("""
-            <span style='font-size:28px; font-weight:bold; color:white;'>
+            <span style='font-size:28px; font-weight:bold; color:#037df5;'>
                 Calc<span style='color:#ff8103;'>Matrix</span>
             </span>
         """)

@@ -1,10 +1,12 @@
 from utils.resources import resource_path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QTextEdit, QHBoxLayout
+from PySide6.QtGui import QPixmap
+
 from ui.widgets.math_operation_widget import MathOperationWidget
-from PySide6.QtGui import QTextCharFormat, QFont, QPixmap
-from ui.dialogs.message_dialog import MessageDialog
-from PySide6.QtWidgets import QPushButton, QGridLayout
+from ui.widgets.expression_components.expression_buttons_panel import ExpressionButtonsPanel
+from ui.widgets.expression_components.expression_formatter_input import ExpressionFormatterInput
+from ui.widgets.expression_components.canvas_dialog_manager import CanvasDialogManager
 
 class ExpressionOpWidget(MathOperationWidget):
     def __init__(self, manager, controller, operation_type=None, placeholder="", input_label="", image_path="assets/images/placeholder.png", use_dialog_for_result: bool = False):
@@ -14,7 +16,7 @@ class ExpressionOpWidget(MathOperationWidget):
         self.input_label_text = input_label
         self.image_path = image_path
         self.use_dialog_for_result = use_dialog_for_result
-        self.setup_ui() # Para botones de cancelar y calcular
+        self.setup_ui()
 
     def setup_ui(self):
         self.layout = QVBoxLayout()
@@ -34,6 +36,12 @@ class ExpressionOpWidget(MathOperationWidget):
         self.expression_input.setPlaceholderText(self.placeholder)
         self.expression_input.setMaximumHeight(100)
         input_layout.addWidget(self.expression_input)
+        
+        # Configuración del formateador de expresiones
+        self.expression_formatter = ExpressionFormatterInput(self.expression_input)
+        
+        # Configuración del gestor de diálogo de canvas
+        self.canvas_dialog_manager = CanvasDialogManager(self)
 
         if not self.use_dialog_for_result:
             self.result_container = QWidget()
@@ -68,11 +76,11 @@ class ExpressionOpWidget(MathOperationWidget):
         combined_layout.setContentsMargins(0, 10, 0, 0)
         combined_layout.setSpacing(30)
 
-        # Panel de botones de símbolos
-        expression_buttons = self.create_expression_buttons()
+        # Panel de botones de expresión
+        expression_buttons = ExpressionButtonsPanel(self.expression_input)
         combined_layout.addWidget(expression_buttons, alignment=Qt.AlignLeft)
 
-        # Contenedor de botones de acción alineado completamente a la derecha
+        # Contenedor de botones de acción alineado a la derecha
         action_buttons_container = QWidget()
         action_buttons_layout = QHBoxLayout(action_buttons_container)
         action_buttons_layout.setContentsMargins(0, 0, 0, 0)
@@ -81,10 +89,8 @@ class ExpressionOpWidget(MathOperationWidget):
         combined_layout.addWidget(action_buttons_container, alignment=Qt.AlignRight | Qt.AlignBottom)
 
         self.layout.addWidget(combined_panel)
-
         self.layout.addStretch()
         self.setLayout(self.layout)
-        self.setup_expression_formatting()
 
     def get_input_expression(self):
         return self.expression_input.toPlainText().strip()
@@ -93,88 +99,42 @@ class ExpressionOpWidget(MathOperationWidget):
         if not self.use_dialog_for_result and hasattr(self, 'result_display'):
             self.result_display.setText(html)
 
-    def setup_expression_formatting(self):
-        """Configura el formateo automático de expresiones"""
-        self.expression_input.textChanged.connect(self.format_expression_in_input)
-
-    def format_expression_in_input(self):
-        """Formatea la expresión matemática en tiempo real"""
-        cursor = self.expression_input.textCursor()
-        position = cursor.position()
-        text = self.expression_input.toPlainText()
-        self.expression_input.blockSignals(True)
-
-        # Construir un nuevo documento formateado
-        self.expression_input.clear()
-        new_cursor = self.expression_input.textCursor()
-
-        base_format = QTextCharFormat()
-        base_format.setFont(QFont("Cambria Math", 14))
-
-        super_format = QTextCharFormat(base_format)
-        super_format.setVerticalAlignment(QTextCharFormat.AlignSuperScript)
-
-        i = 0
-        while i < len(text):
-            if text[i] == '^':
-                new_cursor.insertText('^', base_format)
-                i += 1
-                # Formatear superíndices
-                start = i
-                while i < len(text) and text[i].isdigit():
-                    new_cursor.insertText(text[i], super_format)
-                    i += 1
-            else:
-                new_cursor.insertText(text[i], base_format)
-                i += 1
-
-        # Restaurar posición del cursor
-        new_cursor.setPosition(min(position, len(self.expression_input.toPlainText())))
-        self.expression_input.setTextCursor(new_cursor)
-        self.expression_input.blockSignals(False)
-
     def show_canvas_dialog(self, canvas):
-        if canvas:
-            canvas.setFixedSize(500, 300)
-            canvas.draw()
-            dialog = MessageDialog(
-                title="🟢 ÉXITO GENERANDO GRÁFICA",
-                title_color="#7cb342",
-                image_name="success.png",
-                parent=self,
-                custom_widget=canvas
-            )
-            dialog.exec()
+        self.canvas_dialog_manager.show_canvas_dialog(canvas)
 
-    def create_expression_buttons(self):
-        symbols = [
-            ("^", "^"), ("√", "sqrt("), ("π", "pi"), ("e", "e"), ("ln", "ln("),
-            ("log", "log("), ("sin", "sin("), ("cos", "cos("), ("tan", "tan("),
-            ("y'", "y'(x)"), ("y''", "y''(x)"), ("=", "="), 
-            ("+", "+"), ("-", "-"), ("*", "*"), ("/", "/"),
-            ("(", "("), (")", ")"), ("{", "{"), ("}", "}"),
-            ("[", "["), ("]", "]"), ("{", "{"), ("}", "}"),
-        ]
+    def show_result_in_dialog(self, html_content, canvas=None):
+        """Muestra el resultado en un diálogo, combinando HTML y canvas si está disponible"""
+        self.canvas_dialog_manager.show_result_dialog(html_content, canvas)
 
-        button_panel = QWidget()
-        layout = QGridLayout(button_panel)
-        layout.setContentsMargins(20, 0, 20, 0)
-        layout.setSpacing(8)
-
-        for index, (label, insert_text) in enumerate(symbols):
-            button = QPushButton(label)
-            button.setMinimumSize(42, 42)
-            button.setObjectName("ctaButton")
-            button.setStyleSheet("font-size: 14px;")
-            button.setCursor(Qt.PointingHandCursor)
-            button.clicked.connect(lambda _, text=insert_text: self.insert_symbol(text))
-            layout.addWidget(button, index // 8, index % 8)
-
-        return button_panel
-
-    def insert_symbol(self, text):
-        cursor = self.expression_input.textCursor()
-        cursor.insertText(text)
-        self.expression_input.setTextCursor(cursor)
-        self.expression_input.setFocus()
-        
+    def process_operation_result(self, result):
+        """Procesa el resultado de la operación para mostrarlo adecuadamente"""
+        try:
+            # Extraer HTML y canvas si el resultado es un diccionario con ambos
+            html_content = None
+            canvas = None
+            
+            if isinstance(result, dict) and "html" in result:
+                html_content = result.get("html")
+                canvas = result.get("canvas")
+                
+                if self.use_dialog_for_result:
+                    self.show_result_in_dialog(html_content, canvas)
+                else:
+                    # Solo mostrar el HTML en el widget de resultado
+                    self.display_result(html_content)
+                    
+                    # Si hay un canvas pero no estamos usando diálogo, mostrar canvas por separado
+                    if canvas:
+                        self.show_canvas_dialog(canvas)
+            else:
+                # El resultado es directamente HTML (comportamiento anterior)
+                if self.use_dialog_for_result:
+                    self.show_result_in_dialog(result)
+                else:
+                    self.display_result(result)
+        except Exception as e:
+            error_html = f"<div style='color: #D32F2F;'>❌ Error al procesar el resultado: {str(e)}</div>"
+            if self.use_dialog_for_result:
+                self.show_result_in_dialog(error_html)
+            else:
+                self.display_result(error_html)

@@ -5,7 +5,6 @@ from utils.resources import resource_path
 from utils.icon_utils import colored_svg_icon
 
 class MathOperationWidget(QWidget):
-    """Clase base para widgets de operaciones matemáticas"""
     def __init__(self, manager, controller, operation_type=None):
         super().__init__()
         self.manager = manager

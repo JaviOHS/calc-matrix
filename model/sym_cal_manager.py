@@ -10,9 +10,9 @@ class SymCalManager:
     def get_integral(self, expression: str, limits=None):
         return self.model.integrate(expression, limits)
     
-    def solve_differential_equation(self, expression: str):
-        return self.model.solve_differential_equation(expression)
-    
+    def solve_differential_equation(self, equation, initial_condition=None, x_range=None):
+        return self.model.solve_differential_equation(equation, initial_condition, x_range)
+
     def solve_ode_euler(self, equation, initial_condition, x_range, h=0.1):
         return self.model.solve_ode_euler(equation, initial_condition, x_range, h)
 

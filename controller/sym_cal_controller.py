@@ -34,14 +34,15 @@ class SymCalController:
         
         except Exception as e:
             raise ValueError(f"Error al calcular la integral: {str(e)}")
-
-    def solve_differential_equation(self, expression):
+    
+    def solve_differential_equation(self, expression, initial_condition=None, x_range=None):
         if not expression:
             raise ValueError("La ecuación diferencial no puede estar vacía.")
         
         try:
             parsed_expr = self.parser.parse_equation(expression)
-            return self.manager.solve_differential_equation(parsed_expr)
+            result = self.manager.solve_differential_equation(parsed_expr, initial_condition, x_range)
+            return result
         except Exception as e:
             raise ValueError(f"Error al resolver la ecuación diferencial: {str(e)}")
         
