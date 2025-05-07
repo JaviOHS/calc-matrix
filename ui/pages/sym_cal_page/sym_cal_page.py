@@ -10,13 +10,14 @@ class SymCalPage(BaseOperationPage):
         operations = {
             "Derivadas": ("derivadas", SymCalOpWidget),
             "Integrales": ("integrales", SymCalOpWidget),
+            "Ecuaciones Diferenciales": ("ecuaciones_diferenciales", SymCalOpWidget),
         }
 
         page_title = "Cálculo Simbólico de {Funciones}"
         intro_text = (
-            "👋 Bienvenido a la sección de operaciones simbólicas\n\n"
+            "👋 Bienvenido a la sección de operaciones simbólicas.\n\n"
             "📌 En esta sección podrás ingresar funciones y ecuaciones para resolver operaciones simbólicas.\n"
-            "📌 Integrales, derivadas y ecuaciones diferenciales."
+            "📌 Desde integrales y derivadas, hasta ecuaciones diferenciales."
         )
 
         intro_image_path = "assets/images/intro/sym_cal.png"
@@ -41,7 +42,14 @@ class SymCalPage(BaseOperationPage):
         try:
             result = widget.execute_operation()
             html = widget.prepare_result_display(result)
-            self.show_result(result, html)
+            
+            # Asegúrate de que el widget tenga un QLabel para mostrar resultados
+            if hasattr(widget, 'result_display'):
+                widget.result_display.setText(html)
+                widget.result_display.show()
+            else:
+                self.show_message_dialog("🔴 ERROR", "#f44336", "El widget no tiene un área de visualización de resultados.")
+                
         except ValueError as e:
             self.show_message_dialog("🔴 ERROR", "#f44336", str(e))
         except Exception as e:

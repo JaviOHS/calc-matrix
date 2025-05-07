@@ -43,7 +43,7 @@ class AboutPage(QWidget):
         info_layout.setSpacing(12)
 
         author_info = self.create_info_item("👤", "Javier Haro Soledispa - jharos@unemi.edu.ec")
-        faculty_info = self.create_info_item("🏛️", "Facultad de Ciencias e Ingeniería")
+        faculty_info = self.create_info_item("🏛️", "UNEMI - Facultad de Ciencias e Ingeniería")
         career_info = self.create_info_item("🎓", "Carrera de Ingeniería de Software")
         semester_info = self.create_info_item("📚", "Sexto Semestre - Modelos matemáticos y simulación")
         teacher_info = self.create_info_item("👨‍🏫", "Ing. Isidro Morales Torres")
@@ -55,7 +55,7 @@ class AboutPage(QWidget):
         info_layout.addWidget(teacher_info)
 
         info_widget.setStyleSheet("background-color: #1f2b3d; border-radius: 10px; padding: 20px;")
-        info_widget.setMaximumWidth(500)
+        info_widget.setMaximumWidth(700)
         text_layout.addWidget(info_widget)
 
         # Botón de GitHub
@@ -79,7 +79,6 @@ class AboutPage(QWidget):
         text_layout.addWidget(button_container)
         text_layout.addStretch()
 
-        # Imagen (puedes cambiarla por una relevante)
         image_widget = QWidget()
         image_widget.setObjectName("imageSection")
         image_layout = QVBoxLayout(image_widget)
@@ -91,7 +90,7 @@ class AboutPage(QWidget):
         image_container_layout.setContentsMargins(0, 0, 0, 0)
 
         image = QLabel()
-        pixmap = QPixmap(resource_path("assets/images/intro/about.png"))  # Puedes cambiar esta imagen
+        pixmap = QPixmap(resource_path("assets/images/intro/about.png"))
         image.setPixmap(pixmap.scaled(230, 230, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         image.setAlignment(Qt.AlignCenter)
         image_container_layout.addWidget(image)

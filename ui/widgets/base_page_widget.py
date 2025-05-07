@@ -45,8 +45,20 @@ class BaseOperationPage(QWidget):
         """)
         
         operation_title_layout.addWidget(self.operation_title_label)
-        operation_title_layout.addStretch()
-        
+        operation_title_layout.addStretch() # Esto empuja el botón de opciones hacia la derecha
+
+        # --- Botón de opciones alineado a la derecha ---
+        self.toggle_button = QPushButton("Opciones")
+        self.toggle_button.setObjectName("ctaButton")
+        option_icon = colored_svg_icon(resource_path("assets/icons/options.svg"), QColor(28, 44, 66))
+        self.toggle_button.setIcon(option_icon)
+        self.toggle_button.setIconSize(QSize(20, 20))
+        self.toggle_button.setCursor(Qt.PointingHandCursor)
+        self.toggle_button.clicked.connect(self.show_dropdown_menu)
+        self.toggle_button.hide()  # El botón está oculto por defecto
+
+        operation_title_layout.addWidget(self.toggle_button)  # Añado el botón al layout
+
         self.layout.addWidget(self.operation_title_container)
 
         # Contenedor principal (texto izquierda, imagen derecha)
@@ -154,24 +166,6 @@ class BaseOperationPage(QWidget):
         self.stacked_widget = QStackedWidget()
         self.stacked_widget.addWidget(container)
         self.layout.addWidget(self.stacked_widget)
-
-        # --- Botón de opciones alineado a la derecha ---
-        self.toggle_button = QPushButton("Opciones")
-        self.toggle_button.setObjectName("ctaButton")
-        option_icon = colored_svg_icon(resource_path("assets/icons/options.svg"), QColor(28, 44, 66))
-        self.toggle_button.setIcon(option_icon)
-        self.toggle_button.setIconSize(QSize(20, 20))
-        self.toggle_button.setCursor(Qt.PointingHandCursor)
-        self.toggle_button.clicked.connect(self.show_dropdown_menu)
-        self.toggle_button.hide()
-
-        button_row = QWidget()
-        button_layout = QHBoxLayout(button_row)
-        button_layout.setContentsMargins(30, 0, 30, 20)  # Ajustados márgenes para alineación
-        button_layout.addStretch()
-        button_layout.addWidget(self.toggle_button)
-
-        self.layout.addWidget(button_row)
 
     def create_intro_widget(self):
         return QWidget()

@@ -2,6 +2,8 @@ from utils.resources import resource_path
 from PySide6.QtWidgets import QApplication
 from ui.main_window import MainWindow
 from PySide6.QtGui import QFontDatabase
+from PySide6.QtGui import QShortcut, QKeySequence
+import os
 import sys
 
 app = QApplication(sys.argv)
@@ -32,5 +34,14 @@ load_styles()
 
 window = MainWindow()
 window.show()
+
+# Crear atajo para cerrar y limpiar consola (Ctrl+Q)
+def close_and_clear():
+    print("Cerrando aplicación y limpiando consola...")
+    app.quit()  # Cierra la aplicación
+    os.system('cls' if os.name == 'nt' else 'clear')  # Limpia consola (Windows o Unix)
+
+shortcut = QShortcut(QKeySequence("Ctrl+Q"), window)
+shortcut.activated.connect(close_and_clear)
 
 sys.exit(app.exec())

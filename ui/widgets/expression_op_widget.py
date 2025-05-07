@@ -4,6 +4,7 @@ from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QTextEdit, QHBoxLayo
 from ui.widgets.math_operation_widget import MathOperationWidget
 from PySide6.QtGui import QTextCharFormat, QFont, QPixmap
 from ui.dialogs.message_dialog import MessageDialog
+from PySide6.QtWidgets import QPushButton, QGridLayout
 
 class ExpressionOpWidget(MathOperationWidget):
     def __init__(self, manager, controller, operation_type=None, placeholder="", input_label="", image_path="assets/images/placeholder.png", use_dialog_for_result: bool = False):
@@ -59,11 +60,29 @@ class ExpressionOpWidget(MathOperationWidget):
 
             input_layout.addWidget(self.result_container)
 
-
-        buttons = self.create_buttons()
         self.layout.addWidget(input_widget, alignment=Qt.AlignTop)
+
+        # Contenedor combinado para símbolos y acciones
+        combined_panel = QWidget()
+        combined_layout = QHBoxLayout(combined_panel)
+        combined_layout.setContentsMargins(0, 10, 0, 0)
+        combined_layout.setSpacing(30)
+
+        # Panel de botones de símbolos
+        expression_buttons = self.create_expression_buttons()
+        combined_layout.addWidget(expression_buttons, alignment=Qt.AlignLeft)
+
+        # Contenedor de botones de acción alineado completamente a la derecha
+        action_buttons_container = QWidget()
+        action_buttons_layout = QHBoxLayout(action_buttons_container)
+        action_buttons_layout.setContentsMargins(0, 0, 0, 0)
+        action_buttons_layout.addStretch()
+        action_buttons_layout.addWidget(self.create_buttons())
+        combined_layout.addWidget(action_buttons_container, alignment=Qt.AlignRight | Qt.AlignBottom)
+
+        self.layout.addWidget(combined_panel)
+
         self.layout.addStretch()
-        self.layout.addWidget(buttons)
         self.setLayout(self.layout)
         self.setup_expression_formatting()
 
@@ -73,7 +92,6 @@ class ExpressionOpWidget(MathOperationWidget):
     def display_result(self, html):
         if not self.use_dialog_for_result and hasattr(self, 'result_display'):
             self.result_display.setText(html)
-
 
     def setup_expression_formatting(self):
         """Configura el formateo automático de expresiones"""
@@ -127,3 +145,36 @@ class ExpressionOpWidget(MathOperationWidget):
                 custom_widget=canvas
             )
             dialog.exec()
+
+    def create_expression_buttons(self):
+        symbols = [
+            ("^", "^"), ("√", "sqrt("), ("π", "pi"), ("e", "e"), ("ln", "ln("),
+            ("log", "log("), ("sin", "sin("), ("cos", "cos("), ("tan", "tan("),
+            ("y'", "y'(x)"), ("y''", "y''(x)"), ("=", "="), 
+            ("+", "+"), ("-", "-"), ("*", "*"), ("/", "/"),
+            ("(", "("), (")", ")"), ("{", "{"), ("}", "}"),
+            ("[", "["), ("]", "]"), ("{", "{"), ("}", "}"),
+        ]
+
+        button_panel = QWidget()
+        layout = QGridLayout(button_panel)
+        layout.setContentsMargins(20, 0, 20, 0)
+        layout.setSpacing(8)
+
+        for index, (label, insert_text) in enumerate(symbols):
+            button = QPushButton(label)
+            button.setMinimumSize(42, 42)
+            button.setObjectName("ctaButton")
+            button.setStyleSheet("font-size: 14px;")
+            button.setCursor(Qt.PointingHandCursor)
+            button.clicked.connect(lambda _, text=insert_text: self.insert_symbol(text))
+            layout.addWidget(button, index // 8, index % 8)
+
+        return button_panel
+
+    def insert_symbol(self, text):
+        cursor = self.expression_input.textCursor()
+        cursor.insertText(text)
+        self.expression_input.setTextCursor(cursor)
+        self.expression_input.setFocus()
+        

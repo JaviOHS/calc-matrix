@@ -53,7 +53,8 @@ QPushButton[class="sidebar-button"][active="true"] {
 
 QAbstractSpinBox#dim_spinbox,
 QAbstractSpinBox#matrix_count_spinbox,
-QAbstractSpinBox#input_double_spinbox {
+QAbstractSpinBox#input_double_spinbox,
+QDoubleSpinBox {
     background: transparent;
     border: none;
     border-bottom: 2px solid #1c2c42;
@@ -64,7 +65,8 @@ QAbstractSpinBox#input_double_spinbox {
 
 QAbstractSpinBox#dim_spinbox:focus,
 QAbstractSpinBox#matrix_count_spinbox:focus,
-QAbstractSpinBox#input_double_spinbox:focus {
+QAbstractSpinBox#input_double_spinbox:focus,
+QDoubleSpinBox:focus {
     border-bottom: 2px solid #ff8103;
 }
 
@@ -215,15 +217,10 @@ QDialog {
     border: 3px solid #ff8103;
 }
 
-QLabel[class="navbar-username"] {
-    font-size: 18px;
+#navbar-username {
+    font-size: 16px;
     font-weight: bold;
-    color: white;
     font-weight: 600;
-}
-
-QLabel[class="navbar-avatar"] {
-    border-radius: 12px;
 }
 
 /*=== DROPDOWN ===*/
@@ -251,3 +248,40 @@ QMenu::item {
 #ctaButton:hover {
     background-color: #ff9228;
 }
+
+#minButton {
+    background-color: #10a4fc;
+    border: none;
+    border-radius: 16px;
+}
+
+#minButton:hover {
+    background-color: #1f97df;
+}
+
+#closeButton {
+    background-color: #e81123;
+    border: none;
+    border-radius: 16px; 
+}
+
+#closeButton:hover {
+    background-color: #c50f1f;
+}
+
+QComboBox {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid #fc7e00;
+    font-weight: 500;
+    color: rgb(218, 218, 218);
+    padding: 4px 8px;
+}
+
+/*=== 
+QComboBox::down-arrow {
+    image: url(assets/icons/options.svg); 
+    width: 1Dpx;
+    height: 16px;
+}
+===*/

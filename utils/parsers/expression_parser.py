@@ -6,15 +6,17 @@ import re
 
 class ExpressionParser:
     def __init__(self):
-        self.x, self.y = sp.symbols('x y')
+        self.x = sp.Symbol('x')
+        self.y = sp.Function('y')  # y(x) como función simbólica
+
         self.transformations = (
             standard_transformations +
             (implicit_multiplication_application, convert_xor, implicit_application)
         )
+
         self.allowed_symbols = {
             "x": self.x,
-            "y": self.y,
-            "sen": sp.sin,  # Para soporte en español
+            "y": self.y,  # ya no es un símbolo, sino una función
             "sin": sp.sin,
             "cos": sp.cos,
             "tan": sp.tan,
@@ -22,26 +24,36 @@ class ExpressionParser:
             "log": sp.log,
             "sqrt": sp.sqrt,
             "e": sp.E,
-            "pi": sp.pi
+            "pi": sp.pi,
+            "Derivative": sp.Derivative,
+            "Eq": sp.Eq,
+            "diff": sp.Derivative,
+            "exp": sp.exp,
         }
+
         self.allowed_names = set(self.allowed_symbols.keys())
 
     def sanitize_expression(self, expr: str) -> str:
+        # Reemplazos básicos
         replacements = {
             "−": "-", "×": "*", "÷": "/", "·": "*", "^": "**",
-            "[": "(", "]": ")", "{": "(", "}": ")", "sen": "sin"
+            "[": "(", "]": ")", "{": "(", "}": ")", "sen": "sin",
+            "=": "=="
         }
         for bad, good in replacements.items():
             expr = expr.replace(bad, good)
 
-        expr = re.sub(r'(?<=\d)(\s*\()', r'*(', expr)
-        expr = re.sub(r'(?<=\d)(\s*[a-zA-Z])', r'*\1', expr)
-        expr = re.sub(r'(?<=\))(\s*[a-zA-Z0-9])', r'*\1', expr)
+        # Notación de derivadas comunes (orden importa: primero las segundas derivadas)
+        expr = re.sub(r"d\^?2y/dx\^?2", "Derivative(y(x), (x, 2))", expr)  # incluye d2y/dx2 y d^2y/dx^2
+        expr = re.sub(r"d²y/dx²", "Derivative(y(x), (x, 2))", expr)  # soporta notación unicode
+        expr = re.sub(r"dy/dx", "Derivative(y(x), x)", expr)
 
-        open_count = expr.count('(')
-        close_count = expr.count(')')
-        if close_count < open_count:
-            expr += ')' * (open_count - close_count)
+        # También soportar notaciones con comillas simples, si no tienen paréntesis
+        expr = re.sub(r"y''(?!\()", "Derivative(y(x), (x, 2))", expr)
+        expr = re.sub(r"y'(?!\()", "Derivative(y(x), x)", expr)
+
+        # Reemplazar 'y' por 'y(x)' solo cuando no es parte de 'y(x)', 'y''', etc.
+        expr = re.sub(r'\by\b(?!\s*\()', "y(x)", expr)
 
         return expr
 
@@ -85,5 +97,28 @@ class ExpressionParser:
             raise ValueError(
                 "Hubo un error al intentar convertir la expresión en un polinomio. Verifique la expresión."
             )
-
-        
+       
+    def parse_equation(self, raw_expr: str):
+        try:
+            clean_expr = self.sanitize_expression(raw_expr)
+            
+            # Manejar el caso especial donde ya viene como Eq
+            if clean_expr.startswith("Eq("):
+                return parse_expr(clean_expr, local_dict=self.allowed_symbols)
+            
+            # Dividir en LHS y RHS
+            if '==' in clean_expr:
+                lhs, rhs = clean_expr.split('==', 1)
+                lhs_expr = parse_expr(lhs.strip(), transformations=self.transformations, 
+                                    local_dict=self.allowed_symbols)
+                rhs_expr = parse_expr(rhs.strip(), transformations=self.transformations, 
+                                    local_dict=self.allowed_symbols)
+                return sp.Eq(lhs_expr, rhs_expr)
+            else:
+                # Si no hay igual, asumir == 0
+                expr = parse_expr(clean_expr, transformations=self.transformations, 
+                                local_dict=self.allowed_symbols)
+                return sp.Eq(expr, 0)
+        except Exception as e:
+            raise ValueError(f"Error al analizar la ecuación: {e}")
+            
