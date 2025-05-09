@@ -1,8 +1,8 @@
 from utils.resources import resource_path
-from utils.icon_utils import colored_svg_icon
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QSizePolicy
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSizePolicy
 from PySide6.QtCore import Qt, QUrl, QSize
-from PySide6.QtGui import QDesktopServices, QPixmap, QColor
+from PySide6.QtGui import QDesktopServices, QPixmap
+from ui.widgets.action_buttons import ActionButton
 
 class AboutPage(QWidget):
     def __init__(self, navigate_callback=None):
@@ -16,25 +16,21 @@ class AboutPage(QWidget):
         main_layout.setSpacing(0)
 
         container = QWidget()
-        container.setObjectName("mainContainer")
         container_layout = QHBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(40)
 
         text_widget = QWidget()
-        text_widget.setObjectName("textSection")
         text_layout = QVBoxLayout(text_widget)
         text_layout.setContentsMargins(30, 40, 30, 40)
         text_layout.setSpacing(20)
 
         title = QLabel("Información sobre el desarrollo")
         title.setObjectName("heroTitle")
-        title.setStyleSheet("font-size: 36px; font-weight: bold; color: white;")
         text_layout.addWidget(title)
 
         subtitle_highlight = QLabel("De CalcMatrix 🧑‍💻")
         subtitle_highlight.setObjectName("heroHighlight")
-        subtitle_highlight.setStyleSheet("font-size: 24px; font-weight: bold; color: #ff8103;")
         text_layout.addWidget(subtitle_highlight)
 
         # Información del desarrollador
@@ -53,8 +49,7 @@ class AboutPage(QWidget):
         info_layout.addWidget(career_info)
         info_layout.addWidget(semester_info)
         info_layout.addWidget(teacher_info)
-
-        info_widget.setStyleSheet("background-color: #1f2b3d; border-radius: 10px; padding: 20px;")
+        info_widget.setObjectName("infoContainer")
         info_widget.setMaximumWidth(700)
         text_layout.addWidget(info_widget)
 
@@ -64,14 +59,8 @@ class AboutPage(QWidget):
         button_layout.setContentsMargins(0, 0, 0, 0)
         button_layout.setSpacing(20)
 
-        github_button = QPushButton("Repositorio GitHub")
-        github_button.setObjectName("ctaButton")
-        github_button.setCursor(Qt.PointingHandCursor)
-        icon_path = resource_path("assets/icons/github.svg")
-        icon = colored_svg_icon(icon_path, QColor(28, 44, 66))
-        github_button.setIcon(icon)
-        github_button.setIconSize(QSize(20, 20))
-        github_button.clicked.connect(self.open_github)
+        github_button = ActionButton("Repositorio de GitHub", icon_name="github.svg", icon_size=QSize(20, 20), object_name="ctaButton")
+        github_button.clicked.connect(self.open_github)        
 
         button_layout.addWidget(github_button)
         button_layout.addStretch()
@@ -80,12 +69,10 @@ class AboutPage(QWidget):
         text_layout.addStretch()
 
         image_widget = QWidget()
-        image_widget.setObjectName("imageSection")
         image_layout = QVBoxLayout(image_widget)
         image_layout.setContentsMargins(0, 0, 0, 0)
 
         image_container = QWidget()
-        image_container.setObjectName("imageContainer")
         image_container_layout = QVBoxLayout(image_container)
         image_container_layout.setContentsMargins(0, 0, 0, 0)
 
@@ -104,35 +91,22 @@ class AboutPage(QWidget):
 
     def create_info_item(self, icon, text):
         widget = QWidget()
+        widget.setObjectName("featureItem")
+
         layout = QHBoxLayout(widget)
-        layout.setContentsMargins(6, 4, 6, 4)
         layout.setSpacing(8)
 
         icon_label = QLabel(icon)
         icon_label.setObjectName("featureIcon")
         icon_label.setAlignment(Qt.AlignCenter)
-        icon_label.setStyleSheet("font-size: 24px; color: #ff8103;")
         icon_label.setFixedWidth(32)
 
         text_label = QLabel(text)
         text_label.setObjectName("featureText")
-        text_label.setStyleSheet("""
-            color: white;
-            font-size: 16px;
-            font-weight: 500;
-            padding-left: 6px;
-            border-left: 2px solid #ff8103;
-        """)
         text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
         layout.addWidget(icon_label)
         layout.addWidget(text_label)
-
-        widget.setStyleSheet("""
-            background-color: #2e3b4e;
-            border-radius: 6px;
-            padding: 6px;
-        """)
 
         return widget
 

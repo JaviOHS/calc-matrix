@@ -27,7 +27,6 @@ class MatrixMultiplicationWidget(MatrixOperationWidget):
             spin.setRange(1, 10)
             spin.setValue(3)  # Valor inicial
             spin.setAlignment(Qt.AlignCenter)
-            spin.setObjectName("dim_spinbox")
 
         # Añadir los spinboxes al layout
         config_layout.addWidget(QLabel("Filas de A:"))

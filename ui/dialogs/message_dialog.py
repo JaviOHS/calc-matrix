@@ -1,7 +1,9 @@
 from utils.resources import resource_path
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QPushButton, QHBoxLayout, QWidget, QSizePolicy
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QWidget, QSizePolicy
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
+from ui.widgets.action_buttons import ActionButton
+from PySide6.QtCore import QSize
 
 class MessageDialog(QDialog):
     def __init__(self, title: str, title_color: str,message: str = "", image_name: str = "success.png", parent=None, custom_widget: QWidget = None):
@@ -48,9 +50,7 @@ class MessageDialog(QDialog):
         main_layout.addLayout(content_layout)
 
         # Botón cerrar
-        button = QPushButton("Aceptar")
-        button.setObjectName("ctaButton")
-        button.setCursor(Qt.PointingHandCursor)
+        button = ActionButton("Aceptar", icon_name="check.svg", icon_size=QSize(20, 20), object_name="ctaButton")
         button.clicked.connect(self.accept)
         button.setFixedWidth(150)
 

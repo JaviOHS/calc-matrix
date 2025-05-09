@@ -7,8 +7,15 @@ from utils.formatting import format_math_expression
 ALLOWED_VECTOR_CHARS = re.compile(r'^[\[\]\d,\s+\-*/.]*$') 
 class VectorOpWidget(ExpressionOpWidget):
     def __init__(self, manager=VectorManager, controller=VectorController, operation_type=None):
-        input_label = f"Ingrese vectores para realizar cálculo de {operation_type.replace('_', ' ')}:"
-        placeholder = "Ejemplo: [2, 3, 4] + [1, 0, 2] - [0, 1, 1]"
+        if operation_type == "operaciones_basicas":
+            input_label = "Ingrese varios vectores para realizar cálculo de operaciones combinadas:"
+            placeholder = "Ejemplo: [2, 3, 4] + [1, 0, 2]"
+        elif operation_type == "magnitud":
+            input_label = "Ingrese un vector para calcular su magnitud:"
+            placeholder = "Ejemplo: [2, 3, 4]"
+        else:
+            input_label = f"Ingrese dos vectores para realizar cálculo de {operation_type.replace('_', ' ')}:"
+            placeholder = "Ejemplo: [2, 3, 4][1, 0, 2]"
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label)
         self.input_mode = "text"
         self.last_valid_text = ""

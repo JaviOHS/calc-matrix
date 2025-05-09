@@ -18,7 +18,7 @@ if families:
 else:
     font_family = "Arial"
 
-# Configurar Cambria Math para los exponentes
+# Configurar Cambria Math
 cambria_math_path = resource_path("assets/fonts/Cambria-Math.ttf")
 cambria_math_id = QFontDatabase.addApplicationFont(cambria_math_path)
 cambria_families = QFontDatabase.applicationFontFamilies(cambria_math_id)

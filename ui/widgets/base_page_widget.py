@@ -1,9 +1,9 @@
 from utils.resources import resource_path
-from PySide6.QtGui import QPixmap, QAction, QColor
-from PySide6.QtCore import Qt, QSize, QPoint
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QPushButton, QStackedWidget, QLabel, QMenu
+from PySide6.QtGui import QPixmap, QAction
+from PySide6.QtCore import Qt, QPoint
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QLabel, QMenu
 from ui.dialogs.message_dialog import MessageDialog
-from utils.icon_utils import colored_svg_icon
+from ui.widgets.action_buttons import ActionButton
 
 class BaseOperationPage(QWidget):
     def __init__(self, manager, controller, operations_dict, intro_text, intro_image_path, page_title):
@@ -25,12 +25,11 @@ class BaseOperationPage(QWidget):
     def init_ui(self):
         # Layout principal
         self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(40, 30, 40, 30)  # Márgenes similares a MainHomePage
+        self.layout.setContentsMargins(40, 30, 40, 30)
         self.layout.setSpacing(0)
 
         # Contenedor para el título de operación (visible solo durante operaciones)
         self.operation_title_container = QWidget()
-        self.operation_title_container.setObjectName("operationTitleContainer")
         self.operation_title_container.hide()  # Oculto inicialmente
         
         operation_title_layout = QHBoxLayout(self.operation_title_container)
@@ -38,24 +37,14 @@ class BaseOperationPage(QWidget):
         
         self.operation_title_label = QLabel()
         self.operation_title_label.setObjectName("operationTitle")
-        self.operation_title_label.setStyleSheet("""
-            font-size: 28px;
-            font-weight: bold;
-            color: white;
-        """)
         
         operation_title_layout.addWidget(self.operation_title_label)
         operation_title_layout.addStretch() # Esto empuja el botón de opciones hacia la derecha
 
-        # --- Botón de opciones alineado a la derecha ---
-        self.toggle_button = QPushButton("Opciones")
-        self.toggle_button.setObjectName("ctaButton")
-        option_icon = colored_svg_icon(resource_path("assets/icons/options.svg"), QColor(28, 44, 66))
-        self.toggle_button.setIcon(option_icon)
-        self.toggle_button.setIconSize(QSize(20, 20))
-        self.toggle_button.setCursor(Qt.PointingHandCursor)
+        # Botón de opciones alineado a la derecha
+        self.toggle_button = ActionButton.options()
         self.toggle_button.clicked.connect(self.show_dropdown_menu)
-        self.toggle_button.hide()  # El botón está oculto por defecto
+        self.toggle_button.hide()
 
         operation_title_layout.addWidget(self.toggle_button)  # Añado el botón al layout
 
@@ -63,14 +52,12 @@ class BaseOperationPage(QWidget):
 
         # Contenedor principal (texto izquierda, imagen derecha)
         container = QWidget()
-        container.setObjectName("mainContainer")
         container_layout = QHBoxLayout(container)
         container_layout.setContentsMargins(0, 0, 0, 0)
         container_layout.setSpacing(40)
 
-        # --- Sección de texto (izquierda) ---
+        # Sección de texto (izquierda) 
         text_widget = QWidget()
-        text_widget.setObjectName("textSection")
         text_layout = QVBoxLayout(text_widget)
         text_layout.setContentsMargins(30, 40, 30, 40)  # Añadidos márgenes internos como en MainHomePage
         text_layout.setSpacing(20)
@@ -87,24 +74,13 @@ class BaseOperationPage(QWidget):
             title_label.setText(f"{main_text}<span style='color:#ff8103;'>{orange_text}</span>")
         else:
             title_label.setText(self.page_title)
-            
-        title_label.setStyleSheet("""
-            font-size: 36px; 
-            font-weight: bold; 
-            color: white;
-        """)
+
         text_layout.addWidget(title_label)
 
         # Descripción con viñetas
         description = QLabel(self.intro_text)
         description.setObjectName("heroDescription")
         description.setWordWrap(True)
-        description.setStyleSheet("""
-            color: #bbb; 
-            font-size: 16px; 
-            line-height: 1.5;
-            margin-top: 10px;
-        """)
         text_layout.addWidget(description)
 
         # Contenedor para botón y texto
@@ -113,20 +89,12 @@ class BaseOperationPage(QWidget):
         button_layout.setContentsMargins(0, 0, 0, 0)
         button_layout.setSpacing(20)
 
-        button = QPushButton("Empezar")
-        button.setObjectName("ctaButton")
-        button.setCursor(Qt.PointingHandCursor)
-        icon_path = resource_path("assets/icons/go.svg")
-        icon = colored_svg_icon(icon_path, QColor(28, 44, 66)) 
-        button.setIcon(icon)
-        button.setIconSize(QSize(20, 20))
-
+        button = ActionButton.primary("Empezar")
         button.clicked.connect(self.start_first_operation)
 
         # Texto al lado del botón
         footer_text = QLabel("📚 Disfruta del mundo de las matemáticas. ")
         footer_text.setObjectName("footerText")
-        footer_text.setStyleSheet("color: #aaa; font-size: 14px;")
 
         button_layout.addWidget(button)
         button_layout.addWidget(footer_text)
@@ -138,17 +106,15 @@ class BaseOperationPage(QWidget):
         # Añadir sección de texto al contenedor principal (izquierda)
         container_layout.addWidget(text_widget, 6)  # Mayor peso para el texto
 
-        # --- Sección de imagen (derecha) ---
+        # Sección de imagen (derecha) 
         if self.intro_image_path:
             image_widget = QWidget()
-            image_widget.setObjectName("imageSection")
             image_layout = QVBoxLayout(image_widget)
-            image_layout.setContentsMargins(30, 40, 30, 40)  # Añadidos márgenes internos
+            image_layout.setContentsMargins(30, 40, 30, 40)
             image_layout.setSpacing(0)
 
-            # Contenedor de imagen con sombra
+            # Contenedor de imagen
             image_container = QWidget()
-            image_container.setObjectName("imageContainer")
             image_container_layout = QVBoxLayout(image_container)
             image_container_layout.setContentsMargins(0, 0, 0, 0)
 

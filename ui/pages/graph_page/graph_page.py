@@ -16,7 +16,7 @@ class GraphPage(BaseOperationPage):
         intro_text = (
             "👋 Bienvenido a la sección de gráfica de funciones.\n\n"
             "📌 Esta sección es útil para visualizar funciones y entender su comportamiento.\n"
-            "📌 Puedes ingresar funciones matemáticas y ver sus gráficas en diferentes dimensiones.\n"
+            "📌 Puedes ingresar funciones matemáticas y ver sus gráficas en diferentes dimensiones\n"
         )
 
         intro_image_path = "assets/images/intro/graph.png"

@@ -7,8 +7,12 @@ from utils.formatting import format_math_expression
 
 class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
-        input_label = f"Ingrese el polinomio para realizar cálculo de {operation_type.replace("_", " ")}:"
-        placeholder = "Ejemplo: x^2 + 2x + 1"
+        if operation_type == "operaciones_combinadas":
+            input_label = "Ingrese varios polinomios para realizar cálculo de operaciones combinadas:"
+            placeholder = "Ejemplo: x^2 + 2x + 1, x^3 - 3x + 2"
+        else:
+            input_label = f"Ingrese un polinomio para realizar cálculo de {operation_type.replace("_", " ")}:"
+            placeholder = "Ejemplo: x^2 + 2x + 1"
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label)
         self.input_mode = "text"
         self.last_valid_text = ""
@@ -38,7 +42,6 @@ class PolynomialOpWidget(ExpressionOpWidget):
             self.x_input.setValue(1.0)
             self.x_input.setFixedWidth(100)
             self.x_input.setAlignment(Qt.AlignCenter)
-            self.x_input.setObjectName("input_double_spinbox")
             x_layout.addWidget(self.x_input)
             
             top_layout.addWidget(x_container)

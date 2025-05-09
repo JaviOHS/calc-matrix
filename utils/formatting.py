@@ -94,7 +94,7 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         html_result = []
 
         # Encabezado con el polinomio
-        html_result.append(create_section('Polinomio:', formatted_expr, COLORS['secondary'], ICONS['operation']))
+        html_result.append(create_section('Polinomio: ', formatted_expr, COLORS['secondary'], ICONS['operation']))
         
         # Sección de raíces
         roots_html = "<div style='margin-left: 15px;'>"

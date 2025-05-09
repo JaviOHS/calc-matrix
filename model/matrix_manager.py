@@ -80,6 +80,4 @@ class MatrixManager:
     def get_all_matrices(self):
         if not self.matrices:
             raise ValueError("No hay matrices para mostrar.")
-        for i, matrix in enumerate(self.matrices):
-            print(f"Matriz {i+1}: {matrix}")
         return self.matrices

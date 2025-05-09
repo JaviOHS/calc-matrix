@@ -2,7 +2,6 @@ from utils.resources import resource_path
 from ui.sidebar import Sidebar
 from ui.navbar import TopNavbar
 import getpass
-from PySide6.QtCore import Qt
 
 from ui.pages.home_page import MainHomePage
 from ui.pages.matrix_page.matrix_page import MatrixPage
@@ -20,6 +19,7 @@ from model.sym_cal_manager import SymCalManager
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy
 from PySide6.QtGui import QIcon
+from PySide6.QtCore import Qt
 
 matrix_manager = MatrixManager()
 polynomial_manager = PolynomialManager()

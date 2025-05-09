@@ -33,7 +33,6 @@ class MatrixOperationWidget(MathOperationWidget):
         self.dim_spinbox.setAlignment(Qt.AlignCenter)
         self.dim_spinbox.setRange(1, 10)
         self.dim_spinbox.setValue(4)
-        self.dim_spinbox.setObjectName("dim_spinbox")
 
         config_layout.addWidget(self.dim_label)
         config_layout.addWidget(self.dim_spinbox)
@@ -46,7 +45,6 @@ class MatrixOperationWidget(MathOperationWidget):
             self.matrix_count_spinbox.setAlignment(Qt.AlignCenter)
             self.matrix_count_spinbox.setRange(2, 10)
             self.matrix_count_spinbox.setValue(2)
-            self.matrix_count_spinbox.setObjectName("dim_spinbox")
 
             config_layout.addWidget(self.matrix_count_label)
             config_layout.addWidget(self.matrix_count_spinbox)
@@ -74,8 +72,6 @@ class MatrixOperationWidget(MathOperationWidget):
         # Crear botones y conectarlos
         buttons_widget = self.create_buttons()
         self.layout.addWidget(buttons_widget)
-        self.calculate_button.clicked.connect(self.execute_operation)
-        self.cancel_button.clicked.connect(self.cleanup) 
 
         self.setLayout(self.layout)
 
@@ -127,11 +123,14 @@ class MatrixOperationWidget(MathOperationWidget):
         
         table.setMaximumSize(cols * cell_size + 4, rows * cell_size + 4)
 
+        # Importar random para generar valores aleatorios
+        import random
 
-        # Llenar la tabla con valores predeterminados (1 en todas las celdas)
+        # Llenar la tabla con valores aleatorios entre 1 y 9
         for r in range(rows):
             for c in range(cols):
-                item = QTableWidgetItem("1")  # Asignar valor por defecto
+                random_value = random.randint(1, 9)  # Genera un número aleatorio entre 1 y 9
+                item = QTableWidgetItem(str(random_value))  # Convertir a string para mostrar en la tabla
                 item.setTextAlignment(Qt.AlignCenter)
                 table.setItem(r, c, item)
 

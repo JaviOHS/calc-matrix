@@ -1,5 +1,7 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QPushButton, QHBoxLayout, QWidget, QGridLayout, QSpacerItem, QSizePolicy
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy, QScrollArea
 from PySide6.QtCore import Qt
+from ui.widgets.action_buttons import ActionButton
+from PySide6.QtCore import QSize
 
 class MatrixResultDialog(QDialog):
     def __init__(self, matrices, result_matrix, operation="", parent=None):
@@ -13,50 +15,29 @@ class MatrixResultDialog(QDialog):
         main_layout.setContentsMargins(20, 20, 20, 20)
         main_layout.setSpacing(20)
 
-        # Contenedor horizontal
-        content_layout = QHBoxLayout()
-        content_layout.setSpacing(30)
+        # Título de la operación
+        title_label = QLabel(f"🟢 RESULTADO DE {operation.upper():}")
+        title_label.setAlignment(Qt.AlignCenter)
+        title_label.setStyleSheet("font-weight: bold; color: #72e48c; font-size: 20px;")
+        main_layout.addWidget(title_label)
 
-        # Widget personalizado (derecha)
-        custom_widget = QWidget()
-        custom_layout = QVBoxLayout(custom_widget)
-        custom_layout.setContentsMargins(0, 0, 0, 0)
-        custom_layout.setSpacing(15)
-
-        # Matrices de entrada
-        input_container = QWidget()
-        input_layout = QGridLayout(input_container)
-        input_layout.setHorizontalSpacing(30)
-        input_layout.setVerticalSpacing(20)
-        input_layout.setContentsMargins(0, 0, 0, 0)
-
-        max_width = max([matrix.cols * 45 + 20 for matrix in matrices] + [result_matrix.cols * 45 + 20])
-        for idx, matrix in enumerate(matrices):
-            matrix_widget = self._create_matrix_widget(matrix, f"Matriz {chr(65 + idx)}", max_width)
-            input_layout.addWidget(matrix_widget, idx // 2, idx % 2, Qt.AlignCenter)
-
-        custom_layout.addWidget(input_container)
-
-        # Resultado
-        result_label = QLabel(f"🟢 RESULTADO DE {operation.upper():}")
-
-        result_label.setAlignment(Qt.AlignCenter)
-        result_label.setStyleSheet("font-weight: bold; color: #72e48c; font-size: 20px;")
-        custom_layout.addWidget(result_label)
-
+        # Widget del resultado
+        result_container = QWidget()
+        result_layout = QVBoxLayout(result_container)
+        result_layout.setContentsMargins(0, 10, 0, 10)
+        result_layout.setSpacing(15)
+        
+        # Mostrar solo el resultado
         if hasattr(result_matrix, 'rows') and hasattr(result_matrix, 'cols'):
-            result_widget = self._create_matrix_widget(result_matrix, "", max_width)
+            result_widget = self._create_matrix_widget(result_matrix)
         else:
             result_widget = self._create_special_result_widget(result_matrix)
-        custom_layout.addWidget(result_widget, alignment=Qt.AlignCenter)
-
-        content_layout.addWidget(custom_widget)
-        main_layout.addLayout(content_layout)
+            
+        result_layout.addWidget(result_widget, 0, Qt.AlignCenter)
+        main_layout.addWidget(result_container)
 
         # Botón cerrar
-        button = QPushButton("Aceptar")
-        button.setObjectName("ctaButton")
-        button.setCursor(Qt.PointingHandCursor)
+        button = ActionButton("Aceptar", icon_name="check.svg", icon_size=QSize(20, 20), object_name="ctaButton")
         button.clicked.connect(self.accept)
         button.setFixedWidth(150)
 
@@ -68,7 +49,7 @@ class MatrixResultDialog(QDialog):
 
         self.adjustSize()
 
-    def _create_matrix_widget(self, matrix, title, max_width=None):
+    def _create_matrix_widget(self, matrix, title=""):
         """Crea un widget de matriz con estilo consistente"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
@@ -82,54 +63,109 @@ class MatrixResultDialog(QDialog):
             label.setStyleSheet("font-weight: bold;")
             layout.addWidget(label)
 
-        # Crear tabla
-        table = QTableWidget()
-        table.setRowCount(matrix.rows)
-        table.setColumnCount(matrix.cols)
+        # Determinar si necesitamos scroll vertical (matrices con más de 5 filas)
+        needs_scroll = matrix.rows > 6
         
-        # Configuración de la tabla
-        table.setEditTriggers(QTableWidget.NoEditTriggers)
-        table.setSelectionMode(QTableWidget.NoSelection)
-        table.setFocusPolicy(Qt.NoFocus)
-        table.horizontalHeader().setVisible(False)
-        table.verticalHeader().setVisible(False)
-        table.setShowGrid(True)
-        table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # Configurar tamaño de celda
+        cell_size = 70
         
-        cell_size = 55
-        for i in range(matrix.cols):
-            table.setColumnWidth(i, cell_size)
-        for i in range(matrix.rows):
-            table.setRowHeight(i, cell_size)
-        
-        # Tamaño fijo de la tabla
-        table_width = matrix.cols * cell_size + 2
-        table_height = matrix.rows * cell_size + 2
-        table.setFixedSize(table_width, table_height)
+        if needs_scroll:
+            # Crear un área de desplazamiento (solo vertical)
+            scroll_area = QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Sin scroll horizontal
+            scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)     # Scroll vertical cuando sea necesario
+            
+            # Tamaño máximo para el área de scroll (5 filas visibles, todas las columnas)
+            max_height = min(matrix.rows, 5) * cell_size + 30
+            max_width = matrix.cols * cell_size + 30  # Mostrar todas las columnas
+            scroll_area.setMaximumSize(max_width, max_height)
+            
+            # Contenedor para la tabla dentro del área de scroll
+            scroll_content = QWidget()
+            scroll_layout = QVBoxLayout(scroll_content)
+            scroll_layout.setContentsMargins(0, 0, 0, 0)
+            
+            # Crear tabla
+            table = QTableWidget()
+            table.setRowCount(matrix.rows)
+            table.setColumnCount(matrix.cols)
+            
+            # Configuración de la tabla
+            table.setEditTriggers(QTableWidget.NoEditTriggers)
+            table.setSelectionMode(QTableWidget.NoSelection)
+            table.setFocusPolicy(Qt.NoFocus)
+            table.horizontalHeader().setVisible(False)
+            table.verticalHeader().setVisible(False)
+            table.setShowGrid(True)
+            table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)  # Asegurar que la tabla no tenga scroll horizontal
+            
+            # Configurar tamaño de celdas
+            for i in range(matrix.cols):
+                table.setColumnWidth(i, cell_size)
+            for i in range(matrix.rows):
+                table.setRowHeight(i, cell_size)
+            
+            # Ajustar el ancho de la tabla para mostrar todas las columnas
+            table_width = matrix.cols * cell_size + 2
+            table.setMinimumWidth(table_width)
+            
+            scroll_layout.addWidget(table)
+            scroll_area.setWidget(scroll_content)
+            layout.addWidget(scroll_area, 0, Qt.AlignCenter)
+            
+        else:
+            # Para matrices pequeñas, usar el enfoque original sin scroll
+            table = QTableWidget()
+            table.setRowCount(matrix.rows)
+            table.setColumnCount(matrix.cols)
+            
+            # Configuración de la tabla
+            table.setEditTriggers(QTableWidget.NoEditTriggers)
+            table.setSelectionMode(QTableWidget.NoSelection)
+            table.setFocusPolicy(Qt.NoFocus)
+            table.horizontalHeader().setVisible(False)
+            table.verticalHeader().setVisible(False)
+            table.setShowGrid(True)
+            table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+            
+            # Configurar tamaño de celdas
+            for i in range(matrix.cols):
+                table.setColumnWidth(i, cell_size)
+            for i in range(matrix.rows):
+                table.setRowHeight(i, cell_size)
+            
+            # Tamaño fijo de la tabla
+            table_width = matrix.cols * cell_size + 2
+            table_height = matrix.rows * cell_size + 2
+            table.setFixedSize(table_width, table_height)
+            
+            layout.addWidget(table, 0, Qt.AlignCenter)
         
         # Llenar tabla con datos formateados
         for r in range(matrix.rows):
             for c in range(matrix.cols):
                 value = matrix.data[r, c]
-                display_value = f"{int(value)}" if value.is_integer() else f"{value:.2f}".rstrip('0').rstrip('.')
+                
+                # Mejorar el formato de los números para mostrarlos completos
+                if value.is_integer():
+                    display_value = f"{int(value)}"
+                else:
+                    # Limitar a 4 decimales para valores no enteros, pero mostrar todos los necesarios
+                    display_value = f"{value:.4f}".rstrip('0').rstrip('.')
+                    if len(display_value) > 8:  # Si es demasiado largo
+                        display_value = f"{value:.2f}".rstrip('0').rstrip('.')
+                
                 item = QTableWidgetItem(display_value)
                 item.setTextAlignment(Qt.AlignCenter)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                
+                # Establecer tooltip para mostrar el valor completo al pasar el mouse
+                item.setToolTip(str(value))
+                
                 table.setItem(r, c, item)
-        
-        # Contenedor para centrado si es necesario
-        if max_width and table_width < max_width:
-            container = QWidget()
-            container_layout = QHBoxLayout(container)
-            container_layout.setContentsMargins(0, 0, 0, 0)
-            container_layout.addSpacerItem(QSpacerItem((max_width - table_width) // 2, 0))
-            container_layout.addWidget(table)
-            container_layout.addSpacerItem(QSpacerItem((max_width - table_width) // 2, 0))
-            layout.addWidget(container)
-        else:
-            layout.addWidget(table, 0, Qt.AlignCenter)
-        
+                
         return widget
     
     def _create_special_result_widget(self, raw_result):
@@ -137,13 +173,14 @@ class MatrixResultDialog(QDialog):
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setAlignment(Qt.AlignCenter)
         
         if isinstance(raw_result, list):
             for name, value in raw_result:
                 label = QLabel()
                 label.setWordWrap(True)
                 label.setAlignment(Qt.AlignCenter)
-                label.setStyleSheet("font-size: 14px;")
+                label.setStyleSheet("font-size: 16px; margin: 5px;")
                 
                 if isinstance(value, float):
                     label.setText(f"{name}: {value:.2f}")
@@ -157,6 +194,7 @@ class MatrixResultDialog(QDialog):
         else:
             label = QLabel(str(raw_result))
             label.setAlignment(Qt.AlignCenter)
+            label.setStyleSheet("font-size: 18px; font-weight: bold;")
             layout.addWidget(label)
 
         return widget

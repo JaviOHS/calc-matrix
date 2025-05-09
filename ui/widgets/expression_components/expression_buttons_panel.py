@@ -1,5 +1,5 @@
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget, QPushButton, QGridLayout, QTextEdit
+from PySide6.QtWidgets import QWidget, QGridLayout, QTextEdit
+from ui.widgets.action_buttons import ActionButton
 
 class ExpressionButtonsPanel(QWidget):
     """Panel de botones para insertar símbolos matemáticos"""
@@ -24,11 +24,8 @@ class ExpressionButtonsPanel(QWidget):
         layout.setSpacing(8)
 
         for index, (label, insert_text) in enumerate(symbols):
-            button = QPushButton(label)
+            button = ActionButton(label,parent=self,object_name="ctaButton")
             button.setMinimumSize(42, 42)
-            button.setObjectName("ctaButton")
-            button.setStyleSheet("font-size: 14px;")
-            button.setCursor(Qt.PointingHandCursor)
             button.clicked.connect(lambda _, text=insert_text: self.insert_symbol(text))
             layout.addWidget(button, index // 8, index % 8)
 

@@ -57,25 +57,36 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
         headers = [f"x{i+1}" for i in range(self.dim)] + ["= b"]
         self.system_table.setHorizontalHeaderLabels(headers)
 
+        # Configurar el encabezado para no permitir redimensionamiento
+        header = self.system_table.horizontalHeader()
+        from PySide6.QtWidgets import QHeaderView  # Añade este import al inicio del archivo
+        header.setSectionResizeMode(QHeaderView.Fixed)  # Bloquea el redimensionamiento
+        
+        # También puedes deshabilitar el encabezado completamente si lo prefieres
+        # header.setDisabled(True)
+
         # Tamaño de celdas
         cell_size = 50
-        self.system_table.horizontalHeader().setDefaultSectionSize(cell_size)
+        header.setDefaultSectionSize(cell_size)
         self.system_table.verticalHeader().setDefaultSectionSize(cell_size)
-        self.system_table.setFixedSize((self.dim + 1) * cell_size + 2, (self.dim * cell_size) + self.system_table.horizontalHeader().sizeHint().height() + 2)
+        self.system_table.setFixedSize((self.dim + 1) * cell_size + 2, 
+                                    (self.dim * cell_size) + header.sizeHint().height() + 2)
         self.system_table.setSelectionMode(QTableWidget.NoSelection)
         self.system_table.setFocusPolicy(Qt.NoFocus)
 
+        import random
+
         for r in range(self.dim):
             for c in range(self.dim + 1):
-                item = QTableWidgetItem("1")
+                random_value = random.randint(1, 9) 
+                item = QTableWidgetItem(str(random_value))
                 item.setTextAlignment(Qt.AlignCenter)
                 self.system_table.setItem(r, c, item)
 
         container_layout.addWidget(self.system_table, 0, Qt.AlignHCenter | Qt.AlignTop)
-
         self.scroll_layout.addWidget(container, alignment=Qt.AlignHCenter | Qt.AlignTop)
         self.scroll_layout.addStretch()
-
+    
     def validate_operation(self):
         for row in range(self.dim):
             for col in range(self.dim + 1):

@@ -5,11 +5,12 @@ from controller.graph_controller import GraphController
 
 class Graph2DWidget(ExpressionOpWidget):
     def __init__(self, manager=GraphController, controller=GraphController, operation_type=None):
-        input_label = f"Ingrese una función para realizar {operation_type.replace('_', ' ')}:"
+        input_label = "Ingrese una función para realizar una gráfica en 2D:"
         placeholder = "Puede ingresar varias funciones separadas por comas. Ejemplo: x^2, x^3, x^4"
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=True)
         self.canvas = None
         self.add_range_inputs()
+        self.calculate_button.setText("Graficar")
 
     def add_range_inputs(self):
         self.range_widget = QWidget()
@@ -99,11 +100,12 @@ class Graph2DWidget(ExpressionOpWidget):
 
 class Graph3DWidget(ExpressionOpWidget):
     def __init__(self, manager=GraphController, controller=GraphController, operation_type=None):
-        input_label = f"Ingrese una función para realizar {operation_type.replace('_', ' ')}:"
+        input_label = "Ingrese una función para realizar una gráfica en 3D:"
         placeholder = "Ejemplo: x^2 + y^2"
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=True)
         self.canvas = None
         self.add_range_inputs()
+        self.calculate_button.setText("Graficar")
 
     def add_range_inputs(self):
         self.range_widget = QWidget()

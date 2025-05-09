@@ -12,19 +12,12 @@ class Sidebar(QWidget):
         self.layout.setContentsMargins(10, 10, 10, 10)
 
         logo_label = QLabel()
-        image_path = resource_path("assets/icons/app.png")
+        image_path = resource_path("assets/images/app.png")
         pixmap = QPixmap(image_path)
         logo_label.setPixmap(pixmap.scaled(120, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation))
         logo_label.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(logo_label)
-
-        name_label = QLabel("""
-            <span style='font-size:28px; font-weight:bold; color:#037df5;'>
-                Calc<span style='color:#ff8103;'>Matrix</span>
-            </span>
-        """)
-        name_label.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(name_label)
+        self.layout.addWidget(QLabel("""<span style='font-size:28px; font-weight:bold; color:#037df5;'>Calc<span style='color:#ff8103;'>Matrix</span></span>""", alignment=Qt.AlignCenter))
         self.layout.addSpacing(10)
 
         self.buttons = {}

@@ -2,7 +2,6 @@ from utils.resources import resource_path
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QTextEdit, QHBoxLayout
 from PySide6.QtGui import QPixmap
-
 from ui.widgets.math_operation_widget import MathOperationWidget
 from ui.widgets.expression_components.expression_buttons_panel import ExpressionButtonsPanel
 from ui.widgets.expression_components.expression_formatter_input import ExpressionFormatterInput
@@ -53,8 +52,7 @@ class ExpressionOpWidget(MathOperationWidget):
             self.result_display.setReadOnly(True)
             self.result_display.setFrameStyle(QTextEdit.NoFrame)
             self.result_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            self.result_display.setMinimumHeight(70)
-            self.result_display.setStyleSheet("font-size: 18px; font-weight: 600;")
+            self.result_display.setMinimumHeight(60)
             self.result_display.setText("⭐ Aquí se mostrará la solución")
             result_layout.addWidget(self.result_display, stretch=1)
 
