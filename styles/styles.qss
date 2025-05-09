@@ -191,7 +191,7 @@ QTextEdit {
 /* === CONTENEDOR PADRE DE LAS TABLAS === */
 QScrollArea { border: none; }
 
-/* === TABLAS === */
+/* === TABLAS O MATRICES === */
 QTableWidget {
     border: none;
     font-size: 16px;
@@ -274,10 +274,20 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
     background: none;
 }
 
-/*=== DIÁLOGO ===*/
-QDialog {
-    border-radius: 15px;
+/*=== DIALOGO ===*/
+#backgroundFrame {
     border: 3px solid #ff8103;
+    border-radius: 15px;
+}
+
+#titleDialog {
+    font-weight: bold;
+    color: #72e48c;
+    font-size: 20px;
+}
+
+#messageDialog {
+    font-size: 16px;
 }
 
 /*=== DROPDOWN DE OPERACIONES ===*/

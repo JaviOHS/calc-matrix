@@ -53,6 +53,7 @@ class ExpressionOpWidget(MathOperationWidget):
             self.result_display.setFrameStyle(QTextEdit.NoFrame)
             self.result_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
             self.result_display.setMinimumHeight(60)
+            self.result_display.setMaximumHeight(120)
             self.result_display.setText("⭐ Aquí se mostrará la solución")
             result_layout.addWidget(self.result_display, stretch=1)
 

@@ -4,11 +4,11 @@ class SymCalManager:
     def __init__(self):
         self.model = SymCalModel()
 
-    def get_derivative(self, expression: str):
-        return self.model.derive(expression)
+    def get_derivative(self, expression: str, var=None):
+        return self.model.derive(expression, var)
 
-    def get_integral(self, expression: str, limits=None):
-        return self.model.integrate(expression, limits)
+    def get_integral(self, expression: str, limits=None, var=None, constant=0):
+        return self.model.integrate(expression, limits, var, constant)
     
     def solve_differential_equation(self, equation, initial_condition=None, x_range=None):
         return self.model.solve_differential_equation(equation, initial_condition, x_range)

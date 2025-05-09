@@ -9,7 +9,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
         if operation_type == "operaciones_combinadas":
             input_label = "Ingrese varios polinomios para realizar cálculo de operaciones combinadas:"
-            placeholder = "Ejemplo: x^2 + 2x + 1, x^3 - 3x + 2"
+            placeholder = "Ejemplo: (x^2 + 2x + 1) + (4x^2 + 3x + 4)"
         else:
             input_label = f"Ingrese un polinomio para realizar cálculo de {operation_type.replace("_", " ")}:"
             placeholder = "Ejemplo: x^2 + 2x + 1"

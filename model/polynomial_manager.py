@@ -11,13 +11,6 @@ class PolynomialManager:
 
     def clear(self):
         self.polynomials.clear()
-
-    def divide(self):
-        if len(self.polynomials) != 2:
-            raise ValueError("Se necesitan exactamente dos polinomios para dividir.")
-        dividend = self.polynomials[0]
-        divisor = self.polynomials[1]
-        return dividend.divide(divisor)  # Para división de 2 polinomios 
     
     def validate_polynomials(self):
         if not self.polynomials:

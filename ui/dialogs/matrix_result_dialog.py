@@ -1,42 +1,47 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy, QScrollArea
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy, QScrollArea, QFrame
 from PySide6.QtCore import Qt
 from ui.widgets.action_buttons import ActionButton
 from PySide6.QtCore import QSize
 
+
 class MatrixResultDialog(QDialog):
-    def __init__(self, matrices, result_matrix, operation="", parent=None):
+    def __init__(self, result_matrix, operation="", parent=None):
         super().__init__(parent)
 
+        # Ventana sin bordes y con fondo transparente
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
+        self.setAttribute(Qt.WA_TranslucentBackground)
         self.setMouseTracking(True)
         self._drag_position = None
 
-        main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(20, 20, 20, 20)
-        main_layout.setSpacing(20)
+        # CONTENEDOR CON BORDES REDONDEADOS Y COLOR DE FONDO
+        background_frame = QFrame(self)
+        background_frame.setObjectName("backgroundFrame")
+        background_layout = QVBoxLayout(background_frame)
+        background_layout.setContentsMargins(20, 20, 20, 20)
+        background_layout.setSpacing(20)
 
-        # Título de la operación
-        title_label = QLabel(f"🟢 RESULTADO DE {operation.upper():}")
+        # Título
+        title_label = QLabel(f"🟢 RESULTADO DE {operation.upper()}:")
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font-weight: bold; color: #72e48c; font-size: 20px;")
-        main_layout.addWidget(title_label)
+        title_label.setObjectName("titleDialog")
+        background_layout.addWidget(title_label)
 
-        # Widget del resultado
+        # Resultado de matriz
         result_container = QWidget()
         result_layout = QVBoxLayout(result_container)
         result_layout.setContentsMargins(0, 10, 0, 10)
         result_layout.setSpacing(15)
-        
-        # Mostrar solo el resultado
+
         if hasattr(result_matrix, 'rows') and hasattr(result_matrix, 'cols'):
             result_widget = self._create_matrix_widget(result_matrix)
         else:
             result_widget = self._create_special_result_widget(result_matrix)
-            
-        result_layout.addWidget(result_widget, 0, Qt.AlignCenter)
-        main_layout.addWidget(result_container)
 
-        # Botón cerrar
+        result_layout.addWidget(result_widget, 0, Qt.AlignCenter)
+        background_layout.addWidget(result_container)
+
+        # Botón aceptar
         button = ActionButton("Aceptar", icon_name="check.svg", icon_size=QSize(20, 20), object_name="ctaButton")
         button.clicked.connect(self.accept)
         button.setFixedWidth(150)
@@ -45,23 +50,21 @@ class MatrixResultDialog(QDialog):
         button_layout.addStretch()
         button_layout.addWidget(button)
         button_layout.addStretch()
-        main_layout.addLayout(button_layout)
+        background_layout.addLayout(button_layout)
+
+        # Layout externo
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        main_layout.addWidget(background_frame)
 
         self.adjustSize()
 
-    def _create_matrix_widget(self, matrix, title=""):
+    def _create_matrix_widget(self, matrix):
         """Crea un widget de matriz con estilo consistente"""
         widget = QWidget()
         layout = QVBoxLayout(widget)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
-        
-        # Título de la matriz (si existe)
-        if title:
-            label = QLabel(title)
-            label.setAlignment(Qt.AlignCenter)
-            label.setStyleSheet("font-weight: bold;")
-            layout.addWidget(label)
 
         # Determinar si necesitamos scroll vertical (matrices con más de 5 filas)
         needs_scroll = matrix.rows > 6
@@ -163,9 +166,7 @@ class MatrixResultDialog(QDialog):
                 
                 # Establecer tooltip para mostrar el valor completo al pasar el mouse
                 item.setToolTip(str(value))
-                
                 table.setItem(r, c, item)
-                
         return widget
     
     def _create_special_result_widget(self, raw_result):
@@ -180,7 +181,6 @@ class MatrixResultDialog(QDialog):
                 label = QLabel()
                 label.setWordWrap(True)
                 label.setAlignment(Qt.AlignCenter)
-                label.setStyleSheet("font-size: 16px; margin: 5px;")
                 
                 if isinstance(value, float):
                     label.setText(f"{name}: {value:.2f}")
@@ -194,7 +194,6 @@ class MatrixResultDialog(QDialog):
         else:
             label = QLabel(str(raw_result))
             label.setAlignment(Qt.AlignCenter)
-            label.setStyleSheet("font-size: 18px; font-weight: bold;")
             layout.addWidget(label)
 
         return widget

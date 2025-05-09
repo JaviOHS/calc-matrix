@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QSpinBox, QWidget, QDoubleSpinBox, QComboBox, QVBoxLayout
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QDoubleSpinBox, QComboBox, QVBoxLayout
 from PySide6.QtCore import Qt
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from utils.formatting import format_math_expression
@@ -10,12 +10,14 @@ class SymCalOpWidget(ExpressionOpWidget):
         self.operation_type = operation_type
         use_dialog_for_result = True if operation_type == "ecuaciones_diferenciales" else False
 
+        placeholder = "Ejemplo: 2x^2 + 2x"
         if operation_type == "ecuaciones_diferenciales":
             input_label = "Seleccione un método e ingrese la ecuación diferencial a resolver."
             placeholder = "Ejemplos válidos: \ny' = x + y || dy/dx = x + y"
+        elif operation_type == "derivadas":
+            input_label = "Ingresa una expresión para calcular la derivada:"
         else:
-            input_label = f"Ingresa una expresión para realizar cálculo de {operation_type.replace('_', ' ')}:"
-            placeholder = "Ejemplo: 2x^2 + 2x"
+            input_label = "Ingresa una expresión y seleccione el tipo de integral a resolver."
 
         super().__init__(
             manager,
@@ -48,27 +50,57 @@ class SymCalOpWidget(ExpressionOpWidget):
             self.add_differential_equation_inputs()
 
     def add_integral_limits_inputs(self):
-        """Configura los inputs para límites de integración"""
+        """Configura los inputs para límites de integración en una única fila horizontal"""
         self.limits_widget = QWidget()
         limits_layout = QHBoxLayout(self.limits_widget)
         limits_layout.setContentsMargins(20, 0, 0, 0)
-
-        limits_layout.addWidget(QLabel("Desde x ="))
-        self.lower_limit = QSpinBox()
+        
+        # Selector para tipo de integral
+        limits_layout.addWidget(QLabel("Tipo de integral:"))
+        self.integral_type = QComboBox()
+        self.integral_type.addItem("Integral indefinida", "indefinite")
+        self.integral_type.addItem("Integral definida", "definite")
+        self.integral_type.currentTextChanged.connect(self.toggle_limits_visibility)
+        limits_layout.addWidget(self.integral_type)
+        
+        # Controles de límites en la misma fila
+        self.limits_input_widget = QWidget()
+        limits_input_layout = QHBoxLayout(self.limits_input_widget)
+        limits_input_layout.setContentsMargins(10, 0, 0, 0)
+        limits_input_layout.setSpacing(5)
+        
+        limits_input_layout.addWidget(QLabel("Desde x ="))
+        self.lower_limit = QDoubleSpinBox()
         self.lower_limit.setRange(-1000, 1000)
         self.lower_limit.setValue(0)
+        self.lower_limit.setDecimals(2)
         self.lower_limit.setAlignment(Qt.AlignCenter)
-        limits_layout.addWidget(self.lower_limit)
+        self.lower_limit.setFixedWidth(70)
+        limits_input_layout.addWidget(self.lower_limit)
 
-        limits_layout.addWidget(QLabel("Hasta x ="))
-        self.upper_limit = QSpinBox()
+        limits_input_layout.addWidget(QLabel("Hasta x ="))
+        self.upper_limit = QDoubleSpinBox()
         self.upper_limit.setRange(-1000, 1000)
         self.upper_limit.setValue(1)
+        self.upper_limit.setDecimals(2)
         self.upper_limit.setAlignment(Qt.AlignCenter)
-        limits_layout.addWidget(self.upper_limit)
+        self.upper_limit.setFixedWidth(70)
+        limits_input_layout.addWidget(self.upper_limit)
+        
+        # Agregar el widget de límites al layout principal
+        limits_layout.addWidget(self.limits_input_widget)
         limits_layout.addStretch()
-
+        
+        # Insertar el widget completo en el layout de la interfaz
         self.layout.insertWidget(1, self.limits_widget)
+        
+        # Configurar estado inicial (oculto)
+        self.limits_input_widget.setVisible(False)
+        
+    def toggle_limits_visibility(self, integral_type):
+        """Muestra u oculta los límites de integración según el tipo seleccionado"""
+        self.limits_input_widget.setVisible(integral_type == "Integral definida")
+        self.layout.update()  # Actualizar la UI
 
     def add_differential_equation_inputs(self):
         """Configura los inputs adicionales para ecuaciones diferenciales"""
@@ -158,17 +190,20 @@ class SymCalOpWidget(ExpressionOpWidget):
         if self.operation_type == "derivadas":
             result = self.controller.compute_derivative(expression)
         elif self.operation_type == "integrales":
-            limits = (self.lower_limit.value(), self.upper_limit.value())
-            result = self.controller.compute_integral(expression, limits)
+            if hasattr(self, 'integral_type') and self.integral_type.currentData() == "definite":
+                # Para integral definida
+                limits = (self.lower_limit.value(), self.upper_limit.value())
+                result = self.controller.compute_integral(expression, limits)
+            else:
+                # Para integral indefinida
+                result = self.controller.compute_integral(expression)
         elif self.operation_type == "ecuaciones_diferenciales":
-            # Compartir parámetros de rango entre métodos analítico y Euler
+            # Código existente para ecuaciones diferenciales...
             x_range = (self.euler_x_start.value(), self.euler_x_end.value())
             initial_condition = (self.euler_x0.value(), self.euler_y0.value())
             
             if self.de_method_selector.currentData() == "analytical":
-                result = self.controller.solve_differential_equation(expression, 
-                                                                initial_condition=initial_condition, 
-                                                                x_range=x_range)
+                result = self.controller.solve_differential_equation(expression, initial_condition=initial_condition, x_range=x_range)
             else:  # Euler
                 h = self.euler_h.value()
                 result = self.controller.solve_ode_euler(expression, initial_condition, x_range, h)
@@ -181,8 +216,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         is_valid, error_message = self.validate_operation()
             
         if not is_valid:
-            # En lugar de lanzar una excepción, simplemente retornar False y el mensaje
-            return False, error_message
+           return False, error_message
         
         try:
             result = self.execute_operation()
@@ -190,8 +224,7 @@ class SymCalOpWidget(ExpressionOpWidget):
             self.process_operation_result(formatted_result)
             return True, "Operación completada exitosamente"
         except Exception as e:
-            # Retornar False y el mensaje de error en lugar de lanzar una excepción
-            return False, f"Error al calcular la operación: {str(e)}"
+           return False, f"Error al calcular la operación: {str(e)}"
         
     def prepare_result_display(self, result):
         expr_str = self.get_input_expression().strip()
@@ -209,10 +242,11 @@ class SymCalOpWidget(ExpressionOpWidget):
                         "canvas": result["canvas"]
                     }
                 else:
-                    # Para soluciones analíticas sin canvas
+                    # Para soluciones sin canvas 
                     return format_math_expression(parsed_expr, result, self.operation_type, method=method)
             else:
                 parsed_expr = self.controller.parser.parse_expression(expr_str)
                 return format_math_expression(parsed_expr, result, self.operation_type)
         except Exception as e:
             raise ValueError(f"Ocurrió un error: {str(e)}")
+        

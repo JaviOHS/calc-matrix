@@ -60,33 +60,26 @@ class MatrixPage(BaseOperationPage):
             self.show_message_dialog("🔴 ERROR", "#f44336", f"Error inesperado: {str(e)}")
             
     def show_result(self, result, message, operation_name=""):
-        mostrar_matrices = ["Determinante", "Inversa", "Sistema de Ecuaciones"] # Implementar solución para determinante e inversa en el futuro :)
-
         if isinstance(result, list):
             if operation_name == "Determinante":
                 for matrix_name, det_val in result:
                     result_matrix = Matrix(1, 1)
                     result_matrix.set_value(0, 0, det_val)
-                    dialog = MatrixResultDialog([], result_matrix, operation=operation_name, parent=self)
+                    dialog = MatrixResultDialog(result_matrix, operation=operation_name, parent=self)
                     dialog.exec()
                 return
 
             if operation_name == "Inversa":
                 for matrix_name, inverse_matrix in result:
                     if isinstance(inverse_matrix, Matrix):  # Si es una matriz, muestra la inversa
-                        dialog = MatrixResultDialog([], inverse_matrix, operation=operation_name, parent=self)
+                        dialog = MatrixResultDialog(inverse_matrix, operation=operation_name, parent=self)
                         dialog.exec()
                     else:  # Si es un error (string), muestra el mensaje
                         self.show_message_dialog("🔴 ERROR", "#f44336", inverse_matrix)
                 return
 
         if isinstance(result, Matrix):
-            if operation_name in mostrar_matrices:
-                matrices = self.manager.get_all_matrices()
-            else:
-                matrices = []
-
-            dialog = MatrixResultDialog(matrices, result, operation=operation_name, parent=self)
+            dialog = MatrixResultDialog(result, operation=operation_name, parent=self)
             dialog.exec()
 
     def _fill_result_table(self, matrix: Matrix):

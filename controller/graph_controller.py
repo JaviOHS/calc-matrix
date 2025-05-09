@@ -1,7 +1,8 @@
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-import matplotlib.pyplot as plt
-from sympy import lambdify
 from utils.parsers.expression_parser import ExpressionParser
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+from sympy import lambdify
+import matplotlib.pyplot as plt
+import sympy as sp
 
 class GraphController:
     def __init__(self, manager):
@@ -59,45 +60,58 @@ class GraphController:
         try:
             raw_expression = inputs["expression"]
             x_range = inputs["x_range"]
-            y_range = inputs["y_range"]  # Asegúrate de recibir y_range
+            y_range = inputs["y_range"]
 
             if not raw_expression or not x_range or not y_range:
                 raise ValueError("Expresión o rangos no proporcionados")
 
-            # Separar las expresiones por comas y validar que sea solo una
+            # Separar las expresiones y validar
             expressions = [expr.strip() for expr in raw_expression.split(",") if expr.strip()]
             if len(expressions) > 1:
                 raise ValueError("Solo se puede graficar una expresión a la vez en gráficos 3D.")
 
-            # Parsear la expresión que puede tener x y y
-            parsed_expr = self.parser.parse_expression(raw_expression)
-            
-            # Convertir la expresión simbólica a una función de Python
-            f = lambdify((self.parser.x, self.parser.y), parsed_expr, "numpy")
+            # Reemplazar manualmente cualquier exponenciación para asegurar formato correcto
+            expression = expressions[0].replace("^", "**")
 
-            # Generar los valores de x y y para la gráfica 3D
+            # Crear símbolos sympy para x e y
+            x, y = sp.symbols('x y')
+            
+            # Parsear la expresión directamente con sympy
+            try:
+                parsed_expr = sp.sympify(expression)
+            except Exception as e:
+                raise ValueError(f"Error al parsear la expresión con sympy: {e}")
+            
+            # Crear una función lambda que acepte arrays de NumPy
+            f = sp.lambdify((x, y), parsed_expr, modules="numpy")
+            
+            # Generar valores para X e Y
             import numpy as np
-            x_vals = np.linspace(x_range[0], x_range[1], 100)  # 100 puntos de x
-            y_vals = np.linspace(y_range[0], y_range[1], 100)  # 100 puntos de y
+            x_vals = np.linspace(x_range[0], x_range[1], 100)
+            y_vals = np.linspace(y_range[0], y_range[1], 100)
             X, Y = np.meshgrid(x_vals, y_vals)
             
+            # Evaluar la función
             try:
-                Z = f(X, Y)  # Evaluamos la función
+                Z = f(X, Y)
             except Exception as e:
-                raise ValueError(f"Error al evaluar la función 3D: {e}")
+                raise ValueError(f"Error al evaluar la función con los valores: {e}")
 
-            # Crear la gráfica 3D
-            fig = plt.figure()
+            # Crear la figura
+            import matplotlib.pyplot as plt
+            from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
+            
+            fig = plt.figure(figsize=(6, 4))
             ax = fig.add_subplot(111, projection='3d')
-            ax.plot_surface(X, Y, Z, cmap='viridis', rstride=1, cstride=1, alpha=0.8)
-            ax.set_xlabel("X")
-            ax.set_ylabel("Y")
-            ax.set_zlabel("Z")
+            surf = ax.plot_surface(X, Y, Z, cmap='viridis', rstride=1, cstride=1, alpha=0.8)
+            ax.set_xlabel('X')
+            ax.set_ylabel('Y')
+            ax.set_zlabel('Z')
             ax.set_title(f"Gráfica 3D de: {raw_expression}")
-
+            
             canvas = FigureCanvas(fig)
             return canvas
-
+            
         except Exception as e:
             raise ValueError(f"Error al generar gráfica 3D: {str(e)}")
     

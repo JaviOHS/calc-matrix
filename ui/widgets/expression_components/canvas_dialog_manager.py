@@ -19,13 +19,7 @@ class CanvasDialogManager:
             
         canvas.setFixedSize(500, 300)
         canvas.draw()
-        dialog = MessageDialog(
-            title=title,
-            title_color=title_color,
-            image_name=image_name,
-            parent=self.parent_widget,
-            custom_widget=canvas
-        )
+        dialog = MessageDialog(title=title, title_color=title_color, image_name=image_name, parent=self.parent_widget, custom_widget=canvas)
         dialog.exec()
 
     def show_result_dialog(self, html_content=None, canvas=None, title="🟢 RESULTADO", title_color="#7cb342"):
@@ -52,7 +46,6 @@ class CanvasDialogManager:
             html_display.setMinimumHeight(150)
             html_display.setMinimumWidth(250)
             html_display.setOpenExternalLinks(True)
-            html_display.setStyleSheet("border: none; background: transparent;")
             left_layout.addWidget(html_display)
         
         # Agregar imagen success.png debajo del HTML
@@ -79,11 +72,5 @@ class CanvasDialogManager:
             combined_layout.addWidget(canvas)
         
         # Se envía la imágen vacía ya que se está colocando directamente en el layout
-        dialog = MessageDialog(
-            title=title,
-            title_color=title_color,
-            image_name=None, 
-            parent=self.parent_widget,
-            custom_widget=combined_widget
-        )
+        dialog = MessageDialog(title=title, title_color=title_color, image_name=None,  parent=self.parent_widget, custom_widget=combined_widget)
         dialog.exec()

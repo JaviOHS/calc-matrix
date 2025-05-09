@@ -26,10 +26,10 @@ class GraphModel:
         y_vals = np.linspace(self.y_min, self.y_max, 100)
         X, Y = np.meshgrid(x_vals, y_vals)
         try:
-            parsed_expr = sympy.sympify(self.expression)
+            expression = self.expressions[0] if isinstance(self.expressions, list) else self.expressions
+            parsed_expr = sympy.sympify(expression)
             f = lambdify(('x', 'y'), parsed_expr, 'numpy')
             Z = f(X, Y)
             return X, Y, Z
         except Exception as e:
             raise ValueError(f"Error evaluando la función 3D: {e}")
-        

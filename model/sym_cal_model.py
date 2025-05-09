@@ -11,20 +11,98 @@ class SymCalModel:
         self.history = []
         self.graph_controller = GraphController(GraphManager())
 
-    def derive(self, expression: str):
-        f = sympify(expression)
-        result = diff(f, self.x)
-        self.history.append(("Derivada", expression, result))
-        return result
-
-    def integrate(self, expression: str, limits=None):
-        f = sympify(expression)
-        if limits:
-            result = integrate(f, (self.x, *limits))
-        else:
-            result = integrate(f, self.x)
-        self.history.append(("Integral", expression, result, limits))
-        return result
+    def derive(self, expression, var=None):
+        try:
+            # Si la expresión es una lista, se asume que es un polinomio
+            if isinstance(expression, list):
+                from model.polynomial_model import Polynomial
+                
+                coeffs = expression
+                variable = var or 'x'
+                
+                # Implementación para coeffs = [an, ..., a1, a0]
+                if len(coeffs) <= 1:
+                    result = Polynomial([0], var=variable)
+                else:
+                    n = len(coeffs) - 1
+                    new_coeffs = [(n - i) * coeffs[i] for i in range(len(coeffs) - 1)]
+                    result = Polynomial(new_coeffs, var=variable)
+                    
+                self.history.append(("Derivada polinomio", str(expression), result))
+                return result
+            # Si es una instancia de Polynomial, convertirlo a expresión simbólica
+            from model.polynomial_model import Polynomial
+            if isinstance(expression, Polynomial):
+                sym_expr = expression.to_sympy_expr()
+                variable = symbols(expression.var)
+                result = diff(sym_expr, variable)
+                
+                # Intentar convertir el resultado a un polinomio
+                try:
+                    poly_result = Polynomial(sp.Poly(result, variable).all_coeffs(), var=expression.var)
+                    self.history.append(("Derivada polinomio", str(expression), poly_result))
+                    return poly_result
+                except:
+                    # Si no se puede convertir a polinomio, devolver la expresión simbólica
+                    self.history.append(("Derivada", str(expression), result))
+                    return result
+                
+            f = sympify(expression)
+            variable = symbols(var) if var else self.x
+            result = diff(f, variable)
+            self.history.append(("Derivada", expression, result))
+            return result
+        except Exception as e:
+            raise ValueError(f"Error al derivar: {str(e)}")
+    
+    def integrate(self, expression, limits=None, var=None, constant=0):
+        try:
+            # Si la expresión es una lista, se asume que es un polinomio
+            if isinstance(expression, list):
+                from model.polynomial_model import Polynomial
+                coeffs = expression
+                variable = var or 'x'
+                
+                # Implementación CORRECTA para coeffs = [an, ..., a1, a0]
+                new_coeffs = []
+                n = len(coeffs) - 1  # Grado máximo del polinomio
+                
+                for i in range(len(coeffs)):
+                    # Para cada término a_i*x^(n-i), la integral es (a_i/(n-i+1))*x^(n-i+1)
+                    new_coeff = coeffs[i] / (n - i + 1)
+                    new_coeffs.append(new_coeff)
+                
+                # Añadir la constante de integración como nuevo término independiente
+                new_coeffs.append(constant)
+                
+                poly = Polynomial(new_coeffs, var=variable)
+                
+                if limits:
+                    lower, upper = limits
+                    result = poly.evaluate(upper) - poly.evaluate(lower)
+                    self.history.append(("Integral definida polinomio", str(expression), result, limits))
+                    return result
+                else:
+                    self.history.append(("Integral polinomio", str(expression), poly))
+                    return poly
+                  
+            # Si es una instancia de Polynomial, obtenemos sus coeficientes
+            from model.polynomial_model import Polynomial
+            if isinstance(expression, Polynomial):
+                return self.integrate(expression.coefficients, limits=limits, var=expression.var, constant=constant)
+            
+            f = sympify(expression)
+            variable = symbols(var) if var else self.x
+            
+            if limits:
+                result = integrate(f, (variable, *limits))
+            else:
+                result = integrate(f, variable)
+                
+            self.history.append(("Integral", expression, result, limits))
+            return result
+        except Exception as e:
+            raise ValueError(f"Error al integrar: {str(e)}")
     
     def solve_differential_equation(self, equation, initial_condition=None, x_range=None):
         x = self.x

@@ -111,7 +111,7 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
                 roots_html += (
                     f"<div style='margin: 6px 0;'>"
                     f"<span style='color: {COLORS['error']}; font-weight: bold;'>x<sub>{idx + 1}</sub></span> "
-                    f"≈ <span style='color: {COLORS['primary']};'>{approx_str}</span>"
+                    f"≈ <span style='color: {COLORS['success']};'>{approx_str}</span>"
                     f"<span style='color: {COLORS['neutral']}; margin-left: 10px;'>(forma exacta: {root_expr})</span>"
                     f"</div>"
                 )
@@ -123,7 +123,7 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
                 )
         roots_html += "</div>"
         
-        html_result.append(create_section('Raíces encontradas:', roots_html, COLORS['success'], ICONS['roots']))
+        html_result.append(create_section('Raíces encontradas:', roots_html, COLORS['primary'], ICONS['roots']))
         
         return "".join(html_result)
 
@@ -212,3 +212,4 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             create_section('Expresión Original: ', formatted_expr, COLORS['secondary'], ICONS['operation']) +
             create_section('Resultado Simplificado: ', formatted_result, COLORS['primary'], ICONS['result'])
         )
+    

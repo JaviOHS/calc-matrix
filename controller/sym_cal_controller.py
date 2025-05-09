@@ -5,17 +5,17 @@ class SymCalController:
         self.manager = manager
         self.parser = ExpressionParser()
 
-    def compute_derivative(self, expression):
+    def compute_derivative(self, expression, var=None):
         if not expression:
             raise ValueError("La expresión para derivar no puede estar vacía.")
         
         try:
             parsed_expr = self.parser.parse_expression(expression)
-            return self.manager.get_derivative(parsed_expr)
+            return self.manager.get_derivative(parsed_expr, var)
         except Exception as e:
             raise ValueError(str(e))
 
-    def compute_integral(self, expression, limits=None):
+    def compute_integral(self, expression, limits=None, var=None, constant=0):
         if not expression:
             raise ValueError("La expresión para integrar no puede estar vacía.")
         
@@ -30,11 +30,11 @@ class SymCalController:
                 if limits[0] >= limits[1]:
                     raise ValueError("El límite inferior debe ser menor que el límite superior.")
             
-            return self.manager.get_integral(parsed_expr, limits)
+            return self.manager.get_integral(parsed_expr, limits, var, constant)
         
         except Exception as e:
             raise ValueError(f"Error al calcular la integral: {str(e)}")
-    
+        
     def solve_differential_equation(self, expression, initial_condition=None, x_range=None):
         if not expression:
             raise ValueError("La ecuación diferencial no puede estar vacía.")
