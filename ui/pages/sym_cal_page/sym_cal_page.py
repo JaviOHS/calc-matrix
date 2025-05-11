@@ -1,4 +1,4 @@
-from ui.widgets.base_page_widget import BaseOperationPage
+from ui.widgets.base_operation_page import BaseOperationPage
 from model.sym_cal_manager import SymCalManager
 from controller.sym_cal_controller import SymCalController
 from ui.pages.sym_cal_page.sym_cal_op import SymCalOpWidget

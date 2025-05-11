@@ -1,7 +1,7 @@
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QDoubleSpinBox, QComboBox, QVBoxLayout
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QComboBox
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from utils.formatting import format_math_expression
+from utils.spinbox_utils import create_spinbox
 
 class SymCalOpWidget(ExpressionOpWidget):
     def __init__(self, manager, controller, operation_type=None):
@@ -19,14 +19,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         else:
             input_label = "Ingresa una expresión y seleccione el tipo de integral a resolver."
 
-        super().__init__(
-            manager,
-            controller,
-            operation_type=operation_type,
-            placeholder=placeholder,
-            input_label=input_label,
-            use_dialog_for_result=use_dialog_for_result
-        )
+        super().__init__(manager, controller, operation_type=operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=use_dialog_for_result)
 
         self.add_additional_inputs()
 
@@ -70,21 +63,11 @@ class SymCalOpWidget(ExpressionOpWidget):
         limits_input_layout.setSpacing(5)
         
         limits_input_layout.addWidget(QLabel("Desde x ="))
-        self.lower_limit = QDoubleSpinBox()
-        self.lower_limit.setRange(-1000, 1000)
-        self.lower_limit.setValue(0)
-        self.lower_limit.setDecimals(2)
-        self.lower_limit.setAlignment(Qt.AlignCenter)
-        self.lower_limit.setFixedWidth(70)
+        self.lower_limit = create_spinbox(default_val=0)
         limits_input_layout.addWidget(self.lower_limit)
 
         limits_input_layout.addWidget(QLabel("Hasta x ="))
-        self.upper_limit = QDoubleSpinBox()
-        self.upper_limit.setRange(-1000, 1000)
-        self.upper_limit.setValue(1)
-        self.upper_limit.setDecimals(2)
-        self.upper_limit.setAlignment(Qt.AlignCenter)
-        self.upper_limit.setFixedWidth(70)
+        self.upper_limit = create_spinbox(default_val=1)
         limits_input_layout.addWidget(self.upper_limit)
         
         # Agregar el widget de límites al layout principal
@@ -115,6 +98,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         self.de_method_selector.addItem("Euler", "euler")
         self.de_method_selector.addItem("Heun", "heun")
         self.de_method_selector.addItem("RK4", "rk4")
+        self.de_method_selector.addItem("Taylor 2° orden", "taylor")
         container_layout.addWidget(QLabel("Método:"))
         container_layout.addWidget(self.de_method_selector)
         
@@ -126,49 +110,36 @@ class SymCalOpWidget(ExpressionOpWidget):
         
         # Condición inicial
         common_layout.addWidget(QLabel("y("))
-        self.euler_x0 = QDoubleSpinBox()
-        self.euler_x0.setFixedWidth(70)
-        self.euler_x0.setRange(-1000, 1000)
-        self.euler_x0.setValue(1)
-        common_layout.addWidget(self.euler_x0)
+        self.numerical_x0 = create_spinbox(default_val=0)
+        common_layout.addWidget(self.numerical_x0)
+        
         common_layout.addWidget(QLabel(") ="))
-        self.euler_y0 = QDoubleSpinBox()
-        self.euler_y0.setFixedWidth(70)
-        self.euler_y0.setRange(-1000, 1000)
-        self.euler_y0.setValue(10)
-        common_layout.addWidget(self.euler_y0)
+        self.numerical_y0 = create_spinbox(default_val=1)
+        common_layout.addWidget(self.numerical_y0)
         
         # Rango de solución
         common_layout.addWidget(QLabel("Rango:"))
         common_layout.addWidget(QLabel("x ="))
-        self.euler_x_start = QDoubleSpinBox()
-        self.euler_x_start.setFixedWidth(70)
-        self.euler_x_start.setRange(-1000, 1000)
-        self.euler_x_start.setValue(0)
-        common_layout.addWidget(self.euler_x_start)
+        self.numerical_x_start = create_spinbox(default_val=0)
+        common_layout.addWidget(self.numerical_x_start)
+        
         common_layout.addWidget(QLabel("a"))
-        self.euler_x_end = QDoubleSpinBox()
-        self.euler_x_end.setFixedWidth(70)
-        self.euler_x_end.setRange(-1000, 1000)
-        self.euler_x_end.setValue(10)
-        common_layout.addWidget(self.euler_x_end)
+        self.numerical_x_end = create_spinbox(default_val=10)
+        common_layout.addWidget(self.numerical_x_end)
         
-        # Widget solo para parámetros de Euler
-        self.euler_step_widget = QWidget()
-        euler_step_layout = QHBoxLayout(self.euler_step_widget)
-        euler_step_layout.setContentsMargins(0, 0, 0, 0)
-        euler_step_layout.setSpacing(5)
+        # Widget solo para parámetros numéricos
+        self.numerical_step_widget = QWidget()
+        numerical_step_layout = QHBoxLayout(self.numerical_step_widget)
+        numerical_step_layout.setContentsMargins(0, 0, 0, 0)
+        numerical_step_layout.setSpacing(5)
         
-        # Paso h (solo para Euler y Heun)
-        euler_step_layout.addWidget(QLabel("h ="))
-        self.euler_h = QDoubleSpinBox()
-        self.euler_h.setFixedWidth(70)
-        self.euler_h.setRange(0.001, 5)
-        self.euler_h.setValue(2.5)
-        euler_step_layout.addWidget(self.euler_h)
+        # Paso h (solo para métodos numéricos
+        numerical_step_layout.addWidget(QLabel("h ="))
+        self.numerical_h = create_spinbox(min_val=0.001, max_val=5, default_val=2.5, step=0.1)
+        numerical_step_layout.addWidget(self.numerical_h)
         
         # Agregar widgets al layout
-        common_layout.addWidget(self.euler_step_widget)
+        common_layout.addWidget(self.numerical_step_widget)
         common_layout.addStretch()
         container_layout.addWidget(self.common_params_widget)
         container_layout.addStretch()
@@ -184,7 +155,7 @@ class SymCalOpWidget(ExpressionOpWidget):
 
     def toggle_step(self, method):
         """Muestra u oculta el parámetro de paso según la selección"""
-        self.euler_step_widget.setVisible(method in ["Euler", "Heun", "RK4"])
+        self.numerical_step_widget.setVisible(method in ["Euler", "Heun", "RK4", "Taylor 2° orden"])
         self.layout.update()  # Ajustar el tamaño del widget
 
     def execute_operation(self):
@@ -200,15 +171,15 @@ class SymCalOpWidget(ExpressionOpWidget):
                 # Para integral indefinida
                 result = self.controller.compute_integral(expression)
         elif self.operation_type == "ecuaciones_diferenciales":
-            x_range = (self.euler_x_start.value(), self.euler_x_end.value())
-            initial_condition = (self.euler_x0.value(), self.euler_y0.value())
+            x_range = (self.numerical_x_start.value(), self.numerical_x_end.value())
+            initial_condition = (self.numerical_x0.value(), self.numerical_y0.value())
             
             method = self.de_method_selector.currentData()
             if method == "analytical":
                 result = self.controller.solve_differential_equation(expression, initial_condition=initial_condition, x_range=x_range)
             else:
                 # Usar el método numérico correspondiente
-                h = self.euler_h.value()
+                h = self.numerical_h.value()
                 method_func = getattr(self.controller, f"solve_ode_{method}", None)
                 if method_func:
                     result = method_func(expression, initial_condition, x_range, h)

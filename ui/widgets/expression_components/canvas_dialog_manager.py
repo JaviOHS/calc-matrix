@@ -1,25 +1,39 @@
 from ui.dialogs.message_dialog import MessageDialog
-from PySide6.QtWidgets import QWidget, QVBoxLayout, QTextBrowser
-from PySide6.QtGui import QPixmap
-from PySide6.QtCore import Qt
-from utils.resources import resource_path
-from PySide6.QtWidgets import QSizePolicy
-from PySide6.QtWidgets import QHBoxLayout, QLabel
+from ui.widgets.expression_components.custom_toolbar import CustomNavigationToolbar
+from PySide6.QtWidgets import QWidget, QVBoxLayout, QTextBrowser, QSizePolicy, QHBoxLayout
+from utils.image_utils import create_image_label
 
 class CanvasDialogManager:
     """Gestor para mostrar diálogos con canvas (gráficos) y/o resultados HTML"""
-    
     def __init__(self, parent_widget: QWidget = None):
         self.parent_widget = parent_widget
     
     def show_canvas_dialog(self, canvas, title="🟢 GRÁFICA DE FUNCIÓN", title_color="#7cb342", image_name="success.png"):
-        """Muestra un diálogo con el canvas proporcionado"""
+        """Muestra un diálogo con el canvas proporcionado y barra de herramientas"""
         if not canvas:
             return
-            
-        canvas.setFixedSize(500, 300)
-        canvas.draw()
-        dialog = MessageDialog(title=title, title_color=title_color, image_name=image_name, parent=self.parent_widget, custom_widget=canvas)
+        
+        # Crear un contenedor para el canvas y la barra de herramientas
+        canvas_container = QWidget()
+        canvas_layout = QVBoxLayout(canvas_container)
+        canvas_layout.setContentsMargins(0, 0, 0, 0)
+        canvas_layout.setSpacing(0)
+        
+        # Configura el canvas para que tenga un tamaño mínimo pero que pueda expandirse
+        canvas.setMinimumSize(600, 400)
+        canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        
+        # Añadir una barra de herramientas de Matplotlib
+        toolbar = CustomNavigationToolbar(canvas, canvas_container)
+        
+        # Añadir el toolbar y el canvas al layout
+        canvas_layout.addWidget(toolbar)
+        canvas_layout.addWidget(canvas)
+        
+        canvas.draw() # Dibujar el canvas
+        
+        # Mostrar el diálogo con el contenedor que incluye el canvas y la barra
+        dialog = MessageDialog(title=title, title_color=title_color, image_name=image_name, parent=self.parent_widget, custom_widget=canvas_container)
         dialog.exec()
 
     def show_result_dialog(self, html_content=None, canvas=None, title="🟢 RESULTADO", title_color="#7cb342"):
@@ -29,7 +43,7 @@ class CanvasDialogManager:
             
         # Crear contenedor para el contenido combinado
         combined_widget = QWidget()
-        combined_layout = QHBoxLayout(combined_widget)  # Cambio a QHBoxLayout para disposición horizontal
+        combined_layout = QHBoxLayout(combined_widget)
         combined_layout.setContentsMargins(10, 10, 10, 10)
         combined_layout.setSpacing(15)
         
@@ -48,12 +62,10 @@ class CanvasDialogManager:
             html_display.setOpenExternalLinks(True)
             left_layout.addWidget(html_display)
         
-        # Agregar imagen success.png debajo del HTML
-        image_path = resource_path("assets/images/dialogs/edo.png")
-        pixmap = QPixmap(image_path).scaled(164, 164, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        image_label = QLabel()
-        image_label.setPixmap(pixmap)
+        # Agregar imagen debajo del HTML
+        image_label = create_image_label("assets/images/dialogs/edo.png", width=200, height=200)
         image_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        
         image_container = QWidget()
         image_layout = QHBoxLayout(image_container)
         image_layout.addStretch()
@@ -65,12 +77,27 @@ class CanvasDialogManager:
         # Agregar el contenedor izquierdo al layout principal
         combined_layout.addWidget(left_container)
         
-        # Agregar el canvas a la derecha si existe
+        # Contenedor para el canvas con barra de herramientas
         if canvas:
-            canvas.setMinimumSize(500, 300)
+            canvas_container = QWidget()
+            canvas_layout = QVBoxLayout(canvas_container)
+            canvas_layout.setContentsMargins(0, 0, 0, 0)
+            canvas_layout.setSpacing(0)
+            
+            # Configurar canvas para que se expanda correctamente
+            canvas.setMinimumSize(500, 350)
+            canvas.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            
+            # Agregar barra de herramientas
+            toolbar = CustomNavigationToolbar(canvas, canvas_container)
+            
+            canvas_layout.addWidget(toolbar)
+            canvas_layout.addWidget(canvas)
+            
+            # Dibujar el canvas
             canvas.draw()
-            combined_layout.addWidget(canvas)
+            combined_layout.addWidget(canvas_container)
         
-        # Se envía la imágen vacía ya que se está colocando directamente en el layout
-        dialog = MessageDialog(title=title, title_color=title_color, image_name=None,  parent=self.parent_widget, custom_widget=combined_widget)
+        # Se envía la imagen vacía ya que se está colocando directamente en el layout
+        dialog = MessageDialog(title=title, title_color=title_color, image_name=None, parent=self.parent_widget, custom_widget=combined_widget)
         dialog.exec()

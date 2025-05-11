@@ -21,6 +21,9 @@ class SymCalManager:
 
     def solve_ode_rk4(self, equation, initial_condition, x_range, h=0.1):
         return self.model.solve_ode_rk4(equation, initial_condition, x_range, h)
+    
+    def solve_ode_taylor(self, equation, initial_condition, x_range, h=0.1):
+        return self.model.solve_ode_taylor(equation, initial_condition, x_range, h)
 
     def solve_ode_numerical(self, equation, initial_condition, x_range, h=0.1, method="euler"):
         """Método genérico para llamar a los métodos numéricos de resolución de EDOs"""

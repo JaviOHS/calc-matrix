@@ -2,7 +2,7 @@ import numpy as np
 from model.vector_manager import VectorManager
 from controller.vector_controller import VectorController
 from ui.pages.vector_page.vector_operation import VectorOpWidget
-from ui.widgets.base_page_widget import BaseOperationPage
+from ui.widgets.base_operation_page import BaseOperationPage
 from utils.formatting import format_math_expression
 
 class VectorPage(BaseOperationPage):

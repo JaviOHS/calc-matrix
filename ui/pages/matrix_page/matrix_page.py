@@ -1,7 +1,7 @@
 from model.matrix_manager import MatrixManager
 from controller.matrix_controller import MatrixController
 from model.matrix_model import Matrix
-from ui.widgets.base_page_widget import BaseOperationPage
+from ui.widgets.base_operation_page import BaseOperationPage
 from ui.pages.matrix_page.operation_widgets.basic_operation import MatrixOperationWidget, MatrixDeterminantWidget, MatrixInverseWidget
 from ui.pages.matrix_page.operation_widgets.matrix_mult import MatrixMultiplicationWidget
 from ui.pages.matrix_page.operation_widgets.solver_sys_widget import MatrixSystemSolverWidget

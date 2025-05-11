@@ -1,4 +1,3 @@
-from utils.resources import resource_path
 from ui.sidebar import Sidebar
 from ui.navbar import TopNavbar
 import getpass
@@ -18,7 +17,6 @@ from model.graph_manager import GraphManager
 from model.sym_cal_manager import SymCalManager
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy
-from PySide6.QtGui import QIcon
 from PySide6.QtCore import Qt
 
 class MainWindow(QMainWindow):
@@ -32,7 +30,6 @@ class MainWindow(QMainWindow):
         self.graph_manager = GraphManager()
         self.symbolic_calculation_manager = SymCalManager()
 
-        
         self.setup_window() # Configuración de la ventana
         self.setup_ui() # Inicializar UI
         

@@ -1,9 +1,9 @@
-from utils.resources import resource_path
-from PySide6.QtGui import QPixmap, QAction
-from PySide6.QtCore import Qt, QPoint
+from PySide6.QtGui import QAction
+from PySide6.QtCore import QPoint
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QLabel, QMenu, QWidgetAction
 from ui.dialogs.message_dialog import MessageDialog
-from ui.widgets.action_buttons import ActionButton
+from utils.action_buttons import ActionButton
+from utils.image_utils import create_image_label
 
 class BaseOperationPage(QWidget):
     def __init__(self, manager, controller, operations_dict, intro_text, intro_image_path, page_title):
@@ -119,10 +119,7 @@ class BaseOperationPage(QWidget):
             image_container_layout.setContentsMargins(0, 0, 0, 0)
 
             # Cargar y mostrar imagen
-            image = QLabel()
-            pixmap = QPixmap(resource_path(self.intro_image_path))
-            image.setPixmap(pixmap.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-            image.setAlignment(Qt.AlignCenter)
+            image = create_image_label(self.intro_image_path, width=300, height=300)
             image_container_layout.addWidget(image)
 
             image_layout.addWidget(image_container)

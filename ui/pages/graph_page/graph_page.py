@@ -1,4 +1,4 @@
-from ui.widgets.base_page_widget import BaseOperationPage
+from ui.widgets.base_operation_page import BaseOperationPage
 from controller.graph_controller import GraphController
 from model.graph_manager import GraphManager
 from ui.pages.graph_page.graph_op import Graph2DWidget, Graph3DWidget

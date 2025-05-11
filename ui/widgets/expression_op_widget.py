@@ -1,11 +1,10 @@
-from utils.resources import resource_path
-from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QTextEdit, QHBoxLayout
-from PySide6.QtGui import QPixmap
+from PySide6.QtCore import Qt
 from ui.widgets.math_operation_widget import MathOperationWidget
 from ui.widgets.expression_components.expression_buttons_panel import ExpressionButtonsPanel
 from ui.widgets.expression_components.expression_formatter_input import ExpressionFormatterInput
 from ui.widgets.expression_components.canvas_dialog_manager import CanvasDialogManager
+from utils.image_utils import create_image_label
 
 class ExpressionOpWidget(MathOperationWidget):
     def __init__(self, manager, controller, operation_type=None, placeholder="", input_label="", image_path="assets/images/placeholder.png", use_dialog_for_result: bool = False):
@@ -58,11 +57,10 @@ class ExpressionOpWidget(MathOperationWidget):
             result_layout.addWidget(self.result_display, stretch=1)
 
             if self.image_path:
-                self.preview_image = QLabel()
-                pixmap = QPixmap(resource_path(self.image_path))
-                if not pixmap.isNull():
-                    pixmap = pixmap.scaledToHeight(120, Qt.SmoothTransformation)
-                    self.preview_image.setPixmap(pixmap)
+                self.preview_image = create_image_label(
+                    self.image_path, 
+                    height=120,
+                )
                 result_layout.addWidget(self.preview_image, alignment=Qt.AlignRight)
 
             input_layout.addWidget(self.result_container)

@@ -1,10 +1,11 @@
 from model.matrix_manager import MatrixManager
 from controller.matrix_controller import MatrixController
 from ui.widgets.math_operation_widget import MathOperationWidget
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QTableWidget, QLabel, QTableWidgetItem, QSpinBox, QScrollArea, QSizePolicy, QGridLayout, QHBoxLayout, QHeaderView
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QTableWidget, QLabel, QTableWidgetItem, QScrollArea, QSizePolicy, QGridLayout, QHBoxLayout, QHeaderView
 from PySide6.QtCore import QEvent, Qt
 from model.matrix_model import Matrix
 from utils.validators import is_valid_number
+from utils.spinbox_utils import create_int_spinbox
 
 class MatrixOperationWidget(MathOperationWidget):
     def __init__(self, manager: MatrixManager, controller: MatrixController, allow_multiple_matrices=True):
@@ -29,10 +30,9 @@ class MatrixOperationWidget(MathOperationWidget):
         # Dimensiones
         self.dim_label = QLabel("Dimensión de la matriz:" if not self.allow_multiple_matrices else "Dimensión de las matrices (n x n):")
         self.dim_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-        self.dim_spinbox = QSpinBox()
-        self.dim_spinbox.setAlignment(Qt.AlignCenter)
-        self.dim_spinbox.setRange(1, 10)
-        self.dim_spinbox.setValue(4)
+        
+        # Usar la nueva función para crear el spinbox
+        self.dim_spinbox = create_int_spinbox(min_val=1, max_val=10, default_val=4)
 
         config_layout.addWidget(self.dim_label)
         config_layout.addWidget(self.dim_spinbox)
@@ -41,10 +41,9 @@ class MatrixOperationWidget(MathOperationWidget):
         if self.allow_multiple_matrices:
             self.matrix_count_label = QLabel("Cantidad de matrices:")
             self.matrix_count_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
-            self.matrix_count_spinbox = QSpinBox()
-            self.matrix_count_spinbox.setAlignment(Qt.AlignCenter)
-            self.matrix_count_spinbox.setRange(2, 10)
-            self.matrix_count_spinbox.setValue(2)
+            
+            # Usar la nueva función para crear el spinbox de cantidad
+            self.matrix_count_spinbox = create_int_spinbox(min_val=2, max_val=10, default_val=2)
 
             config_layout.addWidget(self.matrix_count_label)
             config_layout.addWidget(self.matrix_count_spinbox)

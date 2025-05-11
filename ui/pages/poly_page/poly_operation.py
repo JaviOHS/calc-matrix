@@ -1,9 +1,9 @@
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from model.polynomial_manager import PolynomialManager
 from controller.polynomial_controller import PolynomialController
-from PySide6.QtWidgets import QLabel, QWidget, QDoubleSpinBox, QHBoxLayout
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout
 from utils.formatting import format_math_expression
+from utils.spinbox_utils import create_spinbox
 
 class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
@@ -37,11 +37,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
             x_layout.setContentsMargins(0, 0, 0, 0)
             
             x_layout.addWidget(QLabel("x ="))
-            self.x_input = QDoubleSpinBox()
-            self.x_input.setRange(-999999, 999999)
-            self.x_input.setValue(1.0)
-            self.x_input.setFixedWidth(100)
-            self.x_input.setAlignment(Qt.AlignCenter)
+            self.x_input = create_spinbox(default_val=1)
             x_layout.addWidget(self.x_input)
             
             top_layout.addWidget(x_container)

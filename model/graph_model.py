@@ -1,35 +1,41 @@
 import numpy as np
-import sympy
 from sympy import lambdify
 
 class GraphModel:
-    def __init__(self, expressions, x_range, y_range=None):
-        if isinstance(expressions, str):
-            expressions = [expressions]
-        self.expressions = expressions
-        self.x_min, self.x_max = x_range
-        self.y_min, self.y_max = y_range if y_range else x_range
+    def __init__(self, expressions=None, x_range=None, y_range=None):
+        self.expressions = expressions if expressions else []
+        if x_range:
+            self.x_min, self.x_max = x_range
+        if y_range:
+            self.y_min, self.y_max = y_range
 
-    def evaluate_function(self):
-        x = np.linspace(self.x_min, self.x_max, 400)
+    def evaluate_2d_function(self, parsed_expr, x_symbol, num_points=500):
+        """Evalúa una expresión 2D en el rango definido"""
+        x_vals = np.linspace(self.x_min, self.x_max, num_points)
+        f = lambdify(x_symbol, parsed_expr, "numpy")
         try:
-            y = eval(self.expression, {"x": x, "np": np, "__builtins__": {}})
-            return x, y
+            y_vals = f(x_vals)
+            return x_vals, y_vals
         except Exception as e:
-            raise ValueError(f"Error evaluando la función:\n{e}")
+            raise ValueError(f"Error evaluando la función 2D:\n{e}")
 
-    def evaluate_function_3d(self):
-        if not hasattr(self, 'y_min') or not hasattr(self, 'y_max'):
-            raise ValueError("Se requieren rangos para X e Y en gráficas 3D.")
-            
-        x_vals = np.linspace(self.x_min, self.x_max, 100)
-        y_vals = np.linspace(self.y_min, self.y_max, 100)
+    def evaluate_3d_function(self, parsed_expr, x_symbol, y_symbol, num_points=100):
+        """Evalúa una expresión 3D en los rangos definidos"""
+        x_vals = np.linspace(self.x_min, self.x_max, num_points)
+        y_vals = np.linspace(self.y_min, self.y_max, num_points)
         X, Y = np.meshgrid(x_vals, y_vals)
+        
+        f = lambdify((x_symbol, y_symbol), parsed_expr, modules="numpy")
         try:
-            expression = self.expressions[0] if isinstance(self.expressions, list) else self.expressions
-            parsed_expr = sympy.sympify(expression)
-            f = lambdify(('x', 'y'), parsed_expr, 'numpy')
             Z = f(X, Y)
             return X, Y, Z
         except Exception as e:
             raise ValueError(f"Error evaluando la función 3D:\n{e}")
+            
+    def prepare_ode_solution(self, solution_points):
+        """Prepara los datos para graficar una solución de ODE"""
+        try:
+            x_vals, y_vals = zip(*solution_points)
+            return x_vals, y_vals
+        except Exception as e:
+            raise ValueError(f"Error preparando datos de ODE:\n{e}")

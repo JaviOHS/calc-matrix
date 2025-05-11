@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QWidget, QGridLayout, QTextEdit
-from ui.widgets.action_buttons import ActionButton
+from utils.action_buttons import ActionButton
 
 class ExpressionButtonsPanel(QWidget):
     """Panel de botones para insertar símbolos matemáticos"""

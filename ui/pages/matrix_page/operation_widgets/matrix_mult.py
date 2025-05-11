@@ -1,6 +1,7 @@
 from ui.pages.matrix_page.operation_widgets.basic_operation import MatrixOperationWidget
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLabel, QSpinBox, QWidget, QHBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout, QSizePolicy
+from utils.spinbox_utils import create_int_spinbox
 
 class MatrixMultiplicationWidget(MatrixOperationWidget):
     def __init__(self, manager, controller):
@@ -19,14 +20,9 @@ class MatrixMultiplicationWidget(MatrixOperationWidget):
         config_layout.setContentsMargins(20, 0, 0, 0)
 
         # Crear spinboxes para dimensiones de las matrices
-        self.a_rows = QSpinBox()
-        self.a_cols = QSpinBox()
-        self.b_cols = QSpinBox()
-
-        for spin in [self.a_rows, self.a_cols, self.b_cols]:
-            spin.setRange(1, 10)
-            spin.setValue(3)  # Valor inicial
-            spin.setAlignment(Qt.AlignCenter)
+        self.a_rows = create_int_spinbox(max_val=10, default_val=4)
+        self.a_cols = create_int_spinbox(max_val=10, default_val=3)
+        self.b_cols = create_int_spinbox(max_val=10, default_val=4)
 
         # Añadir los spinboxes al layout
         config_layout.addWidget(QLabel("Filas de A:"))
@@ -67,10 +63,10 @@ class MatrixMultiplicationWidget(MatrixOperationWidget):
         self.tables = []
 
         # Crear las tablas utilizando el método heredado de la clase base
-        table_a = self.create_table(ar, ac, "Matriz A", cell_size=40)
+        table_a = self.create_table(ar, ac, "Matriz A", cell_size=50)
         self.tables.append(table_a)
 
-        table_b = self.create_table(ac, bc, "Matriz B", cell_size=40)
+        table_b = self.create_table(ac, bc, "Matriz B", cell_size=50)
         self.tables.append(table_b)
 
         # Añadir las tablas al grid layout de la interfaz

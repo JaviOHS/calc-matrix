@@ -3,7 +3,7 @@ from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 from utils.resources import resource_path
 from utils.icon_utils import colored_svg_pixmap
-from ui.widgets.action_buttons import ActionButton
+from utils.action_buttons import ActionButton
 
 class TopNavbar(QWidget):
     def __init__(self, main_window, toggle_sidebar_callback, username="Usuario"):

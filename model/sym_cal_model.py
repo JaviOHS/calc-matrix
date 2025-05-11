@@ -195,6 +195,13 @@ class SymCalModel:
         x = x0
         y = y0
         
+        # Para el método de Taylor, necesitamos las derivadas parciales
+        if method == "taylor":
+            x_sym, y_sym = symbols('x y')
+            expr = sympify(rhs)
+            df_dx = lambdify([x_sym, y_sym], diff(expr, x_sym))
+            df_dy = lambdify([x_sym, y_sym], diff(expr, y_sym))
+        
         # Resolver la ecuación paso a paso según el método elegido
         while x < x_end:
             if method == "euler":
@@ -215,6 +222,12 @@ class SymCalModel:
                 k3 = f(x + h/2, y + h*k2/2)
                 k4 = f(x + h, y + h*k3)
                 y = y + h * (k1 + 2*k2 + 2*k3 + k4) / 6
+                
+            elif method == "taylor":
+                # Método de Taylor de orden 2
+                f_value = f(x, y)
+                df_value = df_dx(x, y) + df_dy(x, y) * f_value
+                y = y + h * f_value + (h**2/2) * df_value
             
             # Actualizar x y guardar los valores
             x = x + h
@@ -228,7 +241,8 @@ class SymCalModel:
         method_titles = {
             "euler": "Método de Euler",
             "heun": "Método de Heun",
-            "rk4": "Método de Runge-Kutta (4º orden)"
+            "rk4": "Método de Runge-Kutta (4º orden)",
+            "taylor": "Método de Taylor (2º orden)"
         }
         method_title = method_titles.get(method, "Método Numérico")
         
@@ -260,8 +274,12 @@ class SymCalModel:
         
     def solve_ode_rk4(self, equation, initial_condition, x_range, h=0.1):
         """Resuelve una ecuación diferencial usando Runge-Kutta de 4º orden"""
-        return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="rk4")
-            
+        return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="rk4")        
+    
+    def solve_ode_taylor(self, equation, initial_condition, x_range, h=0.1):
+        """Resuelve una ecuación diferencial usando el método de Taylor de orden 2"""
+        return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="taylor")
+        
     def get_history(self):
         return self.history
 

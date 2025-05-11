@@ -171,17 +171,32 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             return create_section('Error:', 'La ecuación no está bien formada como objeto Eq', COLORS['error'], ICONS['error'])
 
     def format_numerical_method(result, method_name):
-        """Formato unificado para resultados de métodos numéricos (Euler, Heun, etc.)"""
+        """Formato unificado para resultados de métodos numéricos (Euler, Heun, etc.) con diseño básico"""
         table_html = (
-            "<div style='margin-left: 15px;'>"
-            "<table border='1' style='border-collapse: collapse; width: 100%;'>"
-            "<tr style='background-color: #616161; color: #f4ffff;'><th>x</th><th>y</th></tr>"
+            "<div style='margin: 15px 0; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;'>"
+            "<table style='width: 100%; border-collapse: collapse; text-align: left;'>"
+            "<thead style='background-color: #037df5; color: #ffffff;'>"
+            "<tr>"
+            "<th style='padding: 8px; border-bottom: 2px solid #e0e0e0; text-align: center;'>x</th>"
+            "<th style='padding: 8px; border-bottom: 2px solid #e0e0e0; text-align: center;'>y</th>"
+            "</tr>"
+            "</thead>"
+            "<tbody>"
         )
         
         for x, y in result:
-            table_html += f"<tr><td>{x:.4f}</td><td>{y:.4f}</td></tr>"
+            table_html += (
+                "<tr>"
+                f"<td style='padding: 8px; border-bottom: 1px solid #e0e0e0;'>{x:.4f}</td>"
+                f"<td style='padding: 8px; border-bottom: 1px solid #e0e0e0;'>{y:.4f}</td>"
+                "</tr>"
+            )
         
-        table_html += "</table></div>"
+        table_html += (
+            "</tbody>"
+            "</table>"
+            "</div>"
+        )
         
         return create_section(f'Solución por Método de {method_name}:', table_html, COLORS['secondary'], ICONS['operation'])
 
@@ -200,12 +215,13 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
     
     elif operation_type == "ecuaciones_diferenciales":
         # Manejar todos los métodos numéricos de forma genérica
-        if method in ["euler", "heun", "rk4"]:
+        if method in ["euler", "heun", "rk4", "taylor"]:
             # Convertir nombre interno a nombre presentable
             method_names = {
                 "euler": "Euler",
                 "heun": "Heun", 
-                "rk4": "Runge-Kutta 4º Orden"
+                "rk4": "Runge-Kutta 4º Orden",
+                "taylor": "Taylor 2° orden"
             }
             method_display = method_names.get(method, method.capitalize())
             return format_numerical_method(result, method_display)

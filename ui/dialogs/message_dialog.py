@@ -1,8 +1,7 @@
-from utils.resources import resource_path
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QWidget, QSizePolicy, QFrame
-from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt, QSize
-from ui.widgets.action_buttons import ActionButton
+from utils.action_buttons import ActionButton
+from utils.image_utils import create_image_label
 
 class MessageDialog(QDialog):
     def __init__(self, title: str, title_color: str, message: str = "", image_name: str = "success.png", parent=None, custom_widget: QWidget = None):
@@ -14,7 +13,7 @@ class MessageDialog(QDialog):
         self.setMouseTracking(True)
         self._drag_position = None
 
-        # CONTENEDOR CON BORDES REDONDEADOS Y COLOR DE FONDO
+        # Contenedor con borde redondeado y fondo
         background_frame = QFrame(self)
         background_frame.setObjectName("backgroundFrame")
         background_layout = QVBoxLayout(background_frame)
@@ -32,12 +31,17 @@ class MessageDialog(QDialog):
         content_layout = QHBoxLayout()
         content_layout.setSpacing(30)
 
+        # Usar la utilidad para crear la imagen
         if image_name:
-            image_path = resource_path(f"assets/images/dialogs/{image_name}")
-            pixmap = QPixmap(image_path).scaled(150, 150, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            image_label = QLabel()
-            image_label.setPixmap(pixmap)
+            image_path = f"assets/images/dialogs/{image_name}"
+            
+            # Crear el QLabel con la imagen ya configurada
+            image_label = create_image_label(image_path, width=150, height=150)
+            
+            # Configurar política de tamaño para que no se expanda
             image_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            
+            # Añadir al layout
             content_layout.addWidget(image_label, alignment=Qt.AlignLeft | Qt.AlignVCenter)
 
         if custom_widget:

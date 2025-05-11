@@ -1,8 +1,7 @@
-from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QWidget, QSpacerItem, QSizePolicy, QScrollArea, QFrame
+from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QTableWidget, QTableWidgetItem, QHBoxLayout, QWidget, QScrollArea, QFrame
 from PySide6.QtCore import Qt
-from ui.widgets.action_buttons import ActionButton
+from utils.action_buttons import ActionButton
 from PySide6.QtCore import QSize
-
 
 class MatrixResultDialog(QDialog):
     def __init__(self, result_matrix, operation="", parent=None):
@@ -14,7 +13,7 @@ class MatrixResultDialog(QDialog):
         self.setMouseTracking(True)
         self._drag_position = None
 
-        # CONTENEDOR CON BORDES REDONDEADOS Y COLOR DE FONDO
+        # Contenedor con borde redondeado
         background_frame = QFrame(self)
         background_frame.setObjectName("backgroundFrame")
         background_layout = QVBoxLayout(background_frame)

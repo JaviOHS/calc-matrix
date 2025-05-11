@@ -1,8 +1,6 @@
 from utils.parsers.expression_parser import ExpressionParser
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-from sympy import lambdify
 import matplotlib.pyplot as plt
-import sympy as sp
 
 class GraphController:
     def __init__(self, manager):
@@ -29,32 +27,38 @@ class GraphController:
             expressions = [expr.strip() for expr in raw_expression.split(",") if expr.strip()]
             if len(expressions) > 5:
                 raise ValueError("Solo se permiten hasta 5 funciones.")
-
-            import numpy as np
-            x_vals = np.linspace(x_range[0], x_range[1], 500)
-
-            fig, ax = plt.subplots()
-
-            for expr in expressions:
-                parsed_expr = self.parser.parse_expression(expr)
-                f = lambdify(self.parser.x, parsed_expr, "numpy")
-                try:
-                    y_vals = f(x_vals)
-                    ax.plot(x_vals, y_vals, label=f'f(x) = {expr}')
-                except Exception as e:
-                    raise ValueError(f"Error al evaluar la función '{expr}':\n{e}")
-
-            ax.set_xlabel("x")
-            ax.set_ylabel("f(x)")
-            ax.grid(True)
-            ax.set_title("Gráficas 2D")
-            ax.legend()
-
-            canvas = FigureCanvas(fig)
-            return canvas
-
+                
+            # Delegar la lógica de evaluación al manager y modelo
+            plot_data = self.manager.prepare_2d_data(expressions, x_range, self.parser)
+            
+            # Crear visualización con los datos procesados
+            return self._create_2d_plot(plot_data)
+            
         except Exception as e:
             raise ValueError(f"Error al generar gráfica 2D:\n{str(e)}")
+            
+    def _create_2d_plot(self, plot_data):
+        # Crear figura con tamaño adecuado y más espacio para ejes
+        fig, ax = plt.subplots(figsize=(10, 7))
+        
+        for expr, x_vals, y_vals in plot_data:
+            ax.plot(x_vals, y_vals, label=f'f(x) = {expr}')
+
+        ax.set_xlabel("x", fontsize=12)
+        ax.set_ylabel("f(x)", fontsize=12)
+        ax.grid(True, alpha=0.7)
+        ax.set_title("Gráfica 2D", fontsize=14)
+        
+        # Ubicar la leyenda en posición óptima según el número de funciones
+        if len(plot_data) > 2:
+            ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), ncol=3, frameon=True)
+        else:
+            ax.legend(frameon=True)
+        
+        # Ajustar los márgenes manualmente - valores optimizados
+        plt.subplots_adjust(left=0.12, right=0.95, top=0.90, bottom=0.20)
+        
+        return FigureCanvas(fig)
 
     def generate_canvas_3d(self, inputs):
         try:
@@ -70,75 +74,73 @@ class GraphController:
             if len(expressions) > 1:
                 raise ValueError("Solo se puede graficar una expresión a la vez en gráficos 3D.")
 
-            # Reemplazar manualmente cualquier exponenciación para asegurar formato correcto
-            expression = expressions[0].replace("^", "**")
-            x, y = sp.symbols('x y') # Crear símbolos sympy para x e y
+            # Pasar el parser al método prepare_3d_data
+            X, Y, Z, expression = self.manager.prepare_3d_data(expressions[0], x_range, y_range, self.parser)
             
-            # Parsear la expresión directamente con sympy
-            try:
-                parsed_expr = sp.sympify(expression)
-            except Exception as e:
-                raise ValueError(f"Error al parsear la expresión con sympy:\n{e}")
-            
-            # Crear una función lambda que acepte arrays de NumPy
-            f = sp.lambdify((x, y), parsed_expr, modules="numpy")
-            
-            # Generar valores para X e Y
-            import numpy as np
-            x_vals = np.linspace(x_range[0], x_range[1], 100)
-            y_vals = np.linspace(y_range[0], y_range[1], 100)
-            X, Y = np.meshgrid(x_vals, y_vals)
-            
-            # Evaluar la función
-            try:
-                Z = f(X, Y)
-            except Exception as e:
-                raise ValueError(f"Error al evaluar la función con los valores: {e}")
-
-            # Crear la figura
-            import matplotlib.pyplot as plt
-            from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg as FigureCanvas
-            
-            fig = plt.figure(figsize=(6, 4))
-            ax = fig.add_subplot(111, projection='3d')
-            surf = ax.plot_surface(X, Y, Z, cmap='viridis', rstride=1, cstride=1, alpha=0.8)
-            ax.set_xlabel('X')
-            ax.set_ylabel('Y')
-            ax.set_zlabel('Z')
-            ax.set_title(f"Gráfica 3D de: {raw_expression}")
-            
-            canvas = FigureCanvas(fig)
-            return canvas
+            # Crear visualización con los datos procesados
+            return self._create_3d_plot(X, Y, Z, expression)
             
         except Exception as e:
             raise ValueError(f"Error al generar gráfica 3D:\n{str(e)}")
-    
+            
+    def _create_3d_plot(self, X, Y, Z, expression):
+        # Crear figura con tamaño adecuado - aumentado para mejor visualización
+        fig = plt.figure(figsize=(10, 8))
+        ax = fig.add_subplot(111, projection='3d')
+        surf = ax.plot_surface(X, Y, Z, cmap='viridis', rstride=1, cstride=1, alpha=0.8)
+        
+        ax.set_xlabel('X', fontsize=12)
+        ax.set_ylabel('Y', fontsize=12)
+        ax.set_zlabel('Z', fontsize=12)
+        ax.set_title(f"Gráfica 3D de: {expression}", fontsize=14)
+        
+        # Añadir barra de color con mejor posicionamiento
+        cbar = fig.colorbar(surf, ax=ax, shrink=0.5, aspect=5, pad=0.1)
+        cbar.ax.tick_params(labelsize=10)
+        
+        # Ajustar los márgenes manualmente - valores optimizados para 3D
+        plt.subplots_adjust(left=0.05, right=0.95, top=0.90, bottom=0.05)
+        
+        return FigureCanvas(fig)
+
     def generate_ode_solution_canvas(self, equation, solution_points, initial_condition=None, x_range=None, title=None):
         try:
-            x_vals, y_vals = zip(*solution_points) # Extraer los puntos x, y
-            fig, ax = plt.subplots() # Crear la figura y ejes
+            # Delegar procesamiento al manager
+            x_vals, y_vals, eq, ic = self.manager.prepare_ode_solution(
+                equation, solution_points, initial_condition, x_range
+            )
             
-            # Graficar la solución numérica
-            ax.plot(x_vals, y_vals, 'b-o', markersize=3, label='Solución numérica')
-            
-            # Marcar la condición inicial
-            if initial_condition:
-                ax.plot(initial_condition[0], initial_condition[1], 'ro', markersize=6, label='Condición inicial')
-            
-            # Configurar apariencia
-            ax.set_title(title if title else f"Solución de: {equation}")
-            ax.set_xlabel("x")
-            ax.set_ylabel("y")
-            ax.grid(True, linestyle='--', alpha=0.7)
-            ax.legend()
-            
-            # Ajustar los límites del eje x si se proporciona un rango
-            if x_range:
-                ax.set_xlim(x_range)
-            
-            # Crear el canvas para Qt
-            canvas = FigureCanvas(fig)
-            return canvas
+            # Crear visualización con los datos procesados
+            return self._create_ode_plot(x_vals, y_vals, eq, ic, title, x_range)
             
         except Exception as e:
             raise ValueError(f"Error al generar gráfica de solución ODE:\n{str(e)}")
+            
+    def _create_ode_plot(self, x_vals, y_vals, equation, initial_condition, title, x_range):
+        # Crear figura con tamaño adecuado y más espacio para ejes
+        fig, ax = plt.subplots(figsize=(10, 7))
+        
+        # Graficar la solución numérica
+        ax.plot(x_vals, y_vals, 'b-o', markersize=3, label='Solución numérica')
+        
+        # Marcar la condición inicial
+        if initial_condition:
+            ax.plot(initial_condition[0], initial_condition[1], 'ro', markersize=6, label='Condición inicial')
+        
+        # Marcar el punto final con otro color
+        if len(x_vals) > 0 and len(y_vals) > 0:
+            ax.plot(x_vals[-1], y_vals[-1], 'go', markersize=6, label='Punto final')
+        
+        # Configurar apariencia
+        ax.set_title(title if title else f"Solución de: {equation}", fontsize=14)
+        ax.set_xlabel("x", fontsize=12)
+        ax.set_ylabel("y", fontsize=12)
+        ax.grid(True, linestyle='--', alpha=0.7)
+        
+        # Ubicar la leyenda en posición óptima para no interferir con la gráfica
+        ax.legend(loc='best', frameon=True)
+        
+        # Ajustar los márgenes manualmente - valores optimizados
+        plt.subplots_adjust(left=0.12, right=0.95, top=0.90, bottom=0.15)
+        
+        return FigureCanvas(fig)

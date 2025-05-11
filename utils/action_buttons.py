@@ -5,22 +5,7 @@ from utils.resources import resource_path
 from utils.icon_utils import colored_svg_icon
 
 class ActionButton(QPushButton):
-    """
-    Componente de botón reutilizable con estilo consistente para la aplicación.
-    Incluye soporte para iconos, colores personalizados y tamaños ajustables.
-    """
     def __init__(self, text, icon_name=None, icon_color=QColor(28, 44, 66),icon_size=QSize(20, 20), parent=None, object_name="ctaButton"):
-        """
-        Inicializa un botón de acción estilizado.
-        
-        Args:
-            text (str): Texto a mostrar en el botón
-            icon_name (str, optional): Nombre del archivo de icono SVG (sin ruta)
-            icon_color (QColor, optional): Color para el icono
-            icon_size (QSize, optional): Tamaño del icono
-            parent (QWidget, optional): Widget padre
-            object_name (str, optional): Nombre del objeto CSS
-        """
         super().__init__(text, parent)
         
         # Configuración básica
@@ -58,12 +43,7 @@ class ActionButton(QPushButton):
     def icon_only(cls, icon_name, icon_size=QSize(24, 24), parent=None, object_name="iconButton"):
         """Botón solo con icono (sin texto)"""
         return cls("", icon_name, icon_size=icon_size, parent=parent, object_name=object_name)
-    
-    @classmethod
-    def save(cls, text="Guardar", parent=None):
-        """Botón para guardar elementos"""
-        return cls(text, "save.svg", parent=parent)
-    
+
     @classmethod
     def math_symbol(cls, symbol, insert_text=None, parent=None):
         """Botón para un símbolo matemático"""

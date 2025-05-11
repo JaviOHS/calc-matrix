@@ -84,6 +84,10 @@ class SymCalController:
     def solve_ode_rk4(self, equation, initial_condition, x_range, h=0.1):
         """Resuelve una EDO con el método de Runge-Kutta de 4º orden"""
         return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="rk4")
+    
+    def solve_ode_taylor(self, equation, initial_condition, x_range, h=0.1):
+        """Resuelve una EDO con el método de Taylor"""
+        return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="taylor")
 
     def get_history(self):
         """Obtiene el historial de operaciones realizadas."""

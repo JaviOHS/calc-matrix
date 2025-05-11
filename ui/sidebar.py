@@ -1,8 +1,9 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
-from PySide6.QtGui import QColor, QPixmap
+from PySide6.QtGui import QColor
 from PySide6.QtCore import QSize, Qt
 from utils.resources import resource_path
 from utils.icon_utils import colored_svg_icon
+from utils.image_utils import create_image_label 
 
 class Sidebar(QWidget):
     def __init__(self, switch_page_callback):
@@ -11,12 +12,10 @@ class Sidebar(QWidget):
         self.layout = QVBoxLayout(self)
         self.layout.setContentsMargins(10, 10, 10, 10)
 
-        logo_label = QLabel()
-        image_path = resource_path("assets/images/app.png")
-        pixmap = QPixmap(image_path)
-        logo_label.setPixmap(pixmap.scaled(120, 120, Qt.KeepAspectRatio, Qt.SmoothTransformation))
-        logo_label.setAlignment(Qt.AlignCenter)
+        # Usar la nueva función para crear el label con la imagen del logo
+        logo_label = create_image_label("assets/images/app.png", width=120, height=120)
         self.layout.addWidget(logo_label)
+        
         self.layout.addWidget(QLabel("""<span style='font-size:28px; font-weight:bold; color:#037df5;'>Calc<span style='color:#ff8103;'>Matrix</span></span>""", alignment=Qt.AlignCenter))
         self.layout.addSpacing(10)
 

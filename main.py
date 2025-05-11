@@ -7,13 +7,11 @@ import sys
 
 def setup_fonts():
     """Configurar las fuentes de la aplicación."""
-    # Configurar la fuente principal
     font_path = resource_path("assets/fonts/FiraSans-Regular.ttf")
     font_id = QFontDatabase.addApplicationFont(font_path)
     families = QFontDatabase.applicationFontFamilies(font_id)
     font_family = families[0] if families else "Arial"
     
-    # Configurar Cambria Math
     cambria_math_path = resource_path("assets/fonts/Cambria-Math.ttf")
     cambria_math_id = QFontDatabase.addApplicationFont(cambria_math_path)
     cambria_families = QFontDatabase.applicationFontFamilies(cambria_math_id)
@@ -32,8 +30,8 @@ def setup_shortcuts(window, app):
     """Configurar atajos de teclado."""
     # Crear atajo para cerrar y limpiar consola (Ctrl+Q)
     def close_and_clear():
-        app.quit()  # Cierra la aplicación
-        os.system('cls' if os.name == 'nt' else 'clear')  # Limpia consola (Windows o Unix)
+        app.quit()
+        os.system('cls' if os.name == 'nt' else 'clear')
 
     shortcut = QShortcut(QKeySequence("Ctrl+Q"), window)
     shortcut.activated.connect(close_and_clear)

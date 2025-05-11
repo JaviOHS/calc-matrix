@@ -1,6 +1,6 @@
 from model.polynomial_manager import PolynomialManager
 from controller.polynomial_controller import PolynomialController
-from ui.widgets.base_page_widget import BaseOperationPage
+from ui.widgets.base_operation_page import BaseOperationPage
 from ui.pages.poly_page.poly_operation import PolynomialOpWidget
 
 class PolynomialPage(BaseOperationPage):

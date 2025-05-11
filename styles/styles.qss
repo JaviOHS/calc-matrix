@@ -6,15 +6,15 @@
 /* --- BASE GENERAL --- */
 QWidget {
     font-size: 16px;
-    color: rgb(192, 192, 192);
-    background-color: rgb(15, 22, 31);
+    color: #C0C0C0;
+    background-color: #0F161F;
     selection-background-color: #ff8103;
-    selection-color: rgb(28, 44, 66);
+    selection-color: #1C2C42;
 }
 
 QLabel {
     font-weight: 500;
-    color: rgb(192, 192, 192);
+    color: #C0C0C0;
 }
 
 /* --- PÁGINAS PRINCIPALES --- */
@@ -84,13 +84,12 @@ QLabel {
 
 /* --- BOTONES --- */
 QPushButton {
-    background-color: rgb(28, 44, 66);
+    background-color: #1C2C42;
     border-radius: 8px;
     padding: 10px 20px;
     font-weight: 600;
 }
 
-/* Botones de barra lateral */
 QPushButton[class="sidebar-button"] {
     padding: 10px 10px 10px 16px;
     text-align: left;
@@ -98,18 +97,17 @@ QPushButton[class="sidebar-button"] {
 }
 
 QPushButton[class="sidebar-button"]:hover {
-    background-color: rgb(46, 66, 92);
+    background-color: #2E425C;
 }
 
 QPushButton[class="sidebar-button"][active="true"] {
-    background-color: rgb(255, 129, 3);
-    color: rgb(28, 44, 66);
+    background-color: #FF8103;
+    color: #1C2C42;
 }
 
-/* Botón principal CTA */
 #ctaButton {
     background-color: #fc7e00;
-    color: rgb(28, 44, 66);
+    color: #1C2C42;
     border: none;
     border-radius: 8px;
     font-size: 16px;
@@ -120,7 +118,18 @@ QPushButton[class="sidebar-button"][active="true"] {
     background-color: #ff9228;
 }
 
-/* Botones de control de ventana */
+#iconButton{
+    background-color: #ff9228;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 0 5px;
+}
+
+#iconButton:hover {
+    background-color: #ff8103;
+}
+
 #minButton {
     background-color: #10a4fc;
     border: none;
@@ -142,13 +151,12 @@ QPushButton[class="sidebar-button"][active="true"] {
 }
 
 /* --- CAMPOS DE ENTRADA --- */
-/* SpinBox y DoubleSpinBox */
 QAbstractSpinBox, QDoubleSpinBox {
     background: transparent;
     border: none;
-    border-bottom: 2px solid #1c2c42;
+    border-bottom: 2px solid #1C2C42;
     font-weight: 500;
-    color: rgb(218, 218, 218);
+    color: #DADADA;
     padding: 4px 8px;
 }
 
@@ -165,13 +173,12 @@ QSpinBox::down-button {
     border: none;
 }
 
-/* SpinBox estándar */
 QSpinBox {
     background: transparent;
     border: none;
-    border-bottom: 2px solid #1c2c42;
+    border-bottom: 2px solid #1C2C42;
     font-weight: 500;
-    color: rgb(218, 218, 218);
+    color: #DADADA;
     padding: 4px 8px;
 }
 
@@ -179,10 +186,9 @@ QSpinBox:focus {
     border-bottom: 2px solid #ff8103;
 }
 
-/* Campos de texto */
 QTextEdit {
     background-color: transparent;
-    border: 1px solid #1c2c42;
+    border: 1px solid #1C2C42;
     border-radius: 6px;
     color: #87878e;
     padding: 10px;
@@ -209,7 +215,7 @@ QTableWidget {
 QTableWidget::item {
     border: none;
     padding: 8px;
-    color: rgb(220, 220, 220);
+    color: #DCDCDC;
     font-weight: 500;
     background-color: rgba(85, 90, 150, 0.1);
     text-align: center;
@@ -226,25 +232,29 @@ QHeaderView::section {
     border: none;
     border-bottom: 2px solid #ff8103;
     padding: 5px;
-    color: rgb(192, 192, 192);
+    color: #C0C0C0;
     font-size: 16px;
     font-weight: 600;
 }
 
 /* --- BARRAS DE DESPLAZAMIENTO --- */
-/* Vertical */
 QScrollBar:vertical {
     border: none;
-    background: transparent;
-    width: 8px;
+    background: rgba(28, 44, 66, 0.2);
+    width: 10px;
     margin: 0px;
+    border-radius: 5px;
 }
 
 QScrollBar::handle:vertical {
     background: #ff8103;
-    min-height: 20px;
-    border-radius: 4px;
+    min-height: 30px;
+    border-radius: 5px;
     margin: 2px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #ff9535;
 }
 
 QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
@@ -256,19 +266,23 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
     background: none;
 }
 
-/* Horizontal */
 QScrollBar:horizontal {
     border: none;
-    background: transparent;
-    height: 8px;
+    background: rgba(28, 44, 66, 0.2);
+    height: 10px;
     margin: 0px;
+    border-radius: 5px;
 }
 
 QScrollBar::handle:horizontal {
     background: #ff8103;
-    min-width: 20px;
-    border-radius: 4px;
+    min-width: 30px;
+    border-radius: 5px;
     margin: 2px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #ff9535;
 }
 
 QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
@@ -298,7 +312,7 @@ QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
 
 /* --- MENÚS DESPLEGABLES --- */
 QMenu#operationsMenu {
-    background-color: rgb(15, 22, 31);
+    background-color: #0F161F;
     border: 2px solid #fc7e00;
     border-radius: 8px;
     padding: 4px;
@@ -324,7 +338,7 @@ QComboBox {
     padding: 0 5px;
     min-width: 100px;
     text-align: center;
-    color: rgb(218, 218, 218);
+    color: #DADADA;
 }
 
 QComboBox::down-arrow {
@@ -334,14 +348,14 @@ QComboBox::down-arrow {
 
 QComboBox QAbstractItemView {
     padding: 4px;
-    border: 2px solid #1c2c42;
-    background-color: rgb(15, 22, 31);
+    border: 2px solid #1C2C42;
+    background-color: #0F161F;
 }
 
 /* --- TOOLTIP EN MATRICES --- */
 QToolTip {
-    background-color: rgb(15, 22, 31);;
-    color: rgb(192, 192, 192);
+    background-color: #0F161F;
+    color: #C0C0C0;
     border: 2px solid #fc7e00;
     padding: 5px;
     font-size: 14px;
