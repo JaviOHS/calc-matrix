@@ -33,7 +33,7 @@ class SymCalController:
             return self.manager.get_integral(parsed_expr, limits, var, constant)
         
         except Exception as e:
-            raise ValueError(f"Error al calcular la integral: {str(e)}")
+            raise ValueError(f"Error al calcular la integral:\n{str(e)}")
         
     def solve_differential_equation(self, expression, initial_condition=None, x_range=None):
         if not expression:
@@ -44,25 +44,47 @@ class SymCalController:
             result = self.manager.solve_differential_equation(parsed_expr, initial_condition, x_range)
             return result
         except Exception as e:
-            raise ValueError(f"Error al resolver la ecuación diferencial: {str(e)}")
+            raise ValueError(f"Error al resolver la ecuación diferencial:\n{str(e)}")
         
-    def solve_ode_euler(self, equation, initial_condition, x_range, h=0.1):
+    def _validate_ode_params(self, equation, initial_condition, x_range, h):
+        """Método auxiliar para validar los parámetros comunes a todos los métodos numéricos"""
         if not equation:
             raise ValueError("La ecuación diferencial no puede estar vacía.")
         
-        try:
-            # Validar parámetros
-            if len(initial_condition) != 2:
-                raise ValueError("La condición inicial debe ser una tupla (x0, y0)")
-            if len(x_range) != 2 or x_range[0] >= x_range[1]:
-                raise ValueError("El rango de x debe ser una tupla (inicio, fin) con inicio < fin")
-            if h <= 0:
-                raise ValueError("El tamaño de paso h debe ser positivo")
-                
-            return self.manager.solve_ode_euler(equation, initial_condition, x_range, h)
-        except Exception as e:
-            raise ValueError(f"Error en método de Euler: {str(e)}")
+        if len(initial_condition) != 2:
+            raise ValueError("La condición inicial debe ser una tupla (x0, y0).")
         
+        if len(x_range) != 2 or x_range[0] >= x_range[1]:
+            raise ValueError("El rango de x debe ser una tupla (inicio, fin) con inicio < fin.")
+        
+        if h <= 0:
+            raise ValueError("El tamaño de paso h debe ser positivo.")
+        
+        return True
+
+    def solve_ode_numerical(self, equation, initial_condition, x_range, h=0.1, method="euler"):
+        """Método genérico para resolver EDOs con cualquier método numérico"""
+        try:
+            self._validate_ode_params(equation, initial_condition, x_range, h)
+            
+            # Llamar al método apropiado en el manager
+            method_func = getattr(self.manager, f"solve_ode_{method}")
+            return method_func(equation, initial_condition, x_range, h)
+        except Exception as e:
+            raise ValueError(f"Error en método {method}:\n{str(e)}")
+
+    def solve_ode_euler(self, equation, initial_condition, x_range, h=0.1):
+        """Resuelve una EDO con el método de Euler"""
+        return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="euler")
+    
+    def solve_ode_heun(self, equation, initial_condition, x_range, h=0.1):
+        """Resuelve una EDO con el método de Heun"""
+        return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="heun")
+
+    def solve_ode_rk4(self, equation, initial_condition, x_range, h=0.1):
+        """Resuelve una EDO con el método de Runge-Kutta de 4º orden"""
+        return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="rk4")
+
     def get_history(self):
         """Obtiene el historial de operaciones realizadas."""
         return self.manager.get_history()

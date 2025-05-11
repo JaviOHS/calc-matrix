@@ -11,7 +11,7 @@ class ExpressionButtonsPanel(QWidget):
     
     def setup_ui(self):
         symbols = [
-            ("^", "^"), ("√", "sqrt("), ("π", "pi"), ("e", "e"), ("ln", "ln("),
+            ("^", "^"), ("√", "sqrt("), ("π", "π"), ("e", "e"), ("ln", "ln("),
             ("log", "log("), ("sin", "sin("), ("cos", "cos("), ("tan", "tan("),
             ("y'", "y'(x)"), ("y''", "y''(x)"), ("=", "="), 
             ("+", "+"), ("-", "-"), ("*", "*"), ("/", "/"),

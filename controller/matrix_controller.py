@@ -18,53 +18,53 @@ class MatrixController:
         elif operation_name == "sistema":
             return self.solve_system()
         else:
-            raise ValueError(f"Operación no soportada: {operation_name}")
+            raise ValueError(f"Operación no soportada:\n{operation_name}")
 
     def sum_matrices(self):
         try:
             result = self.manager.sum_all()
             return result
         except ValueError as e:
-            raise ValueError(f"Error al sumar las matrices: {e}")
+            raise ValueError(f"Error al sumar las matrices:\n{e}")
         
     def subtract_all(self):
         try:
             result = self.manager.subtract_all()
             return result
         except ValueError as e:
-            raise ValueError(f"Error al restar las matrices: {e}")
+            raise ValueError(f"Error al restar las matrices:\n{e}")
         
     def multiply_all(self):
         try:
             result = self.manager.multiply_all()
             return result
         except ValueError as e:
-            raise ValueError(f"Error al multiplicar las matrices: {e}")
+            raise ValueError(f"Error al multiplicar las matrices:\n{e}")
 
     def divide_all(self):
         try:
             result = self.manager.divide_all()
             return result
         except ValueError as e:
-            raise ValueError(f"Error al dividir las matrices: {e}")
+            raise ValueError(f"Error al dividir las matrices:\n{e}")
         
     def get_determinants(self):
         try:
             results = self.manager.get_determinants()
             return results
         except ValueError as e:
-            raise ValueError(f"Error al calcular determinantes: {e}")
+            raise ValueError(f"Error al calcular determinantes:\n{e}")
         
     def get_inverses(self):
         try:
             results = self.manager.get_inverses()
             return results
         except ValueError as e:
-            raise ValueError(f"Error al calcular inversas: {e}")
+            raise ValueError(f"Error al calcular inversas:\n{e}")
 
     def solve_system(self):
         try:
             result = self.manager.solve_system()
             return result
         except ValueError as e:
-            raise ValueError(f"Error al resolver el sistema: {e}")
+            raise ValueError(f"Error al resolver el sistema:\n{e}")

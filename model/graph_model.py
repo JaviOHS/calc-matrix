@@ -16,11 +16,11 @@ class GraphModel:
             y = eval(self.expression, {"x": x, "np": np, "__builtins__": {}})
             return x, y
         except Exception as e:
-            raise ValueError(f"Error evaluando la función: {e}")
+            raise ValueError(f"Error evaluando la función:\n{e}")
 
     def evaluate_function_3d(self):
         if not hasattr(self, 'y_min') or not hasattr(self, 'y_max'):
-            raise ValueError("Se requieren rangos para X e Y en gráficas 3D")
+            raise ValueError("Se requieren rangos para X e Y en gráficas 3D.")
             
         x_vals = np.linspace(self.x_min, self.x_max, 100)
         y_vals = np.linspace(self.y_min, self.y_max, 100)
@@ -32,4 +32,4 @@ class GraphModel:
             Z = f(X, Y)
             return X, Y, Z
         except Exception as e:
-            raise ValueError(f"Error evaluando la función 3D: {e}")
+            raise ValueError(f"Error evaluando la función 3D:\n{e}")

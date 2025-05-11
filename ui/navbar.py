@@ -1,9 +1,10 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
-from PySide6.QtGui import QColor, QIcon
+from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
 from utils.resources import resource_path
 from utils.icon_utils import colored_svg_pixmap
 from ui.widgets.action_buttons import ActionButton
+
 class TopNavbar(QWidget):
     def __init__(self, main_window, toggle_sidebar_callback, username="Usuario"):
         super().__init__()
@@ -30,9 +31,9 @@ class TopNavbar(QWidget):
         self.avatar = QLabel()
         self.avatar.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         user_icon_path = resource_path("assets/icons/user.svg")
-        colored_pixmap = colored_svg_pixmap(user_icon_path, QColor("#acadae"), QSize(32, 32))
+        colored_pixmap = colored_svg_pixmap(user_icon_path, QColor("#acadae"), QSize(24, 24))
         self.avatar.setPixmap(colored_pixmap)
-        self.avatar.setFixedSize(32, 32)
+        self.avatar.setFixedSize(24, 24)
         layout.addWidget(self.avatar)
 
         # Botón minimizar con ActionButton

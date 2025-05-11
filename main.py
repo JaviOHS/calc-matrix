@@ -1,47 +1,59 @@
 from utils.resources import resource_path
 from PySide6.QtWidgets import QApplication
 from ui.main_window import MainWindow
-from PySide6.QtGui import QFontDatabase
-from PySide6.QtGui import QShortcut, QKeySequence
+from PySide6.QtGui import QFontDatabase, QShortcut, QKeySequence
 import os
 import sys
 
-app = QApplication(sys.argv)
+def setup_fonts():
+    """Configurar las fuentes de la aplicación."""
+    # Configurar la fuente principal
+    font_path = resource_path("assets/fonts/FiraSans-Regular.ttf")
+    font_id = QFontDatabase.addApplicationFont(font_path)
+    families = QFontDatabase.applicationFontFamilies(font_id)
+    font_family = families[0] if families else "Arial"
+    
+    # Configurar Cambria Math
+    cambria_math_path = resource_path("assets/fonts/Cambria-Math.ttf")
+    cambria_math_id = QFontDatabase.addApplicationFont(cambria_math_path)
+    cambria_families = QFontDatabase.applicationFontFamilies(cambria_math_id)
+    cambria_family = cambria_families[0] if cambria_families else "Cambria Math"
+    
+    return font_family, cambria_family
 
-# Configurar la fuente principal 
-font_path = resource_path("assets/fonts/FiraSans-Regular.ttf")
-font_id = QFontDatabase.addApplicationFont(font_path)
-families = QFontDatabase.applicationFontFamilies(font_id)
-
-if families:
-    font_family = families[0]
-else:
-    font_family = "Arial"
-
-# Configurar Cambria Math
-cambria_math_path = resource_path("assets/fonts/Cambria-Math.ttf")
-cambria_math_id = QFontDatabase.addApplicationFont(cambria_math_path)
-cambria_families = QFontDatabase.applicationFontFamilies(cambria_math_id)
-cambria_family = cambria_families[0] if cambria_families else "Cambria Math"
-
-def load_styles():
+def load_styles(app):
+    """Cargar hojas de estilo."""
     style_path = resource_path("styles/styles.qss")
     with open(style_path, "r") as file:
         style = file.read()
     app.setStyleSheet(style)
 
-load_styles()
+def setup_shortcuts(window, app):
+    """Configurar atajos de teclado."""
+    # Crear atajo para cerrar y limpiar consola (Ctrl+Q)
+    def close_and_clear():
+        app.quit()  # Cierra la aplicación
+        os.system('cls' if os.name == 'nt' else 'clear')  # Limpia consola (Windows o Unix)
 
-window = MainWindow()
-window.show()
+    shortcut = QShortcut(QKeySequence("Ctrl+Q"), window)
+    shortcut.activated.connect(close_and_clear)
 
-# Crear atajo para cerrar y limpiar consola (Ctrl+Q)
-def close_and_clear():
-    print("Cerrando aplicación y limpiando consola...")
-    app.quit()  # Cierra la aplicación
-    os.system('cls' if os.name == 'nt' else 'clear')  # Limpia consola (Windows o Unix)
+def main():
+    """Función principal que inicia la aplicación."""
+    app = QApplication(sys.argv)
+    
+    # Configuración inicial
+    font_family, cambria_family = setup_fonts()
+    load_styles(app)
+    
+    # Crear y mostrar la ventana principal
+    window = MainWindow()
+    setup_shortcuts(window, app)
+    window.show()
+    
+    # Iniciar el bucle de eventos
+    return sys.exit(app.exec())
 
-shortcut = QShortcut(QKeySequence("Ctrl+Q"), window)
-shortcut.activated.connect(close_and_clear)
-
-sys.exit(app.exec())
+if __name__ == "__main__":
+    main()
+    

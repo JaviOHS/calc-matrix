@@ -29,6 +29,8 @@ class ExpressionParser:
             "Eq": sp.Eq,
             "diff": sp.Derivative,
             "exp": sp.exp,
+            "Abs": sp.Abs,
+            "π": sp.pi,
         }
 
         self.allowed_names = set(self.allowed_symbols.keys())

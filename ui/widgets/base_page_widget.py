@@ -1,7 +1,7 @@
 from utils.resources import resource_path
 from PySide6.QtGui import QPixmap, QAction
 from PySide6.QtCore import Qt, QPoint
-from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QLabel, QMenu
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QWidget, QStackedWidget, QLabel, QMenu, QWidgetAction
 from ui.dialogs.message_dialog import MessageDialog
 from ui.widgets.action_buttons import ActionButton
 
@@ -138,11 +138,25 @@ class BaseOperationPage(QWidget):
 
     def show_dropdown_menu(self):
         menu = QMenu(self)
+        menu.setObjectName("operationsMenu")
+        
+        # Opcional: Añadir un widget separador para crear espacio al principio
+        spacer = QWidgetAction(menu)
+        spacer_widget = QWidget()
+        spacer_widget.setFixedHeight(10)  # Altura del margen
+        spacer_widget.setStyleSheet("background-color: transparent;")
+        spacer.setDefaultWidget(spacer_widget)
+        menu.addAction(spacer)
+        
+        # Añadir las opciones reales del menú
         for label, (op_key, _) in self.operations.items():
             action = QAction(label, self)
             action.triggered.connect(lambda _, k=label: self.prepare_operation(k))
             menu.addAction(action)
-        menu.exec_(self.toggle_button.mapToGlobal(QPoint(0, self.toggle_button.height())))
+        
+        # Ajustar posición para que aparezca debajo del botón con un pequeño margen
+        position = self.toggle_button.mapToGlobal(QPoint(0, self.toggle_button.height() + 5))
+        menu.exec_(position)
 
     def prepare_operation(self, operation_key):
         self.toggle_button.show()
@@ -210,4 +224,3 @@ class BaseOperationPage(QWidget):
 
     def show_result(self, result, message):
         raise NotImplementedError("Subclases deben implementar este método.")
-    

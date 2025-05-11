@@ -170,12 +170,12 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         except AttributeError:
             return create_section('Error:', 'La ecuación no está bien formada como objeto Eq', COLORS['error'], ICONS['error'])
 
-    def format_euler_method(result):
-        """Formato para resultados del método de Euler"""
+    def format_numerical_method(result, method_name):
+        """Formato unificado para resultados de métodos numéricos (Euler, Heun, etc.)"""
         table_html = (
             "<div style='margin-left: 15px;'>"
             "<table border='1' style='border-collapse: collapse; width: 100%;'>"
-            "<tr style='background-color: #616161; color: f4ffff;'><th>x</th><th>y</th></tr>"
+            "<tr style='background-color: #616161; color: #f4ffff;'><th>x</th><th>y</th></tr>"
         )
         
         for x, y in result:
@@ -183,7 +183,7 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         
         table_html += "</table></div>"
         
-        return create_section('Solución por Método de Euler:', table_html, COLORS['secondary'], ICONS['operation'])
+        return create_section(f'Solución por Método de {method_name}:', table_html, COLORS['secondary'], ICONS['operation'])
 
     # Formatear según el tipo de operación
     if operation_type in ["vector", "matrix"]:
@@ -199,9 +199,18 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         return format_roots_result(expr, result)
     
     elif operation_type == "ecuaciones_diferenciales":
-        if method == "euler":
-            return format_euler_method(result)
+        # Manejar todos los métodos numéricos de forma genérica
+        if method in ["euler", "heun", "rk4"]:
+            # Convertir nombre interno a nombre presentable
+            method_names = {
+                "euler": "Euler",
+                "heun": "Heun", 
+                "rk4": "Runge-Kutta 4º Orden"
+            }
+            method_display = method_names.get(method, method.capitalize())
+            return format_numerical_method(result, method_display)
         else:
+            # Para soluciones analíticas
             return format_diff_eq(expr, result)
     
     else:  # Polinomios y expresiones genéricas
@@ -212,4 +221,3 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             create_section('Expresión Original: ', formatted_expr, COLORS['secondary'], ICONS['operation']) +
             create_section('Resultado Simplificado: ', formatted_result, COLORS['primary'], ICONS['result'])
         )
-    

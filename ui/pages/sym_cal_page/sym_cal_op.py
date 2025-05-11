@@ -109,10 +109,12 @@ class SymCalOpWidget(ExpressionOpWidget):
         container_layout = QHBoxLayout(method_container)
         container_layout.setContentsMargins(20, 0, 20, 0)
         
-        # Selector de método
+        # Selector de método (incluye todos los métodos disponibles)
         self.de_method_selector = QComboBox()
-        self.de_method_selector.addItem("Solución Analítica", "analytical")
-        self.de_method_selector.addItem("Método de Euler", "euler")
+        self.de_method_selector.addItem("Analítico", "analytical")
+        self.de_method_selector.addItem("Euler", "euler")
+        self.de_method_selector.addItem("Heun", "heun")
+        self.de_method_selector.addItem("RK4", "rk4")
         container_layout.addWidget(QLabel("Método:"))
         container_layout.addWidget(self.de_method_selector)
         
@@ -127,13 +129,13 @@ class SymCalOpWidget(ExpressionOpWidget):
         self.euler_x0 = QDoubleSpinBox()
         self.euler_x0.setFixedWidth(70)
         self.euler_x0.setRange(-1000, 1000)
-        self.euler_x0.setValue(0)  # Cambiar a 0 para el ejemplo de interés
+        self.euler_x0.setValue(1)
         common_layout.addWidget(self.euler_x0)
         common_layout.addWidget(QLabel(") ="))
         self.euler_y0 = QDoubleSpinBox()
         self.euler_y0.setFixedWidth(70)
         self.euler_y0.setRange(-1000, 1000)
-        self.euler_y0.setValue(1000)  # Cambiar a 1000 para el ejemplo de interés
+        self.euler_y0.setValue(10)
         common_layout.addWidget(self.euler_y0)
         
         # Rango de solución
@@ -142,13 +144,13 @@ class SymCalOpWidget(ExpressionOpWidget):
         self.euler_x_start = QDoubleSpinBox()
         self.euler_x_start.setFixedWidth(70)
         self.euler_x_start.setRange(-1000, 1000)
-        self.euler_x_start.setValue(0)  # Cambiar a 0 para el ejemplo de interés
+        self.euler_x_start.setValue(0)
         common_layout.addWidget(self.euler_x_start)
         common_layout.addWidget(QLabel("a"))
         self.euler_x_end = QDoubleSpinBox()
         self.euler_x_end.setFixedWidth(70)
         self.euler_x_end.setRange(-1000, 1000)
-        self.euler_x_end.setValue(10)  # Cambiar a 10 para el ejemplo de interés
+        self.euler_x_end.setValue(10)
         common_layout.addWidget(self.euler_x_end)
         
         # Widget solo para parámetros de Euler
@@ -157,12 +159,12 @@ class SymCalOpWidget(ExpressionOpWidget):
         euler_step_layout.setContentsMargins(0, 0, 0, 0)
         euler_step_layout.setSpacing(5)
         
-        # Paso h (solo para Euler)
+        # Paso h (solo para Euler y Heun)
         euler_step_layout.addWidget(QLabel("h ="))
         self.euler_h = QDoubleSpinBox()
         self.euler_h.setFixedWidth(70)
         self.euler_h.setRange(0.001, 5)
-        self.euler_h.setValue(0.1)
+        self.euler_h.setValue(2.5)
         euler_step_layout.addWidget(self.euler_h)
         
         # Agregar widgets al layout
@@ -172,17 +174,17 @@ class SymCalOpWidget(ExpressionOpWidget):
         container_layout.addStretch()
         
         # Conectar señal para mostrar/ocultar parámetros específicos de Euler
-        self.de_method_selector.currentTextChanged.connect(self.toggle_euler_step)
+        self.de_method_selector.currentTextChanged.connect(self.toggle_step)
         
         # Insertar el contenedor en el layout principal
         self.layout.insertWidget(1, method_container)
         
         # Mostrar/ocultar parámetros según el método inicial
-        self.toggle_euler_step(self.de_method_selector.currentText())
+        self.toggle_step(self.de_method_selector.currentText())
 
-    def toggle_euler_step(self, method):
+    def toggle_step(self, method):
         """Muestra u oculta el parámetro de paso según la selección"""
-        self.euler_step_widget.setVisible(method == "Método de Euler")
+        self.euler_step_widget.setVisible(method in ["Euler", "Heun", "RK4"])
         self.layout.update()  # Ajustar el tamaño del widget
 
     def execute_operation(self):
@@ -198,15 +200,20 @@ class SymCalOpWidget(ExpressionOpWidget):
                 # Para integral indefinida
                 result = self.controller.compute_integral(expression)
         elif self.operation_type == "ecuaciones_diferenciales":
-            # Código existente para ecuaciones diferenciales...
             x_range = (self.euler_x_start.value(), self.euler_x_end.value())
             initial_condition = (self.euler_x0.value(), self.euler_y0.value())
             
-            if self.de_method_selector.currentData() == "analytical":
+            method = self.de_method_selector.currentData()
+            if method == "analytical":
                 result = self.controller.solve_differential_equation(expression, initial_condition=initial_condition, x_range=x_range)
-            else:  # Euler
+            else:
+                # Usar el método numérico correspondiente
                 h = self.euler_h.value()
-                result = self.controller.solve_ode_euler(expression, initial_condition, x_range, h)
+                method_func = getattr(self.controller, f"solve_ode_{method}", None)
+                if method_func:
+                    result = method_func(expression, initial_condition, x_range, h)
+                else:
+                    raise ValueError(f"Método numérico no implementado: {method}")
         else:
             raise ValueError("Tipo de operación desconocido.")
         return result
@@ -249,4 +256,3 @@ class SymCalOpWidget(ExpressionOpWidget):
                 return format_math_expression(parsed_expr, result, self.operation_type)
         except Exception as e:
             raise ValueError(f"Ocurrió un error: {str(e)}")
-        

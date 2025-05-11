@@ -45,6 +45,6 @@ class VectorController:
             raise ValueError("Se requieren exactamente dos vectores para producto cruzado.")
         v1, v2 = vector_map.values()
         if len(v1) != 3 or len(v2) != 3:
-            raise ValueError("El producto cruzado solo es válido para vectores en R3.")
+            raise ValueError("El producto cruzado solo es válido para vectores de 3 dimensiones.")
         return np.cross(v1, v2)
     

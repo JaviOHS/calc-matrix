@@ -42,7 +42,7 @@ class GraphController:
                     y_vals = f(x_vals)
                     ax.plot(x_vals, y_vals, label=f'f(x) = {expr}')
                 except Exception as e:
-                    raise ValueError(f"Error al evaluar la función '{expr}': {e}")
+                    raise ValueError(f"Error al evaluar la función '{expr}':\n{e}")
 
             ax.set_xlabel("x")
             ax.set_ylabel("f(x)")
@@ -54,7 +54,7 @@ class GraphController:
             return canvas
 
         except Exception as e:
-            raise ValueError(f"Error al generar gráfica 2D: {str(e)}")
+            raise ValueError(f"Error al generar gráfica 2D:\n{str(e)}")
 
     def generate_canvas_3d(self, inputs):
         try:
@@ -72,15 +72,13 @@ class GraphController:
 
             # Reemplazar manualmente cualquier exponenciación para asegurar formato correcto
             expression = expressions[0].replace("^", "**")
-
-            # Crear símbolos sympy para x e y
-            x, y = sp.symbols('x y')
+            x, y = sp.symbols('x y') # Crear símbolos sympy para x e y
             
             # Parsear la expresión directamente con sympy
             try:
                 parsed_expr = sp.sympify(expression)
             except Exception as e:
-                raise ValueError(f"Error al parsear la expresión con sympy: {e}")
+                raise ValueError(f"Error al parsear la expresión con sympy:\n{e}")
             
             # Crear una función lambda que acepte arrays de NumPy
             f = sp.lambdify((x, y), parsed_expr, modules="numpy")
@@ -113,28 +111,12 @@ class GraphController:
             return canvas
             
         except Exception as e:
-            raise ValueError(f"Error al generar gráfica 3D: {str(e)}")
+            raise ValueError(f"Error al generar gráfica 3D:\n{str(e)}")
     
     def generate_ode_solution_canvas(self, equation, solution_points, initial_condition=None, x_range=None, title=None):
-        """
-        Genera un canvas con la solución gráfica de una ecuación diferencial.
-        
-        Args:
-            equation: String representando la ecuación diferencial (para el título)
-            solution_points: Lista de tuplas (x, y) con los puntos de solución
-            initial_condition: Tupla (x0, y0) de la condición inicial
-            x_range: Rango de x para mostrar en la gráfica
-            title: Título personalizado (opcional)
-        
-        Returns:
-            Un objeto FigureCanvas de matplotlib
-        """
         try:
-            # Extraer los puntos x, y
-            x_vals, y_vals = zip(*solution_points)
-            
-            # Crear la figura y ejes
-            fig, ax = plt.subplots()
+            x_vals, y_vals = zip(*solution_points) # Extraer los puntos x, y
+            fig, ax = plt.subplots() # Crear la figura y ejes
             
             # Graficar la solución numérica
             ax.plot(x_vals, y_vals, 'b-o', markersize=3, label='Solución numérica')
@@ -159,4 +141,4 @@ class GraphController:
             return canvas
             
         except Exception as e:
-            raise ValueError(f"Error al generar gráfica de solución ODE: {str(e)}")
+            raise ValueError(f"Error al generar gráfica de solución ODE:\n{str(e)}")
