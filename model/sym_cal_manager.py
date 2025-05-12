@@ -32,9 +32,4 @@ class SymCalManager:
             raise ValueError(f"Método numérico desconocido: {method}")
         
         return method_func(equation, initial_condition, x_range, h)
-
-    def get_history(self):
-        return self.model.get_history()
-
-    def clear(self):
-        self.model.clear()
+    

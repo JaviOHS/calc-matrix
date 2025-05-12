@@ -67,9 +67,17 @@ class SymCalController:
         try:
             self._validate_ode_params(equation, initial_condition, x_range, h)
             
+            # Parsear la ecuación usando ExpressionParser
+            if isinstance(equation, str):
+                # Usar el método especial para EDOs numéricas
+                f, expr_text = self.parser.parse_ode_for_numerical(equation)
+                parsed_expr = (f, expr_text)  # Tupla con función y texto
+            else:
+                parsed_expr = equation
+                
             # Llamar al método apropiado en el manager
             method_func = getattr(self.manager, f"solve_ode_{method}")
-            return method_func(equation, initial_condition, x_range, h)
+            return method_func(parsed_expr, initial_condition, x_range, h)
         except Exception as e:
             raise ValueError(f"Error en método {method}:\n{str(e)}")
 
@@ -88,11 +96,22 @@ class SymCalController:
     def solve_ode_taylor(self, equation, initial_condition, x_range, h=0.1):
         """Resuelve una EDO con el método de Taylor"""
         return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="taylor")
-
-    def get_history(self):
-        """Obtiene el historial de operaciones realizadas."""
-        return self.manager.get_history()
-
-    def clear_history(self):
-        """Limpia el historial de operaciones."""
-        self.manager.clear()
+    
+    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None):
+        """Compara diferentes métodos numéricos para resolver una EDO"""
+        try:
+            self._validate_ode_params(equation, initial_condition, x_range, h)
+            
+            # Parsear la ecuación usando ExpressionParser si es una cadena
+            if isinstance(equation, str):
+                # Usar el método especial para EDOs numéricas
+                f, expr_text = self.parser.parse_ode_for_numerical(equation)
+                parsed_expr = (f, expr_text)  # Tupla con función y texto
+            else:
+                parsed_expr = equation
+                
+            # Llamar al método de comparación en el manager
+            return self.manager.compare_ode_methods(parsed_expr, initial_condition, x_range, h, methods)
+        except Exception as e:
+            raise ValueError(f"No se pudo realizar la comparación:\n{str(e)}")
+        

@@ -8,7 +8,6 @@ class SymCalModel:
     def __init__(self):
         self.x = symbols('x')
         self.y = symbols('y')
-        self.history = []
         self.graph_controller = GraphController(GraphManager())
 
     def derive(self, expression, var=None):
@@ -28,7 +27,6 @@ class SymCalModel:
                     new_coeffs = [(n - i) * coeffs[i] for i in range(len(coeffs) - 1)]
                     result = Polynomial(new_coeffs, var=variable)
                     
-                self.history.append(("Derivada polinomio", str(expression), result))
                 return result
             
             # Si es una instancia de Polynomial, convertirlo a expresión simbólica
@@ -41,17 +39,14 @@ class SymCalModel:
                 # Intentar convertir el resultado a un polinomio
                 try:
                     poly_result = Polynomial(sp.Poly(result, variable).all_coeffs(), var=expression.var)
-                    self.history.append(("Derivada polinomio", str(expression), poly_result))
                     return poly_result
                 except:
                     # Si no se puede convertir a polinomio, devolver la expresión simbólica
-                    self.history.append(("Derivada", str(expression), result))
                     return result
                 
             f = sympify(expression)
             variable = symbols(var) if var else self.x
             result = diff(f, variable)
-            self.history.append(("Derivada", expression, result))
             return result
         except Exception as e:
             raise ValueError(f"Error al derivar: {str(e)}")
@@ -81,10 +76,8 @@ class SymCalModel:
                 if limits:
                     lower, upper = limits
                     result = poly.evaluate(upper) - poly.evaluate(lower)
-                    self.history.append(("Integral definida polinomio", str(expression), result, limits))
                     return result
                 else:
-                    self.history.append(("Integral polinomio", str(expression), poly))
                     return poly
                   
             # Si es una instancia de Polynomial, obtenemos sus coeficientes
@@ -100,7 +93,6 @@ class SymCalModel:
             else:
                 result = integrate(f, variable)
                 
-            self.history.append(("Integral", expression, result, limits))
             return result
         except Exception as e:
             raise ValueError(f"Error al integrar:\n{str(e)}")
@@ -116,7 +108,6 @@ class SymCalModel:
                 
             # Resolver la ecuación diferencial
             solution = sp.dsolve(equation, y)
-            self.history.append(("Ecuación diferencial", str(equation), solution))
             
             if initial_condition and x_range:
                 x0, y0 = initial_condition
@@ -149,47 +140,67 @@ class SymCalModel:
     def _prepare_solution_function(self, solution, x0, y0):
         """Convierte una solución simbólica en una función numérica, aplicando la condición inicial"""
         try:
-            solution_rhs = solution.rhs
-            
-            # Si hay constantes de integración, hay que resolverlas
-            if 'C1' in str(solution_rhs) or 'C2' in str(solution_rhs):
-                # Resuelve para las constantes usando la condición inicial
-                const_eq = solution_rhs.subs(self.x, x0) - y0
-                const_sol = sp.solve(const_eq, 'C1')
-                if const_sol:
-                    # Sustituye la constante resuelta en la solución
-                    solution_rhs = solution_rhs.subs('C1', const_sol[0])
+            # Manejar múltiples soluciones (devueltas como lista)
+            if isinstance(solution, list):
+                solutions = solution # Convertir a lista si es una solución única
+            else:
+                solutions = [solution]
                 
-            # Convierte la solución simbólica a una función numérica
-            solution_func = sp.lambdify(self.x, solution_rhs)
-            return solution_func
+            # Intentar con cada solución de la lista
+            for sol in solutions:
+                solution_rhs = sol.rhs
+                
+                # Si hay constantes de integración, hay que resolverlas
+                if 'C1' in str(solution_rhs) or 'C2' in str(solution_rhs):
+                    # Resuelve para las constantes usando la condición inicial
+                    const_eq = solution_rhs.subs(self.x, x0) - y0
+                    try:
+                        const_sol = sp.solve(const_eq, 'C1')
+                        if const_sol:
+                            # Sustituye la constante resuelta en la solución
+                            solution_rhs = solution_rhs.subs('C1', const_sol[0])
+                            
+                            # Verificar si esta solución satisface la condición inicial
+                            y_test = float(solution_rhs.subs(self.x, x0).evalf())
+                            if abs(y_test - y0) < 1e-10:  # Tolerancia numérica
+                                # Convierte la solución simbólica a una función numérica
+                                solution_func = sp.lambdify(self.x, solution_rhs)
+                                return solution_func
+                    except Exception as e:
+                        # Si falla con esta solución, intentar con la siguiente
+                        print(f"Error con una solución: {e}")
+                        continue
+                
+            # Si llegamos aquí, ninguna solución funcionó correctamente: Como alternativa, tomar la primera solución disponible
+            if solutions:
+                solution_rhs = solutions[0].rhs
+                if 'C1' in str(solution_rhs):
+                    # Intentar resolver con la primera solución
+                    const_eq = solution_rhs.subs(self.x, x0) - y0
+                    const_sol = sp.solve(const_eq, 'C1')
+                    if const_sol:
+                        solution_rhs = solution_rhs.subs('C1', const_sol[0])
+                    
+                solution_func = sp.lambdify(self.x, solution_rhs)
+                return solution_func
+                
+            return None
         except Exception as e:
             print(f"Error preparando función de solución:\n{e}")
             return None
-    
-    def _parse_ode_equation(self, equation):
-        """Parsea una ecuación diferencial y devuelve la función f(x,y) para y'=f(x,y)"""
-        try:
-            # Parsear la ecuación (ejemplo: "y' = x + y" -> "x + y")
-            if '=' in equation:
-                rhs = equation.split('=')[1].strip()
-            else:
-                rhs = equation
-                
-            f = lambdify([symbols('x'), symbols('y')], sympify(rhs))
-            return f, rhs
-        except Exception as e:
-            raise ValueError(f"No se pudo parsear la ecuación:\n{str(e)}")
 
-    def solve_ode_numerical(self, equation, initial_condition, x_range, h=0.1, method="euler"):
+    def solve_ode_numerical(self, parsed_equation, initial_condition, x_range, h=0.1, method="euler"):
         """Método general para resolver EDOs con diferentes métodos numéricos"""
         x0, y0 = initial_condition
         x_start, x_end = x_range
         x_vals = [x0]
         y_vals = [y0]
         
-        # Obtener la función f(x,y) de la ecuación y'=f(x,y)
-        f, rhs = self._parse_ode_equation(equation)
+        # El parsed_equation debe ser una tupla (f, rhs_text)
+        if isinstance(parsed_equation, tuple) and len(parsed_equation) == 2 and callable(parsed_equation[0]):
+            f, rhs = parsed_equation
+        else:
+            raise ValueError("La ecuación debe estar parseada como (función, texto)")
         
         # Inicializar valores
         x = x0
@@ -204,27 +215,23 @@ class SymCalModel:
         
         # Resolver la ecuación paso a paso según el método elegido
         while x < x_end:
-            if method == "euler":
-                # Método de Euler: y_{n+1} = y_n + h * f(x_n, y_n)
+            if method == "euler": # Método de Euler: y_{n+1} = y_n + h * f(x_n, y_n)
                 y = y + h * f(x, y)
             
-            elif method == "heun":
-                # Método de Heun (predictor-corrector)
+            elif method == "heun": # Método de Heun (predictor-corrector)
                 k1 = f(x, y)
                 y_pred = y + h * k1
                 k2 = f(x + h, y_pred)
                 y = y + h * (k1 + k2) / 2
                 
-            elif method == "rk4":
-                # Método de Runge-Kutta de 4to orden
+            elif method == "rk4": # Método de Runge-Kutta de 4to orden
                 k1 = f(x, y)
                 k2 = f(x + h/2, y + h*k1/2)
                 k3 = f(x + h/2, y + h*k2/2)
                 k4 = f(x + h, y + h*k3)
                 y = y + h * (k1 + 2*k2 + 2*k3 + k4) / 6
                 
-            elif method == "taylor":
-                # Método de Taylor de orden 2
+            elif method == "taylor": # Método de Taylor de orden 2
                 f_value = f(x, y)
                 df_value = df_dx(x, y) + df_dy(x, y) * f_value
                 y = y + h * f_value + (h**2/2) * df_value
@@ -256,8 +263,6 @@ class SymCalModel:
             title=f"{method_title} - {len(solution_points)} puntos"
         )
         
-        self.history.append((method.capitalize(), equation, solution_points))
-        
         # Devolver tanto la solución como el canvas
         return {
             "solution": solution_points,
@@ -280,8 +285,46 @@ class SymCalModel:
         """Resuelve una ecuación diferencial usando el método de Taylor de orden 2"""
         return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="taylor")
         
-    def get_history(self):
-        return self.history
-
-    def clear(self):
-        self.history.clear()
+    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None):
+        available_methods = {
+            "euler": "Método de Euler",
+            "heun": "Método de Heun",
+            "rk4": "Método de Runge-Kutta (4º orden)",
+            "taylor": "Método de Taylor (2º orden)"
+        }
+        
+        # Si no se especifica, incluir todos los métodos disponibles
+        if methods is None:
+            methods = list(available_methods.keys())
+        
+        # Validar los métodos solicitados
+        for method in methods:
+            if method not in available_methods:
+                raise ValueError(f"Método '{method}' no disponible.")
+        
+        # El parsed_equation debe ser una tupla (f, rhs_text)
+        if not (isinstance(equation, tuple) and len(equation) == 2 and callable(equation[0])):
+            raise ValueError("La ecuación debe estar parseada como (función, texto)")
+        
+        # Almacenar resultados de cada método
+        solutions = {}
+        
+        # Calcular soluciones numéricas para cada método
+        for method in methods:
+            result = self.solve_ode_numerical(equation, initial_condition, x_range, h, method=method)
+            solutions[method] = result["solution"]
+        
+        # Extraer el texto de la ecuación para mostrar
+        _, equation_text = equation
+        
+        # Delegar la generación del canvas al controlador de gráficos
+        canvas = self.graph_controller.generate_ode_comparison_canvas(
+            equation=f"y' = {equation_text}",
+            solutions=solutions,
+            initial_condition=initial_condition,
+            x_range=x_range,
+            h=h,
+            method_names=available_methods
+        )
+        
+        return canvas

@@ -65,6 +65,8 @@ class ExpressionParser:
             expr = re.sub(r"d\^?2y/dx\^?2", "Derivative(y(x), (x, 2))", expr)
             expr = re.sub(r"d²y/dx²", "Derivative(y(x), (x, 2))", expr)
             expr = re.sub(r"dy/dx", "Derivative(y(x), x)", expr)
+            expr = re.sub(r"y'\(x\)", "Derivative(y(x), x)", expr)  # nuevo
+            expr = re.sub(r"y''\(x\)", "Derivative(y(x), (x, 2))", expr)  # por si acaso
 
             # También soportar notaciones con comillas simples, si no tienen paréntesis
             expr = re.sub(r"y''(?!\()", "Derivative(y(x), (x, 2))", expr)
@@ -153,3 +155,44 @@ class ExpressionParser:
                 return sp.Eq(expr, 0)
         except Exception as e:
             raise ValueError(f"Error al analizar la ecuación: {e}")
+        
+    def parse_ode_for_numerical(self, raw_expr: str):
+        try:
+            # Extraer el lado derecho de la ecuación - refactorizar como método separado
+            expr_text = self._extract_rhs_from_equation(raw_expr)
+            
+            # Sanitizar y parsear con símbolos 3D (y como variable independiente)
+            parsed_expr = self.parse_expression(expr_text, use_3d=True)
+            
+            # Crear una función lambda para evaluar f(x,y)
+            f = sp.lambdify([self.x, self.y_symbol], parsed_expr, modules=['numpy'])
+            
+            return f, expr_text
+        except Exception as e:
+            raise ValueError(f"Error al analizar la ecuación diferencial: {str(e)}")
+            
+    def _extract_rhs_from_equation(self, equation):
+        """
+        Extrae el lado derecho de una ecuación diferencial.
+        Pre-procesa y normaliza notaciones antes de aplicar expresiones regulares.
+        """
+        if '=' in equation:
+            parts = equation.split('=', 1)
+            lhs = parts[0].strip()
+            rhs = parts[1].strip()
+            
+            # Normalizar notación - reemplazar caracteres unicode por ascii
+            normalized_lhs = lhs.replace('′', "'").replace('´', "'")
+            
+            # 1. Verificar casos simples
+            if any(notation in normalized_lhs for notation in ["dy/dx", "y'", "Dy"]):
+                return rhs
+            
+            # 2. Remover espacios y paréntesis para verificar variantes
+            clean_lhs = re.sub(r'\s+|\(|\)|x', '', normalized_lhs)
+            
+            if clean_lhs in ["y'", "dy/dx", "Dy"]:
+                return rhs
+        
+        return equation
+    

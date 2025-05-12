@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 from ui.widgets.math_operation_widget import MathOperationWidget
 from ui.widgets.expression_components.expression_buttons_panel import ExpressionButtonsPanel
 from ui.widgets.expression_components.expression_formatter_input import ExpressionFormatterInput
-from ui.widgets.expression_components.canvas_dialog_manager import CanvasDialogManager
+from ui.dialogs.canvas_dialog_manager import CanvasDialogManager
 from utils.image_utils import create_image_label
 
 class ExpressionOpWidget(MathOperationWidget):
@@ -106,7 +106,56 @@ class ExpressionOpWidget(MathOperationWidget):
     def process_operation_result(self, result):
         """Procesa el resultado de la operación para mostrarlo adecuadamente"""
         try:
-            # Extraer HTML y canvas si el resultado es un diccionario con ambos
+            # CASO ESPECIAL: Ecuaciones diferenciales con capacidad de comparación
+            if self.operation_type == "ecuaciones_diferenciales" and isinstance(result, dict) and "canvas" in result:
+                # Verificar si tenemos los atributos necesarios para la comparación
+                if all(hasattr(self, attr) for attr in ['numerical_x_start', 'numerical_x_end', 
+                                                    'numerical_x0', 'numerical_y0', 
+                                                    'de_method_selector']):
+                    
+                    # Extraer HTML y canvas
+                    html_content = result.get("html")
+                    canvas = result["canvas"]
+                    
+                    # Obtener parámetros para el diálogo especializado
+                    equation = self.get_input_expression().strip()
+                    x_range = (self.numerical_x_start.value(), self.numerical_x_end.value())
+                    initial_condition = (self.numerical_x0.value(), self.numerical_y0.value())
+                    method = self.de_method_selector.currentData()
+                    h = self.numerical_h.value() if hasattr(self, 'numerical_h') else 0.1
+                    
+                    # Obtener modelo simbólico si está disponible
+                    sym_model = self.controller.manager.model if hasattr(self.controller, 'manager') else None
+                    
+                    # Mostrar diálogo especializado con opción de comparación Y el HTML
+                    if self.use_dialog_for_result:
+                        self.canvas_dialog_manager.show_ode_solution_dialog(
+                            canvas=canvas,
+                            equation=equation,
+                            initial_condition=initial_condition,
+                            x_range=x_range,
+                            h=h,
+                            method=method,
+                            sym_model=sym_model,
+                            title="🟢 SOLUCIÓN DE EDO",
+                            html_content=html_content  # Pasar el HTML para mostrarlo
+                        )
+                    else:
+                        # Mostrar HTML en el widget y canvas en diálogo separado
+                        self.display_result(html_content)
+                        self.canvas_dialog_manager.show_ode_solution_dialog(
+                            canvas=canvas,
+                            equation=equation,
+                            initial_condition=initial_condition,
+                            x_range=x_range,
+                            h=h,
+                            method=method,
+                            sym_model=sym_model,
+                            title="🟢 SOLUCIÓN DE EDO"
+                        )
+                    return  # Importante: terminar aquí si ya manejamos el caso
+            
+            # COMPORTAMIENTO ESTÁNDAR PARA EL RESTO DE CASOS
             html_content = None
             canvas = None
             

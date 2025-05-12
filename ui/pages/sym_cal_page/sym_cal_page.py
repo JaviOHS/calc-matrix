@@ -8,8 +8,8 @@ class SymCalPage(BaseOperationPage):
         controller = SymCalController(manager)
 
         operations = {
-            "Derivadas": ("derivadas", SymCalOpWidget),
-            "Integrales": ("integrales", SymCalOpWidget),
+            "Derivación": ("derivadas", SymCalOpWidget),
+            "Integración": ("integrales", SymCalOpWidget),
             "Ecuaciones Diferenciales": ("ecuaciones_diferenciales", SymCalOpWidget),
         }
 

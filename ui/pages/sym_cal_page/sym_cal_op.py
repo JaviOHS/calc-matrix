@@ -135,7 +135,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         
         # Paso h (solo para métodos numéricos
         numerical_step_layout.addWidget(QLabel("h ="))
-        self.numerical_h = create_spinbox(min_val=0.001, max_val=5, default_val=2.5, step=0.1)
+        self.numerical_h = create_spinbox(min_val=0.001, max_val=5, default_val=1, step=0.1)
         numerical_step_layout.addWidget(self.numerical_h)
         
         # Agregar widgets al layout
