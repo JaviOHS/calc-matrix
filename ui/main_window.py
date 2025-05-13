@@ -42,6 +42,7 @@ class MainWindow(QMainWindow):
         """Configurar propiedades básicas de la ventana"""
         self.resize(1000, 600)
         self.setWindowFlags(Qt.FramelessWindowHint)
+        self.showMaximized() # Maximizar ventana al iniciar
 
     def setup_ui(self):
         """Configurar la interfaz de usuario"""

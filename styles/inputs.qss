@@ -1,0 +1,128 @@
+/* --- CAMPOS DE ENTRADA --- */
+QAbstractSpinBox, QDoubleSpinBox {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #1C2C42;
+    font-weight: 500;
+    color: #DADADA;
+    padding: 4px 8px;
+}
+
+QAbstractSpinBox:focus, QDoubleSpinBox:focus {
+    border-bottom: 2px solid #ff8103;
+}
+
+QAbstractSpinBox::up-button,
+QAbstractSpinBox::down-button,
+QSpinBox::up-button,
+QSpinBox::down-button {
+    width: 0;
+    height: 0;
+    border: none;
+}
+
+QSpinBox {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #1C2C42;
+    font-weight: 500;
+    color: #DADADA;
+    padding: 4px 8px;
+}
+
+QSpinBox:focus {
+    border-bottom: 2px solid #ff8103;
+}
+
+QTextEdit {
+    background-color: transparent;
+    border: 1px solid #1C2C42;
+    border-radius: 6px;
+    color: #87878e;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-family: Cambria Math;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+/* --- TABLAS Y MATRICES --- */
+QScrollArea { 
+    border: none; 
+}
+
+QTableWidget {
+    border: none;
+    font-size: 16px;
+    gridline-color: transparent;
+    alternate-background-color: transparent;
+    font-family: Cambria Math;
+    border-radius: 8px;
+}
+
+QTableWidget::item {
+    border: none;
+    padding: 8px;
+    color: #DCDCDC;
+    font-weight: 500;
+    background-color: rgba(85, 90, 150, 0.1);
+    text-align: center;
+    margin: 2px;
+    border-radius: 4px;
+}
+
+QTableWidget::item:hover {
+    background-color: rgba(85, 90, 150, 0.3);
+}
+
+QHeaderView::section {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #ff8103;
+    padding: 5px;
+    color: #C0C0C0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+/* --- MENÚS DESPLEGABLES --- */
+QMenu#operationsMenu {
+    background-color: #0F161F;
+    border: 2px solid #fc7e00;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+QMenu#operationsMenu::item {
+    padding: 10px 20px;
+    border-radius: 4px;
+    margin: 2px;
+    font-weight: 500;
+}
+
+QMenu#operationsMenu::item:selected {
+    background-color: rgba(252, 126, 0, 0.2);
+    color: #ff8103;
+}
+
+QComboBox {
+    background-color: transparent;
+    border: none;
+    border-bottom: 2px solid #fc7e00;
+    font-weight: 500;
+    padding: 0 5px;
+    min-width: 100px;
+    text-align: center;
+    color: #DADADA;
+}
+
+QComboBox::down-arrow {
+    image: url(assets/icons/options.svg);
+    width: 12px;
+}
+
+QComboBox QAbstractItemView {
+    padding: 4px;
+    border: 2px solid #1C2C42;
+    background-color: #0F161F;
+}

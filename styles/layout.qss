@@ -1,0 +1,5 @@
+/* --- PANELES Y CONTENEDORES --- */
+#contentPanel, #imagePanel {
+    background-color: rgb(19, 26, 36);
+    border-radius: 12px;
+}

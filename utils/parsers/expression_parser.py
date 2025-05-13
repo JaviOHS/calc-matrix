@@ -47,7 +47,8 @@ class ExpressionParser:
             "y": self.y_symbol,  # y como variable independiente
         })
 
-        self.allowed_names = set(self.common_symbols.keys()) | {"x", "y"}
+        # Nombres permitidos para la validación de símbolos
+        self.allowed_names = set(self.common_symbols.keys()) | {"x", "y", "dx", "dy"}
 
     def sanitize_expression(self, expr: str, use_3d=False) -> str:
         # Reemplazos básicos
@@ -61,19 +62,25 @@ class ExpressionParser:
 
         # Solo aplicar reemplazos específicos de EDO si no estamos en modo 3D
         if not use_3d:
+            # Eliminar espacios en patrones específicos para asegurar la captura correcta
+            expr = re.sub(r'd\s*y\s*/\s*d\s*x', 'dy/dx', expr)
+            
             # Notación de derivadas comunes (orden importa: primero las segundas derivadas)
             expr = re.sub(r"d\^?2y/dx\^?2", "Derivative(y(x), (x, 2))", expr)
             expr = re.sub(r"d²y/dx²", "Derivative(y(x), (x, 2))", expr)
             expr = re.sub(r"dy/dx", "Derivative(y(x), x)", expr)
-            expr = re.sub(r"y'\(x\)", "Derivative(y(x), x)", expr)  # nuevo
-            expr = re.sub(r"y''\(x\)", "Derivative(y(x), (x, 2))", expr)  # por si acaso
+            expr = re.sub(r"y'\(x\)", "Derivative(y(x), x)", expr)
+            expr = re.sub(r"y''\(x\)", "Derivative(y(x), (x, 2))", expr)
 
             # También soportar notaciones con comillas simples, si no tienen paréntesis
             expr = re.sub(r"y''(?!\()", "Derivative(y(x), (x, 2))", expr)
             expr = re.sub(r"y'(?!\()", "Derivative(y(x), x)", expr)
 
             # Reemplazar 'y' por 'y(x)' solo cuando no es parte de 'y(x)', 'y''', etc.
-            expr = re.sub(r'\by\b(?!\s*\()', "y(x)", expr)
+            expr = re.sub(r'\by\b(?!\s*[\(\'])', "y(x)", expr)
+
+            # Asegurarse de que no queden símbolos dx o dy sueltos después de las sustituciones
+            expr = re.sub(r'\b(dx|dy)\b(?!/)', '', expr)
 
         return expr
 
@@ -158,8 +165,20 @@ class ExpressionParser:
         
     def parse_ode_for_numerical(self, raw_expr: str):
         try:
-            # Extraer el lado derecho de la ecuación - refactorizar como método separado
-            expr_text = self._extract_rhs_from_equation(raw_expr)
+            # Manejar el caso especial donde la ecuación es solo "dy/dx=" sin lado derecho
+            raw_expr = raw_expr.strip()
+            if raw_expr.endswith('='):
+                raw_expr = raw_expr + "0"  # Añadimos un 0 por defecto
+                
+            # También podemos normalizar directamente a y'(x) si detectamos dy/dx
+            if raw_expr.startswith('dy/dx') or raw_expr.startswith('d y / d x'):
+                raw_expr = "y'(x)" + raw_expr[raw_expr.find('='):]
+            
+            # Procesar la expresión para eliminar notaciones problemáticas
+            preprocessed_expr = self._preprocess_ode_expression(raw_expr)
+            
+            # Extraer el lado derecho de la ecuación
+            expr_text = self._extract_rhs_from_equation(preprocessed_expr)
             
             # Sanitizar y parsear con símbolos 3D (y como variable independiente)
             parsed_expr = self.parse_expression(expr_text, use_3d=True)
@@ -170,22 +189,45 @@ class ExpressionParser:
             return f, expr_text
         except Exception as e:
             raise ValueError(f"Error al analizar la ecuación diferencial: {str(e)}")
-            
+        
+    def _preprocess_ode_expression(self, expr):
+        """
+        Preprocesa una expresión de ecuación diferencial para eliminar notaciones
+        problemáticas antes del análisis principal.
+        """
+        # Primero eliminar espacios en notaciones de derivadas
+        expr = re.sub(r'd\s*y\s*/\s*d\s*x', 'Derivative(y(x), x)', expr)
+        
+        # Reemplazar notaciones de derivadas por formas aceptables
+        expr = re.sub(r"dy/dx", "Derivative(y(x), x)", expr)
+        expr = re.sub(r"d²y/dx²", "Derivative(y(x), (x, 2))", expr)
+        expr = re.sub(r"d\^?2y/dx\^?2", "Derivative(y(x), (x, 2))", expr)
+        
+        # Reemplazar dx y dy cuando están solos (no en fracciones)
+        expr = re.sub(r'\b(dx|dy)\b(?!/)', '', expr)
+        
+        return expr
+
     def _extract_rhs_from_equation(self, equation):
         """
         Extrae el lado derecho de una ecuación diferencial.
         Pre-procesa y normaliza notaciones antes de aplicar expresiones regulares.
         """
+        # Asegurarse de que la ecuación tenga un lado derecho
+        equation = equation.strip()
+        if equation.endswith('='):
+            equation += '0'  # Añadir 0 como valor predeterminado
+            
         if '=' in equation:
             parts = equation.split('=', 1)
             lhs = parts[0].strip()
-            rhs = parts[1].strip()
+            rhs = parts[1].strip() or '0'  # Si el lado derecho está vacío, usar 0
             
             # Normalizar notación - reemplazar caracteres unicode por ascii
             normalized_lhs = lhs.replace('′', "'").replace('´', "'")
             
             # 1. Verificar casos simples
-            if any(notation in normalized_lhs for notation in ["dy/dx", "y'", "Dy"]):
+            if any(notation in normalized_lhs for notation in ["dy/dx", "y'", "Dy", "Derivative"]):
                 return rhs
             
             # 2. Remover espacios y paréntesis para verificar variantes
@@ -195,4 +237,3 @@ class ExpressionParser:
                 return rhs
         
         return equation
-    

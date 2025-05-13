@@ -237,3 +237,4 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             create_section('Expresión Original: ', formatted_expr, COLORS['secondary'], ICONS['operation']) +
             create_section('Resultado Simplificado: ', formatted_result, COLORS['primary'], ICONS['result'])
         )
+    

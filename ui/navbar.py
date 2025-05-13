@@ -9,7 +9,7 @@ class TopNavbar(QWidget):
     def __init__(self, main_window, toggle_sidebar_callback, username="Usuario"):
         super().__init__()
         self.main_window = main_window
-        self.setFixedHeight(50)
+        self.setFixedHeight(45)
         
         layout = QHBoxLayout(self)
         layout.setContentsMargins(10, 5, 10, 5)
@@ -41,7 +41,7 @@ class TopNavbar(QWidget):
         self.min_button.setFixedSize(32, 32)
         self.min_button.clicked.connect(self.main_window.showMinimized)
         layout.addWidget(self.min_button)
-
+        
         # Botón cerrar con ActionButton
         self.close_button = ActionButton("", icon_name="close.svg", icon_size=QSize(20, 20),object_name="closeButton")
         self.close_button.setFixedSize(32, 32)

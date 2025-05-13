@@ -52,3 +52,8 @@ class ActionButton(QPushButton):
         btn.insert_text = insert_text if insert_text is not None else symbol
         return btn
     
+    @classmethod
+    def custom_icon(cls, text, icon_name, parent=None):
+        """Botón con icono personalizado"""
+        return cls(text, icon_name, parent=parent)
+    

@@ -1,0 +1,16 @@
+/* --- DIÁLOGOS --- */
+#backgroundFrame {
+    background-color: #0F161F;
+    border: 3px solid #ff8103;
+    border-radius: 15px;
+}
+
+#titleDialog {
+    font-weight: bold;
+    color: #72e48c;
+    font-size: 20px;
+}
+
+#messageDialog {
+    font-size: 16px;
+}

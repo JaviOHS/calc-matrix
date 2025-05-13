@@ -16,7 +16,7 @@ class Sidebar(QWidget):
         logo_label = create_image_label("assets/images/app.png", width=120, height=120)
         self.layout.addWidget(logo_label)
         
-        self.layout.addWidget(QLabel("""<span style='font-size:28px; font-weight:bold; color:#037df5;'>Calc<span style='color:#ff8103;'>Matrix</span></span>""", alignment=Qt.AlignCenter))
+        self.layout.addWidget(QLabel("""<span style='font-size:28px; font-weight:bold; color:#D8DEE9;'>Calc<span style='color:#ff8103;'>Matrix</span></span>""", alignment=Qt.AlignCenter))
         self.layout.addSpacing(10)
 
         self.buttons = {}

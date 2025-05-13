@@ -1,8 +1,8 @@
 from utils.resources import resource_path
 from PySide6.QtWidgets import QApplication
 from ui.main_window import MainWindow
-from PySide6.QtGui import QFontDatabase, QShortcut, QKeySequence
-import os
+from PySide6.QtGui import QFontDatabase
+from utils.shortcuts import ShortcutManager
 import sys
 
 def setup_fonts():
@@ -19,22 +19,32 @@ def setup_fonts():
     
     return font_family, cambria_family
 
-def load_styles(app):
-    """Cargar hojas de estilo."""
-    style_path = resource_path("styles/styles.qss")
-    with open(style_path, "r") as file:
-        style = file.read()
-    app.setStyleSheet(style)
-
-def setup_shortcuts(window, app):
-    """Configurar atajos de teclado."""
-    # Crear atajo para cerrar y limpiar consola (Ctrl+Q)
-    def close_and_clear():
-        app.quit()
-        os.system('cls' if os.name == 'nt' else 'clear')
-
-    shortcut = QShortcut(QKeySequence("Ctrl+Q"), window)
-    shortcut.activated.connect(close_and_clear)
+def load_styles(app, font_family):
+    """Cargar hojas de estilo modulares."""
+    style_files = [
+        "base.qss",
+        "layout.qss", 
+        "pages.qss",
+        "components.qss",
+        "buttons.qss",
+        "inputs.qss",
+        "scrollbars.qss",
+        "dialogs.qss"
+    ]
+    
+    combined_styles = ""
+    
+    # Combinar todos los archivos en el orden especificado
+    for style_file in style_files:
+        file_path = resource_path(f"styles/{style_file}")
+        try:
+            with open(file_path, "r") as file:
+                combined_styles += file.read() + "\n\n"
+        except FileNotFoundError:
+            print(f"Advertencia: Archivo de estilo no encontrado: {style_file}")
+    
+    combined_styles = combined_styles.replace("{{FONT_FAMILY}}", font_family)
+    app.setStyleSheet(combined_styles) # Aplicar estilos combinados
 
 def main():
     """Función principal que inicia la aplicación."""
@@ -42,11 +52,14 @@ def main():
     
     # Configuración inicial
     font_family, cambria_family = setup_fonts()
-    load_styles(app)
+    load_styles(app, font_family)
     
     # Crear y mostrar la ventana principal
     window = MainWindow()
-    setup_shortcuts(window, app)
+    
+    # Configurar los atajos de teclado
+    shortcuts = ShortcutManager(window, app)
+    
     window.show()
     
     # Iniciar el bucle de eventos
@@ -54,4 +67,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

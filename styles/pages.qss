@@ -1,0 +1,33 @@
+/* --- PÁGINAS PRINCIPALES --- */
+#heroHeader {
+    margin-bottom: 24px;
+}
+
+#heroTitle {
+    font-size: 36px;
+    font-weight: bold;
+    color: white;
+    padding-left: 14px;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+#heroHighlight {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff8103;
+    padding-left: 14px;
+    letter-spacing: -0.5px;
+}
+
+#heroDescription {
+    color: #D8DEE9;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+#footerText {
+    color: #ADBAC7; 
+    font-size: 14px;
+    margin-top: 10px;
+}

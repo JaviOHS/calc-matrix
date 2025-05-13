@@ -1,67 +1,51 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout
-from PySide6.QtCore import QUrl, QSize
-from PySide6.QtGui import QDesktopServices
-from utils.action_buttons import ActionButton
 from ui.widgets.base_page import BasePage
+from PySide6.QtWidgets import QFrame
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QVBoxLayout
 
 class AboutPage(BasePage):
     def __init__(self, navigate_callback=None):
-        super(AboutPage, self).__init__(navigate_callback)
-
-    def setup_text_content(self):
-        title = QLabel("Información sobre el desarrollo")
-        title.setObjectName("heroTitle")
-        self.text_layout.addWidget(title)
-
-        subtitle_highlight = QLabel("De CalcMatrix 🧑‍💻")
-        subtitle_highlight.setObjectName("heroHighlight")
-        self.text_layout.addWidget(subtitle_highlight)
-
-        # Información del desarrollador
-        info_widget = QWidget()
-        info_layout = QVBoxLayout(info_widget)
-        info_layout.setSpacing(12)
-
-        author_info = self.create_info_item("👤", "Javier Haro Soledispa - jharos@unemi.edu.ec")
-        faculty_info = self.create_info_item("🏛️", "UNEMI - Facultad de Ciencias e Ingeniería")
-        career_info = self.create_info_item("🎓", "Carrera de Ingeniería de Software")
-        semester_info = self.create_info_item("📚", "Sexto Semestre - Modelos matemáticos y simulación")
-        teacher_info = self.create_info_item("👨‍🏫", "Ing. Isidro Morales Torres")
-
-        info_layout.addWidget(author_info)
-        info_layout.addWidget(faculty_info)
-        info_layout.addWidget(career_info)
-        info_layout.addWidget(semester_info)
-        info_layout.addWidget(teacher_info)
-        info_widget.setObjectName("infoContainer")
-        info_widget.setMaximumWidth(700)
-        self.text_layout.addWidget(info_widget)
-
-        # Botón de GitHub
-        button_container = QWidget()
-        button_layout = QHBoxLayout(button_container)
-        button_layout.setContentsMargins(0, 0, 0, 0)
-        button_layout.setSpacing(20)
-
-        github_button = ActionButton("Repositorio de GitHub", icon_name="github.svg", icon_size=QSize(20, 20), object_name="ctaButton")
-        github_button.clicked.connect(self.open_github)        
-
-        button_layout.addWidget(github_button)
-        button_layout.addStretch()
-
-        self.text_layout.addWidget(button_container)
-        self.text_layout.addStretch()
-
-    def get_image_path(self):
-        return "assets/images/intro/about.png"
+        super(AboutPage, self).__init__(navigate_callback, page_key="about")
     
-    def get_image_width(self):
-        return 230
-
-    def get_image_height(self):
-        return 230
-
-    def open_github(self):
-        github_url = QUrl("https://github.com/JaviOHS/calc-matrix")
-        QDesktopServices.openUrl(github_url)
+    def create_intro_view(self):
+        # Este método es igual que el de BasePage pero con una pequeña modificación al llamar a setup_educational_content
+        scroll_area = super().create_intro_view()
         
+        # Acceder al widget de scroll_area y encontrar el panel de imagen
+        container = scroll_area.widget()
+        for i in range(container.layout().count()):
+            item = container.layout().itemAt(i)
+            if item and item.widget() and item.widget().objectName() == "imagePanel":
+                # Limpiar el contenido actual del panel de imagen
+                image_panel = item.widget()
+                while image_panel.layout().count():
+                    child = image_panel.layout().takeAt(0)
+                    if child.widget():
+                        child.widget().deleteLater()
+                
+                # Recrear el contenido del panel de imagen
+                image_layout = image_panel.layout()
+                
+                # Recrear la imagen
+                image_container = QFrame()
+                image_container_layout = QVBoxLayout(image_container)
+                image_container_layout.setContentsMargins(0, 0, 0, 0)
+                
+                from utils.image_utils import create_image_label
+                image = create_image_label(
+                    self.get_image_path(), 
+                    width=self.get_image_width(), 
+                    height=self.get_image_height()
+                )
+                image_container_layout.addWidget(image, 0, Qt.AlignCenter)
+                image_layout.addWidget(image_container)
+                
+                # Usar setup_educational_content con URL de GitHub e icono
+                self.setup_educational_content(
+                    image_layout, 
+                    external_url="https://github.com/JaviOHS/calc-matrix",
+                    button_icon="github.svg"
+                )
+                break
+                
+        return scroll_area

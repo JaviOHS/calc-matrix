@@ -1,0 +1,259 @@
+{
+  "home": {
+    "title": "Domina las Matemáticas<br> con {CalcMatrix} 👨‍💻​",
+    "description": "<p>👋 ¡<b>Bienvenido a CalcMatrix</b>! Tu asistente inteligente para el aprendizaje y resolución de problemas matemáticos avanzados.</p><p>✨ Explora conceptos desde lo básico hasta lo avanzado, visualiza soluciones paso a paso y desarrolla una comprensión profunda de:</p>",
+    "features": [
+      {
+        "icon": "🔢",
+        "title": "Matrices",
+        "description": "Aprende a operar con matrices y resuelve sistemas de ecuaciones."
+      },
+      {
+        "icon": "📈",
+        "title": "Polinomios",
+        "description": "Analiza polinomios y comprende sus propiedades."
+      },
+      {
+        "icon": "🔍",
+        "title": "Cálculo Simbólico",
+        "description": "Realiza cálculos simbólicos y resuelve ecuaciones diferenciales."
+      },
+      {
+        "icon": "🕵️‍♀️​",
+        "title": "¡Y más operaciones!",
+        "description": "Puedes navegar por las diferentes secciones de la aplicación usando la barra de navegación izquierda."
+      }
+    ],
+    "image": {
+      "path": "assets/images/intro/deco.png",
+      "width": 240,
+      "height": 240,
+      "caption": ""
+    },
+    "cta": {
+      "text": "¿Listo para empezar tu viaje matemático?",
+      "button": "Comenzar ahora",
+      "target": "matrix",
+      "footer": "🙋 Únete a nuestra comunidad de estudiantes y profesionales."
+    },
+    "educational": {
+      "title": "¿Sabías que...?",
+      "fact": "Las matrices son herramientas fundamentales en la computación gráfica, procesamiento de datos y física moderna."
+    }
+  },
+  "matrix": {
+    "title": "Operaciones con {Matrices}",
+    "description": "<p>🔍 <b>Explora el fascinante mundo de las matrices</b>. Desde operaciones básicas hasta transformaciones complejas, aquí aprenderás a manejar matrices como un experto.</p><p>💡 <b>¿Qué puedes hacer?</b></p>",
+    "features": [
+      {
+        "icon": "➕",
+        "title": "Operaciones Básicas",
+        "description": "Suma, resta, multiplicación y división de matrices. Aprende de manera intuitiva."
+      },
+      {
+        "icon": "🔄",
+        "title": "Inversión",
+        "description": "Aprende a invertir matrices y su aplicación en sistemas de ecuaciones."
+      },
+      {
+        "icon": "🔢",
+        "title": "Determinante",
+        "description": "Calcula determinantes y comprende su significado geométrico."
+      },
+      {
+        "icon": "⚖️",
+        "title": "Sistemas de Ecuaciones",
+        "description": "Resuelve sistemas de ecuaciones lineales usando métodos matriciales."
+      }
+    ],
+    "image": {
+      "path": "assets/images/intro/matrix.png",
+      "width": 240,
+      "height": 240
+    },
+    "cta": {
+      "text": "<b>¿Listo para explorar el álgebra matricial?</b>",
+      "button": "Comenzar operación",
+      "footer": "📚 Practica las operaciones para dominar el álgebra lineal."
+    },
+    "educational": {
+      "title": "¿Sabías que...?",
+      "fact": "Las matrices fueron introducidas por primera vez por James Sylvester en 1850, pero su estudio sistemático comenzó con Arthur Cayley en la década de 1880."
+    }
+  },
+  "polynomial": {
+    "title": "Análisis de {Polinomios}",
+    "description": "<p>🔍 <b>Adéntrate en el mundo de los polinomios</b>. Desde la factorización hasta la resolución de ecuaciones, aquí aprenderás a manejar polinomios con facilidad.</p><p>💡 <b>¿Qué puedes hacer?</b></p>",
+    "features": [
+      {
+        "icon": "➕",
+        "title": "Operaciones Básicas",
+        "description": "Realiza operaciones básicas con polinomios. Desde sumas hasta multiplicaciones."
+      },
+      {
+        "icon": "📈",
+        "title": "Raíces",
+        "description": "Encuentra las raíces de un polinomio y comprende su significado."
+      },
+      {
+        "icon": "🔍",
+        "title": "Derivadas e Integrales",
+        "description": "Aprende a derivar e integrar polinomios. Comprende su aplicación en problemas reales."
+      },
+      {
+        "icon": "📌​",
+        "title": "Evaluación",
+        "description": "Evalúa polinomios en puntos específicos. Comprende su comportamiento en diferentes intervalos."
+      }
+    ],
+    "image": {
+      "path": "assets/images/intro/polynomial.png",
+      "width": 240,
+      "height": 240
+    },
+    "cta": {
+      "text": "<b>¿Listo para comprender polinomios?</b>",
+      "button": "Comenzar análisis",
+      "footer": "Comprende la importancia de los polinomios en el cálculo y la física."
+    },
+    "educational": {
+      "title": "¿Sabías que...?",
+      "fact": "📚 Los polinomios son fundamentales en la teoría de números y tienen aplicaciones en criptografía, codificación y más."
+    } 
+  },
+  "vector": {
+    "title": "Operaciones con {Vectores}",
+    "description": "<p>🔍 <b>Explora el mundo de los vectores</b>. Desde operaciones básicas hasta aplicaciones en física, aquí aprenderás a manejar vectores con facilidad.</p><p>💡 <b>¿Qué puedes hacer?</b></p>",
+    "features": [
+      {
+        "icon": "➕",
+        "title": "Operaciones Básicas",
+        "description": "Suma, resta y multiplicación de vectores. Aprende de manera intuitiva."
+      },
+      {
+        "icon": "📏",
+        "title": "Magnitud",
+        "description": "Comprende la magnitud de un vector y cómo calcularla."
+      },
+      {
+        "icon": "🔄",
+        "title": "Producto Escalar y Vectorial",
+        "description": "Comprende la diferencia entre producto escalar y vectorial. Aprende a calcular ambos."
+      }
+    ],
+    "image": {
+      "path": "assets/images/intro/vector.png",
+      "width": 240,
+      "height": 240
+    },
+    "cta": {
+      "text": "<b>¿Listo para explorar el álgebra vectorial?</b>",
+      "button": "Comenzar operación",
+      "footer": "📚 Practica las operaciones para dominar el álgebra vectorial."
+    },
+    "educational": {
+      "title": "¿Sabías que...?",
+      "fact": "Los vectores son fundamentales en la física, especialmente en mecánica y electromagnetismo. Representan magnitudes con dirección y sentido."
+    }
+  },
+  "graph": {
+    "title": "Gráficas de {Funciones}",
+    "description": "<p>🔍 <b>Adéntrate en el mundo de las gráficas</b>. Desde funciones lineales hasta polinomios complejos, aquí aprenderás a graficar y analizar funciones con facilidad.</p><p>💡 <b>¿Qué puedes hacer?</b></p>",
+    "features": [
+      {
+        "icon": "📈",
+        "title": "Gráficas en 2D",
+        "description": "Aprende a graficar funciones en 2D. Comprende la relación entre la ecuación y su representación gráfica."
+      },
+      {
+        "icon": "📉",
+        "title": "Gráficas en 3D",
+        "description": "Explora funciones en 3D. Comprende la proyección y la visualización de funciones complejas."
+      }
+    ],
+    "image": {
+      "path": "assets/images/intro/graph.png",
+      "width": 240,
+      "height": 240
+    },
+    "cta": {
+      "text": "<b>¿Listo para explorar gráficas?</b>",
+      "button": "Comenzar análisis",
+      "footer": "📚 Comprende la importancia de las gráficas en el análisis de datos y funciones."
+    },
+    "educational": {
+      "title": "¿Sabías que...?",
+      "fact": "Las gráficas son herramientas poderosas para visualizar datos y funciones. Se utilizan en diversas disciplinas, desde la economía hasta la biología."
+    }
+  },
+  "sym_cal": {
+    "title": "Cálculo Simbólico <br> de {Funciones}",
+    "description": "<p>🔍 <b>Adéntrate en el mundo del cálculo simbólico</b>. Desde derivadas hasta integrales, aquí aprenderás a manejar funciones simbólicas con facilidad.</p><p>💡 <b>¿Qué puedes hacer?</b></p>",
+    "features": [
+      {
+        "icon": "➕",
+        "title": "Derivadas",
+        "description": "Calcula derivadas de funciones. Comprende su significado y aplicación."
+      },
+      {
+        "icon": "📏",
+        "title": "Integrales",
+        "description": "Calcula integrales definidas e indefinidas. Comprende su importancia en el cálculo."
+      },
+      {
+        "icon": "🔄",
+        "title": "Ecuaciones Diferenciales",
+        "description": "Resuelve ecuaciones diferenciales ordinarias empleando soluciones analíticas o numéricas. Podrás visualizar las soluciones en gráficos."
+      }
+    ],
+    "image": {
+      "path": "assets/images/intro/sym_cal.png",
+      "width": 240,
+      "height": 240
+    },
+    "cta": {
+      "text": "<b>¿Listo para explorar el cálculo simbólico?</b>",
+      "button": "Comenzar operación",
+      "footer": "📚 Practica el cálculo simbólico para dominar el análisis matemático."
+    },
+    "educational": {
+      "title": "¿Sabías que...?",
+      "fact": "El cálculo simbólico es fundamental en matemáticas y física. Permite manipular expresiones algebraicas y resolver ecuaciones de manera eficiente."
+    }
+  },
+  "about": {
+    "title": "Acerca de {CalcMatrix} 🚀",
+    "description": "<p>👋 <b>¡Hola!</b> En esta sección encontrarás información sobre el desarrollo de CalcMatrix.",
+    "features": [
+      {
+        "icon": "👨‍💻",
+        "title": "Javier Haro Soledispa",
+        "description": "Estudiante de Ingeniería de Software en la Universidad Estatal de Milagro (UNEMI)."
+      },
+      {
+        "icon": "📚",
+        "title": "Modelos Matemáticos y Simulación",
+        "description": "Desarrollo de una aplicación móvil para la asignatura de Modelos Matemáticos y Simulación, 6to Semestre. Periodo académico: Abril - Julio 2025."
+      },
+      {
+        "icon": "👨‍🏫​",
+        "title": "Docente - Ing. Isidro Morales Torres",
+        "description": "Docente de la asignatura de Modelos Matemáticos y Simulación. Universidad Estatal de Milagro (UNEMI)."
+      }
+    ],
+    "image": {
+      "path": "assets/images/intro/about.png",
+      "width": 240,
+      "height": 240
+    },
+    "cta": {
+      "text": "<b>¿Te gustaría apoyar este proyecto en GitHub?</b>",
+      "button": "Visitar GitHub",
+      "footer": "📚 Tus opiniones sobre CalcMatrix seran agradecidas."
+    },
+    "educational": {
+      "title": "¿Sabías que...?",
+      "fact": "El desarrollo de aplicaciones móviles es una habilidad valiosa en el mundo actual. Permite crear soluciones innovadoras y accesibles para todos."
+    }
+  }
+}

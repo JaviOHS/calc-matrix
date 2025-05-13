@@ -10,14 +10,14 @@ class SymCalOpWidget(ExpressionOpWidget):
         self.operation_type = operation_type
         use_dialog_for_result = True if operation_type == "ecuaciones_diferenciales" else False
 
+        input_label = f"Ingresa una expresión para realizar cálculo de {operation_type}:"
         placeholder = "Ejemplo: 2x^2 + 2x"
+        
         if operation_type == "ecuaciones_diferenciales":
             input_label = "Seleccione un método e ingrese la ecuación diferencial a resolver."
             placeholder = "Ejemplos válidos: \ny' = x + y || dy/dx = x + y"
-        elif operation_type == "derivadas":
-            input_label = "Ingresa una expresión para calcular la derivada:"
-        else:
-            input_label = "Ingresa una expresión y seleccione el tipo de integral a resolver."
+        elif operation_type == "integrales":
+            placeholder = "Ingresa una expresión para calcular la integral. Ejemplo: x^2 + 2x"
 
         super().__init__(manager, controller, operation_type=operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=use_dialog_for_result)
 
@@ -44,45 +44,56 @@ class SymCalOpWidget(ExpressionOpWidget):
 
     def add_integral_limits_inputs(self):
         """Configura los inputs para límites de integración en una única fila horizontal"""
-        self.limits_widget = QWidget()
-        limits_layout = QHBoxLayout(self.limits_widget)
-        limits_layout.setContentsMargins(20, 0, 0, 0)
+        # Crear un contenedor horizontal para toda la línea
+        top_row = QWidget()
+        top_layout = QHBoxLayout(top_row)
+        top_layout.setContentsMargins(20, 0, 0, 0)
+        top_layout.setSpacing(10)
+        
+        # Texto descriptivo
+        instruction_label = QLabel("Seleccione el tipo de integral:")
+        top_layout.addWidget(instruction_label)
         
         # Selector para tipo de integral
-        limits_layout.addWidget(QLabel("Tipo de integral:"))
         self.integral_type = QComboBox()
-        self.integral_type.addItem("Integral indefinida", "indefinite")
-        self.integral_type.addItem("Integral definida", "definite")
+        self.integral_type.addItem("Indefinida", "indefinite")
+        self.integral_type.addItem("Definida", "definite")
         self.integral_type.currentTextChanged.connect(self.toggle_limits_visibility)
-        limits_layout.addWidget(self.integral_type)
+        self.integral_type.setFixedWidth(180)
+        top_layout.addWidget(self.integral_type)
         
-        # Controles de límites en la misma fila
+        # Controles de límites
         self.limits_input_widget = QWidget()
         limits_input_layout = QHBoxLayout(self.limits_input_widget)
-        limits_input_layout.setContentsMargins(10, 0, 0, 0)
-        limits_input_layout.setSpacing(5)
-        
+        limits_input_layout.setContentsMargins(0, 0, 0, 0)
+        limits_input_layout.setSpacing(10)
+
         limits_input_layout.addWidget(QLabel("Desde x ="))
         self.lower_limit = create_spinbox(default_val=0)
         limits_input_layout.addWidget(self.lower_limit)
 
+        limits_input_layout.addSpacing(10)  # Separación entre spinboxes
+
         limits_input_layout.addWidget(QLabel("Hasta x ="))
         self.upper_limit = create_spinbox(default_val=1)
         limits_input_layout.addWidget(self.upper_limit)
+
+        top_layout.addWidget(self.limits_input_widget)
+        top_layout.addStretch()  # Empuja todo a la izquierda
         
-        # Agregar el widget de límites al layout principal
-        limits_layout.addWidget(self.limits_input_widget)
-        limits_layout.addStretch()
+        # Reemplazar el título original
+        if self.layout.count() > 0:
+            old_item = self.layout.takeAt(0)
+            if old_item.widget():
+                old_item.widget().deleteLater()
         
-        # Insertar el widget completo en el layout de la interfaz
-        self.layout.insertWidget(1, self.limits_widget)
-        
-        # Configurar estado inicial (oculto)
-        self.limits_input_widget.setVisible(False)
-        
+        # Insertar la nueva fila en el layout principal
+        self.layout.insertWidget(0, top_row)
+        self.limits_input_widget.setVisible(False)    
+
     def toggle_limits_visibility(self, integral_type):
         """Muestra u oculta los límites de integración según el tipo seleccionado"""
-        self.limits_input_widget.setVisible(integral_type == "Integral definida")
+        self.limits_input_widget.setVisible(integral_type == "Definida")
         self.layout.update()  # Actualizar la UI
 
     def add_differential_equation_inputs(self):
@@ -90,7 +101,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         # Contenedor principal para todos los elementos
         method_container = QWidget()
         container_layout = QHBoxLayout(method_container)
-        container_layout.setContentsMargins(20, 0, 20, 0)
+        container_layout.setContentsMargins(20, 0, 0, 0)
         
         # Selector de método (incluye todos los métodos disponibles)
         self.de_method_selector = QComboBox()

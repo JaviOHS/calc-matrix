@@ -1,72 +1,58 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout
-from utils.action_buttons import ActionButton
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QFrame, QScrollArea
+from PySide6.QtCore import Qt
 from ui.widgets.base_page import BasePage
+from utils.image_utils import create_image_label
 
 class MainHomePage(BasePage):
     def __init__(self, navigate_callback=None):
-        super(MainHomePage, self).__init__(navigate_callback)
-
-    def setup_text_content(self):
-        title = QLabel("Domina las Matemáticas")
-        title.setObjectName("heroTitle")
-        self.text_layout.addWidget(title)
-
-        subtitle_highlight = QLabel("Con CalcMatrix 🧑‍💻")
-        subtitle_highlight.setObjectName("heroHighlight")
-        self.text_layout.addWidget(subtitle_highlight)
-
-        description = QLabel("""
-        👋 ¡Bienvenido a CalcMatrix! Tu solución para problemas matemáticos avanzados. 
-        ✨ Explora matrices, sistemas de ecuaciones y polinomios en un entorno intuitivo y potente.
-        """)
-        description.setObjectName("heroDescription")
-        description.setWordWrap(True)
-        self.text_layout.addWidget(description)
-
-        # Features
-        features = QWidget()
-        features.setObjectName("featureContainer")
-        features_layout = QVBoxLayout(features)
-        features_layout.setSpacing(12)
-
-        feature1 = self.create_info_item("📊", "Operaciones con matrices completas")
-        feature2 = self.create_info_item("🧮", "Resolución de operaciones simbólicas")
-        feature3 = self.create_info_item("📈", "Análisis de polinomios avanzado")
-
-        features_layout.addWidget(feature1)
-        features_layout.addWidget(feature2)
-        features_layout.addWidget(feature3)
-
-        features.setMaximumWidth(400)
-        self.text_layout.addWidget(features)
-
-        # Botón y texto
-        button_container = QWidget()
-        button_layout = QHBoxLayout(button_container)
-        button_layout.setContentsMargins(0, 0, 0, 0)
-        button_layout.setSpacing(20)
-
-        button = ActionButton.primary("Comenzar ahora")
-        button.clicked.connect(self.go_to_first_page)
-
-        footer_text = QLabel("🙋 Dale una oportunidad a nuestro sistema y sé parte de nuestra comunidad.")
-        footer_text.setObjectName("footerText")
-
-        button_layout.addWidget(button)
-        button_layout.addWidget(footer_text)
-        button_layout.addStretch()
-
-        self.text_layout.addWidget(button_container)
-        self.text_layout.addStretch()
-
-    def get_image_path(self):
-        return "assets/images/intro/deco.png"
+        super(MainHomePage, self).__init__(navigate_callback, page_key="home")
         
-    def get_image_width(self):
-        return 192
-        
-    def get_image_height(self):
-        return 192
-
     def go_to_first_page(self):
-        self.navigate_callback("matrix")
+        target = self.page_content.get("cta", {}).get("target", "matrix")
+        self.navigate_callback(target)
+
+    def create_intro_view(self):
+        # Crear un área de desplazamiento para contenido largo
+        scroll_area = QScrollArea()
+        scroll_area.setWidgetResizable(True)
+        scroll_area.setFrameShape(QFrame.NoFrame)
+        
+        container = QFrame()
+        container_layout = QHBoxLayout(container)
+        container_layout.setContentsMargins(0, 0, 0, 0)
+        container_layout.setSpacing(40)
+
+        # Panel de contenido principal
+        self.text_panel = QFrame()
+        self.text_panel.setObjectName("contentPanel")
+        self.text_layout = QVBoxLayout(self.text_panel)
+        self.text_layout.setSpacing(24)
+        self.text_layout.setContentsMargins(28, 28, 28, 28)
+
+        self.setup_text_content() # Los widgets derivados deben llenar este layout
+
+        # Imagen con efectos visuales mejorados
+        image_panel = QFrame()
+        image_panel.setObjectName("imagePanel")
+        image_layout = QVBoxLayout(image_panel)
+        # Reducir el margen inferior para que el CTA esté más cerca
+        image_layout.setContentsMargins(20, 20, 20, 0)
+
+        image_container = QFrame()
+        image_container_layout = QVBoxLayout(image_container)
+        image_container_layout.setContentsMargins(0, 0, 0, 0)
+
+        # Usar la utilidad para crear la imagen
+        image = create_image_label(self.get_image_path(), width=self.get_image_width(), height=self.get_image_height())
+        image_container_layout.addWidget(image, 0, Qt.AlignCenter)
+
+        image_layout.addWidget(image_container)
+        
+        # Agregar contenido educativo adicional con nuestro callback personalizado
+        self.setup_educational_content(image_layout, self.go_to_first_page)
+
+        container_layout.addWidget(self.text_panel, stretch=6)
+        container_layout.addWidget(image_panel, stretch=4)
+
+        scroll_area.setWidget(container)
+        return scroll_area

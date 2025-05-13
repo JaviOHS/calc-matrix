@@ -1,31 +1,22 @@
 from model.polynomial_manager import PolynomialManager
 from controller.polynomial_controller import PolynomialController
-from ui.widgets.base_operation_page import BaseOperationPage
+from ui.widgets.base_page import BasePage
 from ui.pages.poly_page.poly_operation import PolynomialOpWidget
 
-class PolynomialPage(BaseOperationPage):
-    def __init__(self, manager: PolynomialManager):
-        controller = PolynomialController(manager)
+class PolynomialPage(BasePage):
+    def __init__(self, navigate_callback=None, manager=PolynomialManager()):
+        self.controller = PolynomialController(manager)
 
-        operations = {
+        super().__init__(navigate_callback, page_key="polynomial", controller=self.controller, manager=manager)
+
+        self.operations = {
             "Operaciones Combinadas": ("operaciones_combinadas", PolynomialOpWidget),
             "Raíces": ("raices", PolynomialOpWidget),
             "Derivación": ("derivacion", PolynomialOpWidget),
             "Integración": ("integracion", PolynomialOpWidget),
             "Evaluación": ("evaluacion", PolynomialOpWidget),
         }
-
-        page_title = "Operaciones con {Polinomios}"
-        intro_text = (
-            "👋 Bienvenido a la sección de operaciones con polinomios.\n\n"
-            "📌 En esta sección podrás realizar operaciones combinadas con polinomios.\n"
-            "📌 Tambien podrás calcular raíces, derivadas, integrales y evaluar polinomios.\n"
-        )
-
-        intro_image_path = "assets/images/intro/polynomial.png"
-
-        super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
-
+        
     def execute_current_operation(self):
         # Encontrar la clave visible desde la clave interna
         visible_key = next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)
@@ -100,4 +91,3 @@ class PolynomialPage(BaseOperationPage):
         
         if widget and hasattr(widget, "result_display"):
             widget.result_display.setText(message)
-            

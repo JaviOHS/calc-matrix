@@ -1,26 +1,18 @@
-from ui.widgets.base_operation_page import BaseOperationPage
+from ui.widgets.base_page import BasePage
 from controller.graph_controller import GraphController
 from model.graph_manager import GraphManager
 from ui.pages.graph_page.graph_op import Graph2DWidget, Graph3DWidget
 
-class GraphPage(BaseOperationPage):
-    def __init__(self, manager: GraphManager):
-        controller = GraphController(manager)
+class GraphPage(BasePage):
+    def __init__(self, navigate_callback=None, manager=GraphManager()):
+        self.controller = GraphController(manager)
 
-        operations = {
+        super().__init__(navigate_callback, page_key="graph", controller=self.controller, manager=manager)
+
+        self.operations = {
             "Gráficas 2D": ("graficas_2d", Graph2DWidget),
             "Gráficas 3D": ("graficas_3d", Graph3DWidget),
         }
-
-        page_title = "Gráficas de {Funciones}"
-        intro_text = (
-            "👋 Bienvenido a la sección de gráfica de funciones.\n\n"
-            "📌 Esta sección es útil para visualizar funciones y entender su comportamiento.\n"
-            "📌 Puedes ingresar funciones matemáticas y ver sus gráficas en diferentes dimensiones\n"
-        )
-
-        intro_image_path = "assets/images/intro/graph.png"
-        super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
 
     def execute_current_operation(self):
         # Encontrar la clave visible desde la clave interna

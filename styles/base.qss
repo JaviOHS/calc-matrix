@@ -1,0 +1,19 @@
+/* --- BASE GENERAL --- */
+QWidget {
+    background-color: #0F161F;
+    font-size: 16px;
+    color: #D8DEE9;
+    selection-background-color: #ff8103;
+    selection-color: #1C2C42;
+    font-family: {{FONT_FAMILY}};
+}
+
+QLabel {
+    font-weight: 500;
+    color: #D8DEE9;
+    line-height: 140%;
+}
+
+QFrame {
+    background-color: transparent;
+}

@@ -1,19 +1,20 @@
 from model.matrix_manager import MatrixManager
 from controller.matrix_controller import MatrixController
 from model.matrix_model import Matrix
-from ui.widgets.base_operation_page import BaseOperationPage
+from ui.widgets.base_page import BasePage
 from ui.pages.matrix_page.operation_widgets.basic_operation import MatrixOperationWidget, MatrixDeterminantWidget, MatrixInverseWidget
 from ui.pages.matrix_page.operation_widgets.matrix_mult import MatrixMultiplicationWidget
 from ui.pages.matrix_page.operation_widgets.solver_sys_widget import MatrixSystemSolverWidget
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QHeaderView
 from ui.dialogs.matrix_result_dialog import MatrixResultDialog
 
-class MatrixPage(BaseOperationPage):
-    def __init__(self, manager: MatrixManager):
+class MatrixPage(BasePage):
+    def __init__(self, navigate_callback=None, manager=MatrixManager()):
         self.controller = MatrixController(manager)
+        
+        super().__init__(navigate_callback, page_key="matrix", controller=self.controller, manager=manager)
 
-        operations = {
+        # Definir las operaciones disponibles
+        self.operations = {
             "Suma": ("suma", MatrixOperationWidget),
             "Resta": ("resta", MatrixOperationWidget),
             "Multiplicación": ("multiplicacion", MatrixMultiplicationWidget),
@@ -23,17 +24,6 @@ class MatrixPage(BaseOperationPage):
             "Sistema de Ecuaciones": ("sistema", MatrixSystemSolverWidget)
         }
 
-        page_title = "Operaciones con {Matrices}"
-        intro_text = (
-            "👋 Bienvenido a la sección de operaciones con matrices.\n\n"
-            "📌 Puedes realizar operaciones básicas con matrices, como: suma, resta, multiplicación.\n"
-            "📌 Támbien puedes obtener el determinante, calcular inversas o resolver sistemas de ecuaciones lineales.\n"
-        )
-
-        intro_image_path = "assets/images/intro/matrix.png"
-
-        super().__init__(manager, self.controller, operations, intro_text, intro_image_path, page_title)
-    
     def execute_current_operation(self):
         label_key = next((label for label, (op_key, _) in self.operations.items() if op_key == self.current_operation), None)
         
@@ -74,30 +64,10 @@ class MatrixPage(BaseOperationPage):
                     if isinstance(inverse_matrix, Matrix):  # Si es una matriz, muestra la inversa
                         dialog = MatrixResultDialog(inverse_matrix, operation=operation_name, parent=self)
                         dialog.exec()
-                    else:  # Si es un error (string), muestra el mensaje
+                    else:
                         self.show_message_dialog("🔴 ERROR", "#f44336", inverse_matrix)
                 return
 
         if isinstance(result, Matrix):
             dialog = MatrixResultDialog(result, operation=operation_name, parent=self)
             dialog.exec()
-
-    def _fill_result_table(self, matrix: Matrix):
-        rows, cols = matrix.rows, matrix.cols
-        self.result_table.setRowCount(rows)
-        self.result_table.setColumnCount(cols)
-        self.result_table.setHorizontalHeaderLabels([str(i + 1) for i in range(cols)])
-        self.result_table.setVerticalHeaderLabels([str(i + 1) for i in range(rows)])
-
-        # Configurar propiedades de selección
-        self.result_table.setSelectionMode(QTableWidget.NoSelection)
-        self.result_table.setFocusPolicy(Qt.NoFocus)
-
-        self.result_table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-
-        for row in range(rows):
-            for col in range(cols):
-                value = matrix.data[row, col]
-                item = QTableWidgetItem(f"{value:.2f}")
-                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-                self.result_table.setItem(row, col, item)

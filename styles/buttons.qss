@@ -1,0 +1,77 @@
+/* --- BOTONES --- */
+QPushButton {
+    background-color: #1C2C42;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-weight: 600;
+}
+
+QPushButton[class="sidebar-button"] {
+    padding: 10px 10px 10px 16px;
+    text-align: left;
+    margin-bottom: 6px;
+}
+
+QPushButton[class="sidebar-button"]:hover {
+    background-color: #2E425C;
+}
+
+QPushButton[class="sidebar-button"][active="true"] {
+    background-color: #FF8103;
+    color: #1C2C42;
+}
+
+#ctaButton {
+    background-color: #fc7e00;
+    color: #1C2C42;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    padding: 12px 24px;
+}
+
+#ctaButton:hover {
+    background-color: #ff9228;
+}
+
+#iconButton{
+    background-color: #ff9228;
+    border: none;
+    border-radius: 8px;
+    padding: 10px;
+    margin: 0 5px;
+}
+
+#iconButton:hover {
+    background-color: #ff8103;
+}
+
+#minButton {
+    background-color: #10a4fc;
+    border: none;
+    border-radius: 16px;
+}
+
+#minButton:hover {
+    background-color: #1f97df;
+}
+
+#maxButton {
+    background-color: #10fc7e;
+    border: none;
+    border-radius: 16px;
+}
+
+#maxButton:hover {
+    background-color: #1ffca0;
+}
+
+#closeButton {
+    background-color: #e81123;
+    border: none;
+    border-radius: 16px; 
+}
+
+#closeButton:hover {
+    background-color: #c50f1f;
+}

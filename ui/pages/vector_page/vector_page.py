@@ -1,31 +1,22 @@
-import numpy as np
 from model.vector_manager import VectorManager
 from controller.vector_controller import VectorController
 from ui.pages.vector_page.vector_operation import VectorOpWidget
-from ui.widgets.base_operation_page import BaseOperationPage
+from ui.widgets.base_page import BasePage
 from utils.formatting import format_math_expression
 
-class VectorPage(BaseOperationPage):
-    def __init__(self, manager: VectorManager):
-        controller = VectorController(manager)
+class VectorPage(BasePage):
+    def __init__(self, navigate_callback=None, manager=VectorManager()):
+        self.controller = VectorController(manager)
 
-        operations = {
+        super().__init__(navigate_callback, page_key="vector", controller=self.controller, manager=manager)
+
+        self.operations = {
             "Operaciones Básicas": ("operaciones_basicas", VectorOpWidget),
             "Magnitud": ("magnitud", VectorOpWidget),
             "Producto punto": ("producto_punto", VectorOpWidget),
             "Producto cruzado": ("producto_cruzado", VectorOpWidget),
         }
 
-        page_title = "Operaciones con {Vectores}"
-        intro_text = (
-            "👋 Bienvenido a la sección de operaciones con vectores.\n\n"
-            "📌 Podrás realizar operaciones básicas con vectores, como: suma, resta, división por escalar).\n"
-            "📌 Tambien podrás obtener la magnitud de un vector y realizar operaciones para hallar el producto de vectores.\n"
-        )
-
-        intro_image_path = "assets/images/intro/vector.png"
-        super().__init__(manager, controller, operations, intro_text, intro_image_path, page_title)
-        
     def execute_current_operation(self):
         # Encontrar la clave visible desde la clave interna
         visible_key = next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)
