@@ -20,7 +20,7 @@ class MatrixOperationWidget(MathOperationWidget):
         super().setup_ui()
         self.layout = QVBoxLayout()
         self.layout.setSpacing(15)
-        self.layout.setContentsMargins(10, 10, 10, 10)
+        self.layout.setContentsMargins(20, 10, 10, 10)
 
         # Configuración de dimensiones
         config_widget = QWidget()

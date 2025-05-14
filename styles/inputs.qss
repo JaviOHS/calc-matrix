@@ -1,4 +1,14 @@
-/* --- CAMPOS DE ENTRADA --- */
+/* --- OPERACIONES --- */
+#operationTitle {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    border-left: 6px solid #ff8103;
+    padding-left: 2px;
+    margin-left: 14px;
+}
+
+/* --- INPUTS (SPINBOXES) --- */
 QAbstractSpinBox, QDoubleSpinBox {
     background: transparent;
     border: none;
@@ -34,19 +44,45 @@ QSpinBox:focus {
     border-bottom: 2px solid #ff8103;
 }
 
-QTextEdit {
-    background-color: transparent;
-    border: 1px solid #1C2C42;
-    border-radius: 6px;
-    color: #87878e;
-    padding: 10px;
-    margin-bottom: 10px;
-    font-family: Cambria Math;
-    font-size: 18px;
-    font-weight: 600;
+/* --- PARA TEXTAREA (EXPRESIONES, ECUACIONES) --- */
+#expressionLabel {
+    color: #DADADA;
+    font-weight: 500;
+    margin-bottom: 4px;
 }
 
-/* --- TABLAS Y MATRICES --- */
+#expressionInput {
+    background-color: rgba(28, 44, 66, 0.2);
+    border: 2px solid #1C2C42;
+    border-radius: 6px;
+    color: #DADADA;
+    padding: 8px 12px;
+    font-family: "Cambria Math";
+}
+
+#expressionInput:focus {
+    border-color: #ff8103;
+    background-color: rgba(28, 44, 66, 0.3);
+}
+
+#resultSection {
+    margin-top: 4px;
+    background-color: rgba(28, 44, 66, 0.15);
+    border-radius: 6px;
+}
+
+#resultDisplay {
+    background: transparent;
+    color: #B8C0CC;
+    padding: 12px;
+}
+
+#previewImage {
+    opacity: 0.8;
+    border-radius: 4px;
+}
+
+/* --- TABLAS (MATRICES) --- */
 QScrollArea { 
     border: none; 
 }

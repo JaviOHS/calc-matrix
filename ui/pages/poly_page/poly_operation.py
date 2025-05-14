@@ -13,7 +13,9 @@ class PolynomialOpWidget(ExpressionOpWidget):
         else:
             input_label = f"Ingrese un polinomio para realizar cálculo de {operation_type.replace("_", " ")}:"
             placeholder = "Ejemplo: x^2 + 2x + 1"
+
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label)
+        
         self.input_mode = "text"
         self.last_valid_text = ""
         self._parsed_expr = None 
@@ -21,36 +23,31 @@ class PolynomialOpWidget(ExpressionOpWidget):
 
     def custom_setup(self):
         if self.operation_type == "evaluacion":
-            # Crear un contenedor horizontal para toda la línea
-            top_row = QWidget()
-            top_layout = QHBoxLayout(top_row)
-            top_layout.setContentsMargins(20, 0, 0, 0)
-            top_layout.setSpacing(10)
-            
-            # Texto descriptivo
-            instruction_label = QLabel("Ingrese el polinomio y el valor de `x` a evaluar:") # Mismo label para valores de x
-            top_layout.addWidget(instruction_label)
-            
-            # Contenedor para el input de x
-            x_container = QWidget()
-            x_layout = QHBoxLayout(x_container)
-            x_layout.setContentsMargins(0, 0, 0, 0)
-            
-            x_layout.addWidget(QLabel("x ="))
+            # Buscamos el label del título que se creó antes
+            title_label = self.findChild(QLabel, "expressionLabel")
+
+            # Creamos contenedor horizontal para el label + input de x
+            inline_container = QWidget()
+            inline_layout = QHBoxLayout(inline_container)
+            inline_layout.setContentsMargins(0, 0, 0, 0)
+            inline_layout.setSpacing(6)
+
+            # Nuevo label (usamos el mismo texto pero en un contenedor más flexible)
+            inline_layout.addWidget(QLabel("Ingrese un polinomio y valor de"))
+
+            # Parte de x =
+            inline_layout.addWidget(QLabel("x ="))
             self.x_input = create_spinbox(default_val=1)
-            x_layout.addWidget(self.x_input)
-            
-            top_layout.addWidget(x_container)
-            top_layout.addStretch()  # Empuja todo a la izquierda
-            
-            # Reemplazar el título original
-            if self.layout.count() > 0:
-                old_item = self.layout.takeAt(0)
-                if old_item.widget():
-                    old_item.widget().deleteLater()
-            
-            self.layout.insertWidget(0, top_row)
-            
+            inline_layout.addWidget(self.x_input)
+            inline_layout.addStretch()
+
+            # Reemplazamos el viejo label por el contenedor nuevo
+            parent_layout = title_label.parentWidget().layout()
+            title_index = parent_layout.indexOf(title_label)
+            parent_layout.removeWidget(title_label)
+            title_label.deleteLater()
+            parent_layout.insertWidget(title_index, inline_container)
+
     def validate_operation(self):
         expr = self.expression_input.toPlainText().strip()
 
@@ -108,6 +105,8 @@ class PolynomialOpWidget(ExpressionOpWidget):
         if self.operation_type == "raices":
             _, roots = result[0]  # resultado tipo ('P1', [...])
             return format_math_expression(expression, roots, operation_type="roots")
+        elif self.operation_type == "evaluacion":
+            return format_math_expression(expression, result, operation_type="evaluacion")
         else:
             formatted_expr = format_math_expression(expression, result, operation_type="polynomial")  # Aquí se llama a la función
             return formatted_expr  # Mostrar el resultado completo

@@ -26,7 +26,7 @@ def create_section(title, content, color, icon=None):
     """Helper para crear secciones consistentes"""
     icon_html = f"{icon} " if icon else ""
     return (
-        f"<div style='margin-bottom: 15px;'>"
+        f"<div style='margin-bottom: 15px; font-family: Cambria Math; font-size: 16px;'>"
         f"<span style='font-weight: bold; color: {color}; margin-bottom: 5px;'>{icon_html} {title}</span>"
         f"<span style='margin-left: 15px;'>{content}</span>"
         f"</div>"
@@ -171,14 +171,17 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             return create_section('Error:', 'La ecuación no está bien formada como objeto Eq', COLORS['error'], ICONS['error'])
 
     def format_numerical_method(result, method_name):
-        """Formato unificado para resultados de métodos numéricos (Euler, Heun, etc.) con diseño básico"""
+        """Formato unificado para resultados de métodos numéricos con diseño oscuro y centrado"""
         table_html = (
-            "<div style='margin: 15px 0; padding: 15px; border: 1px solid #e0e0e0; border-radius: 8px;'>"
-            "<table style='width: 100%; border-collapse: collapse; text-align: left;'>"
-            "<thead style='background-color: #037df5; color: #ffffff;'>"
+            "<div style='margin: 15px 0; padding: 15px; border-radius: 8px; "
+            "display: flex; justify-content: center; align-items: center;'>"
+            "<table style='width: 80%; border-collapse: collapse; text-align: center;'>"
+            "<thead>"
             "<tr>"
-            "<th style='padding: 8px; border-bottom: 2px solid #e0e0e0; text-align: center;'>x</th>"
-            "<th style='padding: 8px; border-bottom: 2px solid #e0e0e0; text-align: center;'>y</th>"
+            "<th style='padding: 12px; border-bottom: 2px solid #ff8103; "
+            "color: #D8DEE9; font-weight: bold; width: 50%;'>x</th>"
+            "<th style='padding: 12px; border-bottom: 2px solid #ff8103; "
+            "color: #D8DEE9; font-weight: bold; width: 50%;'>y</th>"
             "</tr>"
             "</thead>"
             "<tbody>"
@@ -187,8 +190,10 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         for x, y in result:
             table_html += (
                 "<tr>"
-                f"<td style='padding: 8px; border-bottom: 1px solid #e0e0e0;'>{x:.4f}</td>"
-                f"<td style='padding: 8px; border-bottom: 1px solid #e0e0e0;'>{y:.4f}</td>"
+                f"<td style='padding: 8px; border-bottom: 1px solid #2E3440; "
+                f"color: #D8DEE9;'>{x:.6f}</td>"
+                f"<td style='padding: 8px; border-bottom: 1px solid #2E3440; "
+                f"color: #D8DEE9;'>{y:.6f}</td>"
                 "</tr>"
             )
         
@@ -198,7 +203,43 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             "</div>"
         )
         
-        return create_section(f'Solución por Método de {method_name}:', table_html, COLORS['secondary'], ICONS['operation'])
+        return create_section(
+            f'Solución por Método de {method_name}:', 
+            table_html, 
+            COLORS['secondary'], 
+            ICONS['operation']
+        )
+
+    def format_evaluation_result(expr, results):
+        """Formatea los resultados de evaluación de polinomios"""
+        html_result = []
+        formatted_expr = format_polynomial(expr)
+        
+        # Crear tabla de resultados
+        table_html = (
+            "<div style='margin: 8px 0;'>"
+            "<table style='border-collapse: collapse; width: auto;'>"
+            "<tbody>"
+        )
+        
+        for poly_name, value in results:
+            table_html += (
+                f"<tr>"
+                f"<td style='padding: 5px 10px; color: {COLORS['secondary']}; font-weight: bold;'>{ICONS['roots']} {poly_name}:</td>"
+                f"<td style='padding: 5px 10px;'>{clean_number(value)}</td>"
+                f"</tr>"
+            )
+            
+        table_html += "</tbody></table></div>"
+        
+        html_result.append(create_section('Polinomio: ', formatted_expr, COLORS['secondary'], ICONS['operation']))
+        html_result.append(create_section('Evaluación: ', table_html, COLORS['primary'], ICONS['result']))
+        
+        return "".join(html_result)
+
+    # Modificar la sección principal del método para incluir el nuevo caso
+    if operation_type == "evaluacion":
+        return format_evaluation_result(expr, result)
 
     # Formatear según el tipo de operación
     if operation_type in ["vector", "matrix"]:
@@ -237,4 +278,3 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             create_section('Expresión Original: ', formatted_expr, COLORS['secondary'], ICONS['operation']) +
             create_section('Resultado Simplificado: ', formatted_result, COLORS['primary'], ICONS['result'])
         )
-    

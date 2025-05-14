@@ -1,7 +1,8 @@
-from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QComboBox
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QComboBox, QVBoxLayout
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from utils.formatting import format_math_expression
 from utils.spinbox_utils import create_spinbox
+from utils.create_range_row import create_range_row
 
 class SymCalOpWidget(ExpressionOpWidget):
     def __init__(self, manager, controller, operation_type=None):
@@ -10,15 +11,11 @@ class SymCalOpWidget(ExpressionOpWidget):
         self.operation_type = operation_type
         use_dialog_for_result = True if operation_type == "ecuaciones_diferenciales" else False
 
-        input_label = f"Ingresa una expresión para realizar cálculo de {operation_type}:"
+        input_label = f"Ingresa una expresión para realizar cálculo de {operation_type.replace("_", " ")}:"
         placeholder = "Ejemplo: 2x^2 + 2x"
         
         if operation_type == "ecuaciones_diferenciales":
-            input_label = "Seleccione un método e ingrese la ecuación diferencial a resolver."
             placeholder = "Ejemplos válidos: \ny' = x + y || dy/dx = x + y"
-        elif operation_type == "integrales":
-            placeholder = "Ingresa una expresión para calcular la integral. Ejemplo: x^2 + 2x"
-
         super().__init__(manager, controller, operation_type=operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=use_dialog_for_result)
 
         self.add_additional_inputs()
@@ -43,53 +40,46 @@ class SymCalOpWidget(ExpressionOpWidget):
             self.add_differential_equation_inputs()
 
     def add_integral_limits_inputs(self):
-        """Configura los inputs para límites de integración en una única fila horizontal"""
-        # Crear un contenedor horizontal para toda la línea
+        """Configura los inputs para límites de integración"""
+        # Contenedor principal horizontal
         top_row = QWidget()
         top_layout = QHBoxLayout(top_row)
-        top_layout.setContentsMargins(20, 0, 0, 0)
-        top_layout.setSpacing(10)
-        
-        # Texto descriptivo
-        instruction_label = QLabel("Seleccione el tipo de integral:")
+        top_layout.setContentsMargins(24, 0, 12, 0)
+        top_layout.setSpacing(5)
+
+        # Etiqueta de tipo de integral
+        instruction_label = QLabel("Tipo de integral:")
         top_layout.addWidget(instruction_label)
-        
-        # Selector para tipo de integral
+
+        # ComboBox de tipo
         self.integral_type = QComboBox()
         self.integral_type.addItem("Indefinida", "indefinite")
         self.integral_type.addItem("Definida", "definite")
         self.integral_type.currentTextChanged.connect(self.toggle_limits_visibility)
-        self.integral_type.setFixedWidth(180)
+        self.integral_type.setFixedWidth(160)
         top_layout.addWidget(self.integral_type)
-        
-        # Controles de límites
+
+        # Contenedor para límites
         self.limits_input_widget = QWidget()
-        limits_input_layout = QHBoxLayout(self.limits_input_widget)
-        limits_input_layout.setContentsMargins(0, 0, 0, 0)
-        limits_input_layout.setSpacing(10)
+        limits_layout = QHBoxLayout(self.limits_input_widget)
+        limits_layout.setContentsMargins(20, 0, 0, 0)
+        limits_layout.setSpacing(5)
 
-        limits_input_layout.addWidget(QLabel("Desde x ="))
+        limits_layout.addWidget(QLabel("📌 Límites: x ="))
         self.lower_limit = create_spinbox(default_val=0)
-        limits_input_layout.addWidget(self.lower_limit)
+        self.lower_limit.setFixedWidth(60)
+        limits_layout.addWidget(self.lower_limit)
 
-        limits_input_layout.addSpacing(10)  # Separación entre spinboxes
-
-        limits_input_layout.addWidget(QLabel("Hasta x ="))
+        limits_layout.addWidget(QLabel("→"))
         self.upper_limit = create_spinbox(default_val=1)
-        limits_input_layout.addWidget(self.upper_limit)
+        self.upper_limit.setFixedWidth(60)
+        limits_layout.addWidget(self.upper_limit)
 
         top_layout.addWidget(self.limits_input_widget)
-        top_layout.addStretch()  # Empuja todo a la izquierda
-        
-        # Reemplazar el título original
-        if self.layout.count() > 0:
-            old_item = self.layout.takeAt(0)
-            if old_item.widget():
-                old_item.widget().deleteLater()
-        
-        # Insertar la nueva fila en el layout principal
+        top_layout.addStretch()
+
         self.layout.insertWidget(0, top_row)
-        self.limits_input_widget.setVisible(False)    
+        self.limits_input_widget.setVisible(False)
 
     def toggle_limits_visibility(self, integral_type):
         """Muestra u oculta los límites de integración según el tipo seleccionado"""
@@ -100,62 +90,74 @@ class SymCalOpWidget(ExpressionOpWidget):
         """Configura los inputs adicionales para ecuaciones diferenciales"""
         # Contenedor principal para todos los elementos
         method_container = QWidget()
-        container_layout = QHBoxLayout(method_container)
-        container_layout.setContentsMargins(20, 0, 0, 0)
+
+        main_layout = QVBoxLayout(method_container)
+        main_layout.setContentsMargins(20, 0, 20, 0)
+        main_layout.setSpacing(5)  # Reducido de 10 a 5
         
-        # Selector de método (incluye todos los métodos disponibles)
+        # Selector de método (fila 1)
+        method_row = QHBoxLayout()
+        method_row.setContentsMargins(0, 0, 0, 0)
+        method_row.addWidget(QLabel("Seleccione el método a utilizar:"))
+        
         self.de_method_selector = QComboBox()
         self.de_method_selector.addItem("Analítico", "analytical")
         self.de_method_selector.addItem("Euler", "euler")
         self.de_method_selector.addItem("Heun", "heun")
         self.de_method_selector.addItem("RK4", "rk4")
         self.de_method_selector.addItem("Taylor 2° orden", "taylor")
-        container_layout.addWidget(QLabel("Método:"))
-        container_layout.addWidget(self.de_method_selector)
+        self.de_method_selector.setFixedWidth(180)
+        method_row.addWidget(self.de_method_selector)
+        method_row.addStretch()
+        main_layout.addLayout(method_row)
         
-        # Widget para parámetros comunes
-        self.common_params_widget = QWidget()
-        common_layout = QHBoxLayout(self.common_params_widget)
-        common_layout.setContentsMargins(10, 0, 0, 0)
-        common_layout.setSpacing(5)
-        
+        # Fila 2: Condición inicial + Rango + Paso h
+        second_row = QHBoxLayout()
+        second_row.setContentsMargins(0, 0, 0, 0)
+        second_row.setSpacing(15)  # Ajusta el espacio entre los grupos principales
+
         # Condición inicial
-        common_layout.addWidget(QLabel("y("))
+        initial_layout = QHBoxLayout()
+        initial_layout.setSpacing(2)  # Reducido el espacio entre elementos
+        initial_layout.addWidget(QLabel("🟠​ y ("))
         self.numerical_x0 = create_spinbox(default_val=0)
-        common_layout.addWidget(self.numerical_x0)
-        
-        common_layout.addWidget(QLabel(") ="))
+        initial_layout.addWidget(self.numerical_x0)
+        initial_layout.addWidget(QLabel(") ="))
         self.numerical_y0 = create_spinbox(default_val=1)
-        common_layout.addWidget(self.numerical_y0)
-        
-        # Rango de solución
-        common_layout.addWidget(QLabel("Rango:"))
-        common_layout.addWidget(QLabel("x ="))
-        self.numerical_x_start = create_spinbox(default_val=0)
-        common_layout.addWidget(self.numerical_x_start)
-        
-        common_layout.addWidget(QLabel("a"))
-        self.numerical_x_end = create_spinbox(default_val=10)
-        common_layout.addWidget(self.numerical_x_end)
-        
-        # Widget solo para parámetros numéricos
-        self.numerical_step_widget = QWidget()
-        numerical_step_layout = QHBoxLayout(self.numerical_step_widget)
-        numerical_step_layout.setContentsMargins(0, 0, 0, 0)
-        numerical_step_layout.setSpacing(5)
-        
-        # Paso h (solo para métodos numéricos
-        numerical_step_layout.addWidget(QLabel("h ="))
+        initial_layout.addWidget(self.numerical_y0)
+        initial_widget = QWidget()
+        initial_widget.setLayout(initial_layout)
+        second_row.addWidget(initial_widget)
+
+        # Rango
+        range_layout, self.numerical_x_start, self.numerical_x_end = create_range_row(
+            label_text="📌 Rango x", 
+            min_label="", 
+            max_label="", 
+            default_min=0, 
+            default_max=10,
+            spacing=2  # Reducido el espaciado
+        )
+        range_widget = QWidget()
+        range_widget.setLayout(range_layout)
+        second_row.addWidget(range_widget)
+
+        # Paso h
+        step_layout = QHBoxLayout()
+        step_layout.setSpacing(2)  # Reducido el espacio entre elementos
+        step_layout.addWidget(QLabel("👣​ Paso h ="))
         self.numerical_h = create_spinbox(min_val=0.001, max_val=5, default_val=1, step=0.1)
-        numerical_step_layout.addWidget(self.numerical_h)
+        step_layout.addWidget(self.numerical_h)
+        self.numerical_step_widget = QWidget()
+        self.numerical_step_widget.setLayout(step_layout)
+        second_row.addWidget(self.numerical_step_widget)
+
+        # Añadir stretch al final para empujar todo hacia la izquierda
+        second_row.addStretch()
         
-        # Agregar widgets al layout
-        common_layout.addWidget(self.numerical_step_widget)
-        common_layout.addStretch()
-        container_layout.addWidget(self.common_params_widget)
-        container_layout.addStretch()
+        main_layout.addLayout(second_row)
         
-        # Conectar señal para mostrar/ocultar parámetros específicos de Euler
+        # Conectar señal para mostrar/ocultar parámetros específicos
         self.de_method_selector.currentTextChanged.connect(self.toggle_step)
         
         # Insertar el contenedor en el layout principal
@@ -163,7 +165,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         
         # Mostrar/ocultar parámetros según el método inicial
         self.toggle_step(self.de_method_selector.currentText())
-
+        
     def toggle_step(self, method):
         """Muestra u oculta el parámetro de paso según la selección"""
         self.numerical_step_widget.setVisible(method in ["Euler", "Heun", "RK4", "Taylor 2° orden"])

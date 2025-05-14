@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QTextEdit, QHBoxLayout
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QTextEdit, QHBoxLayout, QSizePolicy
 from PySide6.QtCore import Qt
 from ui.widgets.math_operation_widget import MathOperationWidget
 from ui.widgets.expression_components.expression_buttons_panel import ExpressionButtonsPanel
@@ -17,78 +17,77 @@ class ExpressionOpWidget(MathOperationWidget):
         self.setup_ui()
 
     def setup_ui(self):
+        """Configura la interfaz de usuario para el widget de expresiones matemáticas"""
         self.layout = QVBoxLayout()
-        self.layout.setSpacing(15)
+        self.layout.setSpacing(12)
+        self.layout.setContentsMargins(20, 15, 20, 15)
 
-        title_label = QLabel(self.input_label_text)
-        title_label.setAlignment(Qt.AlignLeft)
-        self.layout.addWidget(title_label)
-        title_label.setContentsMargins(20, 0, 0, 0)
-
-        input_widget = QWidget()
-        input_layout = QVBoxLayout(input_widget)
-        input_layout.setContentsMargins(20, 0, 0, 0)
+        # Input section
+        input_section = QWidget()
+        input_layout = QVBoxLayout(input_section)
         input_layout.setSpacing(8)
+        input_layout.setContentsMargins(20, 0, 20, 0)
 
+        self.input_layout = input_layout # Guardar la referencia al layout de entrada
+
+        # Label más sutil
+        title_label = QLabel(self.input_label_text)
+        title_label.setObjectName("expressionLabel")
+        input_layout.addWidget(title_label)
+
+        # Campo de expresión
         self.expression_input = QTextEdit()
+        self.expression_input.setObjectName("expressionInput")
         self.expression_input.setPlaceholderText(self.placeholder)
-        self.expression_input.setMaximumHeight(100)
+        self.expression_input.setMaximumHeight(90)
         input_layout.addWidget(self.expression_input)
-        
-        # Configuración del formateador de expresiones
+
         self.expression_formatter = ExpressionFormatterInput(self.expression_input)
-        
-        # Configuración del gestor de diálogo de canvas
         self.canvas_dialog_manager = CanvasDialogManager(self)
 
+        # Result section (if needed)
         if not self.use_dialog_for_result:
-            self.result_container = QWidget()
-            result_layout = QHBoxLayout(self.result_container)
-            result_layout.setContentsMargins(0, 0, 0, 0)
+            result_section = QWidget()
+            result_section.setObjectName("resultSection")
+            result_layout = QHBoxLayout(result_section)
+            result_layout.setContentsMargins(8, 4, 8, 4)
             result_layout.setSpacing(8)
-
             self.result_display = QTextEdit()
+            self.result_display.setObjectName("resultDisplay")
             self.result_display.setReadOnly(True)
             self.result_display.setFrameStyle(QTextEdit.NoFrame)
             self.result_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            self.result_display.setMinimumHeight(60)
-            self.result_display.setMaximumHeight(120)
+            self.result_display.document().setDocumentMargin(5)
+            self.result_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
             self.result_display.setText("⭐ Aquí se mostrará la solución")
-            result_layout.addWidget(self.result_display, stretch=1)
+            result_layout.addWidget(self.result_display)
 
             if self.image_path:
-                self.preview_image = create_image_label(
-                    self.image_path, 
-                    height=120,
-                )
+                self.preview_image = create_image_label(self.image_path, height=80)
+                self.preview_image.setObjectName("previewImage")
                 result_layout.addWidget(self.preview_image, alignment=Qt.AlignRight)
 
-            input_layout.addWidget(self.result_container)
+            input_layout.addWidget(result_section)
 
-        self.layout.addWidget(input_widget, alignment=Qt.AlignTop)
+        self.layout.addWidget(input_section)
 
-        # Contenedor combinado para símbolos y acciones
-        combined_panel = QWidget()
-        combined_layout = QHBoxLayout(combined_panel)
-        combined_layout.setContentsMargins(0, 10, 0, 0)
-        combined_layout.setSpacing(30)
+        controls = QWidget()
+        controls_layout = QHBoxLayout(controls)
+        controls_layout.setContentsMargins(0, 5, 0, 0)
+        controls_layout.setSpacing(20)
 
-        # Panel de botones de expresión
         expression_buttons = ExpressionButtonsPanel(self.expression_input)
-        combined_layout.addWidget(expression_buttons, alignment=Qt.AlignLeft)
+        controls_layout.addWidget(expression_buttons, alignment=Qt.AlignLeft)
 
-        # Contenedor de botones de acción alineado a la derecha
-        action_buttons_container = QWidget()
-        action_buttons_layout = QHBoxLayout(action_buttons_container)
-        action_buttons_layout.setContentsMargins(0, 0, 0, 0)
-        action_buttons_layout.addStretch()
-        action_buttons_layout.addWidget(self.create_buttons())
-        combined_layout.addWidget(action_buttons_container, alignment=Qt.AlignRight | Qt.AlignBottom)
+        action_buttons = self.create_buttons()
+        action_buttons.setObjectName("actionButtons") 
+        controls_layout.addWidget(action_buttons, alignment=Qt.AlignRight)
 
-        self.layout.addWidget(combined_panel)
-        self.layout.addStretch()
+        self.layout.addWidget(controls)
+        self.layout.addStretch() # Fuerza que todo lo demás se mantenga arriba
         self.setLayout(self.layout)
-
+        
     def get_input_expression(self):
         return self.expression_input.toPlainText().strip()
 
@@ -109,10 +108,7 @@ class ExpressionOpWidget(MathOperationWidget):
             # CASO ESPECIAL: Ecuaciones diferenciales con capacidad de comparación
             if self.operation_type == "ecuaciones_diferenciales" and isinstance(result, dict) and "canvas" in result:
                 # Verificar si tenemos los atributos necesarios para la comparación
-                if all(hasattr(self, attr) for attr in ['numerical_x_start', 'numerical_x_end', 
-                                                    'numerical_x0', 'numerical_y0', 
-                                                    'de_method_selector']):
-                    
+                if all(hasattr(self, attr) for attr in ['numerical_x_start', 'numerical_x_end', 'numerical_x0', 'numerical_y0', 'de_method_selector']):
                     # Extraer HTML y canvas
                     html_content = result.get("html")
                     canvas = result["canvas"]

@@ -41,19 +41,33 @@ class GraphController:
         # Usar figure_manager para crear canvas y eje
         canvas, ax = self.figure_manager.create_canvas(figsize=(10, 7))
         
-        for expr, x_vals, y_vals in plot_data:
-            ax.plot(x_vals, y_vals, label=f'f(x) = {expr}')
-
-        ax.set_xlabel("x", fontsize=12)
-        ax.set_ylabel("f(x)", fontsize=12)
-        ax.grid(True, alpha=0.7)
-        ax.set_title("Gráfica 2D", fontsize=14)
+        # Configurar estilo oscuro
+        canvas.figure.patch.set_facecolor('#0F161F')
+        ax.set_facecolor('#1C2C42')
         
-        # Ubicar la leyenda en posición óptima según el número de funciones
+        for expr, x_vals, y_vals in plot_data:
+            ax.plot(x_vals, y_vals, label=f'f(x) = {expr}', linewidth=2)
+
+        ax.set_xlabel("x", fontsize=12, color='#D8DEE9')
+        ax.set_ylabel("f(x)", fontsize=12, color='#D8DEE9')
+        ax.grid(True, alpha=0.2, color='#D8DEE9')
+        ax.set_title("Gráfica 2D", fontsize=14, color='#D8DEE9')
+        
+        # Configurar colores de los ejes
+        ax.spines['bottom'].set_color('#D8DEE9')
+        ax.spines['top'].set_color('#D8DEE9') 
+        ax.spines['right'].set_color('#D8DEE9')
+        ax.spines['left'].set_color('#D8DEE9')
+        ax.tick_params(axis='x', colors='#D8DEE9')
+        ax.tick_params(axis='y', colors='#D8DEE9')
+        
         if len(plot_data) > 2:
-            ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), ncol=3, frameon=True)
+            ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.12), 
+                     ncol=3, frameon=True, facecolor='#1C2C42', 
+                     edgecolor='#D8DEE9', labelcolor='#D8DEE9')
         else:
-            ax.legend(frameon=True)
+            ax.legend(frameon=True, facecolor='#1C2C42', 
+                     edgecolor='#D8DEE9', labelcolor='#D8DEE9')
         
         return canvas
 
@@ -81,18 +95,38 @@ class GraphController:
             raise ValueError(f"Error al generar gráfica 3D:\n{str(e)}")
             
     def _create_3d_plot(self, X, Y, Z, expression):
-        # Crear figura 3D
         canvas, ax = self.figure_manager.create_canvas(figsize=(10, 8), is_3d=True)
-        surf = ax.plot_surface(X, Y, Z, cmap='viridis', rstride=1, cstride=1, alpha=0.8)
         
-        ax.set_xlabel('X', fontsize=12)
-        ax.set_ylabel('Y', fontsize=12)
-        ax.set_zlabel('Z', fontsize=12)
-        ax.set_title(f"Gráfica 3D de: {expression}", fontsize=14)
+        # Configurar estilo oscuro
+        canvas.figure.patch.set_facecolor('#0F161F')
+        ax.set_facecolor('#0f161f')
         
-        # Añadir barra de color con mejor posicionamiento
+        # Configurar color de fondo para todos los paneles
+        ax.xaxis.set_pane_color((0.11, 0.17, 0.26, 1.0))  # Convertir #1C2C42 a RGB
+        ax.yaxis.set_pane_color((0.11, 0.17, 0.26, 1.0))
+        ax.zaxis.set_pane_color((0.11, 0.17, 0.26, 1.0))
+        
+        # Configurar color de las líneas de la grilla
+        ax.xaxis._axinfo["grid"]["color"] = (0.85, 0.87, 0.91, 0.1)  # #D8DEE9 con alfa 0.1
+        ax.yaxis._axinfo["grid"]["color"] = (0.85, 0.87, 0.91, 0.1)
+        ax.zaxis._axinfo["grid"]["color"] = (0.85, 0.87, 0.91, 0.1)
+        
+        surf = ax.plot_surface(X, Y, Z, cmap='plasma', rstride=1, cstride=1, alpha=0.8)
+        
+        ax.set_xlabel('X', fontsize=12, color='#D8DEE9')
+        ax.set_ylabel('Y', fontsize=12, color='#D8DEE9')
+        ax.set_zlabel('Z', fontsize=12, color='#D8DEE9')
+        ax.set_title(f"Gráfica 3D de: {expression}", fontsize=14, color='#D8DEE9')
+        
+        # Configurar colores de los ejes
+        ax.tick_params(axis='x', colors='#D8DEE9')
+        ax.tick_params(axis='y', colors='#D8DEE9')
+        ax.tick_params(axis='z', colors='#D8DEE9')
+        
+        # Colorbar con estilo oscuro
         cbar = canvas.figure.colorbar(surf, ax=ax, shrink=0.5, aspect=5, pad=0.1)
-        cbar.ax.tick_params(labelsize=10)
+        cbar.ax.yaxis.set_tick_params(color='#D8DEE9')
+        cbar.ax.yaxis.label.set_color('#D8DEE9')
         
         return canvas
 
@@ -110,37 +144,65 @@ class GraphController:
             raise ValueError(f"Error al generar gráfica de solución ODE:\n{str(e)}")
             
     def _create_ode_plot(self, x_vals, y_vals, equation, initial_condition, title, x_range):
-        # Usar figure_manager para crear canvas y eje
         canvas, ax = self.figure_manager.create_canvas(figsize=(10, 7))
         
-        # Graficar la solución numérica
-        ax.plot(x_vals, y_vals, 'b-o', markersize=3, label='Solución numérica')
+        # Configurar estilo oscuro
+        canvas.figure.patch.set_facecolor('#0F161F')
+        ax.set_facecolor('#1C2C42')
         
-        # Marcar la condición inicial
+        # Graficar con colores más vibrantes
+        ax.plot(x_vals, y_vals, color='#ff8103', marker='o', 
+                markersize=3, label='Solución numérica', linewidth=2)
+        
         if initial_condition:
-            ax.plot(initial_condition[0], initial_condition[1], 'ro', markersize=6, label='Condición inicial')
+            ax.plot(initial_condition[0], initial_condition[1], 
+                    marker='o', markersize=6, 
+                    label='Condición inicial', 
+                    color='#ff4d4d')
         
-        # Marcar el punto final con otro color
         if len(x_vals) > 0 and len(y_vals) > 0:
-            ax.plot(x_vals[-1], y_vals[-1], 'go', markersize=6, label='Punto final')
+            ax.plot(x_vals[-1], y_vals[-1], 
+                    marker='o', markersize=6, 
+                    label='Punto final', 
+                    color='#50fa7b')
         
-        # Configurar apariencia
-        ax.set_title(title if title else f"Solución de: {equation}", fontsize=14)
-        ax.set_xlabel("x", fontsize=12)
-        ax.set_ylabel("y", fontsize=12)
-        ax.grid(True, linestyle='--', alpha=0.7)
+        # Calcular número de puntos
+        num_points = len(x_vals)
         
-        # Ubicar la leyenda en posición óptima para no interferir con la gráfica
-        ax.legend(loc='best', frameon=True)
+        # Formatear título con ecuación y número de puntos
+        plot_title = f"{equation} - {num_points} puntos"
+        
+        ax.set_title(plot_title, fontsize=14, color='#D8DEE9')
+        ax.grid(True, linestyle='--', alpha=0.2, color='#D8DEE9')
+        
+        # Configurar colores de los ejes
+        ax.spines['bottom'].set_color('#D8DEE9')
+        ax.spines['top'].set_color('#D8DEE9')
+        ax.spines['right'].set_color('#D8DEE9')
+        ax.spines['left'].set_color('#D8DEE9')
+        ax.tick_params(axis='x', colors='#D8DEE9')
+        ax.tick_params(axis='y', colors='#D8DEE9')
+        
+        ax.legend(loc='best', frameon=True, facecolor='#1C2C42', 
+                 edgecolor='#D8DEE9', labelcolor='#D8DEE9')
         
         return canvas
 
     def generate_ode_comparison_canvas(self, equation, solutions, initial_condition=None, x_range=None, h=0.1, method_names=None):
-        # Usar figure_manager para crear canvas y eje
         canvas, ax = self.figure_manager.create_canvas(figsize=(12, 8))
         
-        # Paleta de colores para los diferentes métodos
-        colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b']
+        # Configurar estilo oscuro
+        canvas.figure.patch.set_facecolor('#0F161F')
+        ax.set_facecolor('#1C2C42')
+        
+        # Nueva paleta de colores más vibrante
+        colors = ['#ff8103',  # Naranja principal
+                  '#50fa7b',  # Verde neón
+                  '#ff4d4d',  # Rojo brillante
+                  '#bd93f9',  # Púrpura
+                  '#8be9fd',  # Cyan
+                  '#ffb86c']  # Naranja claro
+        
         markers = ['o', 's', 'd', '^', 'v', 'p']
         
         # Formatear ecuación para el título
@@ -153,29 +215,40 @@ class GraphController:
             color_idx = i % len(colors)
             marker = markers[color_idx] if i < len(markers) else 'o'
             
-            # Obtener nombre descriptivo del método
-            method_label = method_names.get(method, method) if method_names else method
+            # Obtener nombre descriptivo del método y número de puntos
+            num_points = len(x_vals)
+            method_label = f"{method_names.get(method, method)} ({num_points} pts)"
             
             # Graficar con menos marcadores para mayor claridad
             ax.plot(x_vals, y_vals, color=colors[color_idx], marker=marker, 
                     markevery=max(1, len(x_vals)//15), markersize=6, 
-                    linewidth=2, label=f'{method_label}')
+                    linewidth=2, label=method_label)
         
         # Marcar la condición inicial
         if initial_condition:
             ax.plot(initial_condition[0], initial_condition[1], 'ko', markersize=8, label='Condición inicial')
         
         # Configurar apariencia
-        ax.set_title(equation_formatted, fontsize=14)
-        ax.set_xlabel("x", fontsize=12)
-        ax.set_ylabel("y(x)", fontsize=12)
-        ax.grid(True, linestyle='--', alpha=0.7)
+        ax.set_title(equation_formatted, fontsize=14, color='#D8DEE9')
+        ax.set_xlabel("x", fontsize=12, color='#D8DEE9')
+        ax.set_ylabel("y(x)", fontsize=12, color='#D8DEE9')
+        ax.grid(True, linestyle='--', alpha=0.2, color='#D8DEE9')
+        
+        # Configurar colores de los ejes
+        ax.spines['bottom'].set_color('#D8DEE9')
+        ax.spines['top'].set_color('#D8DEE9')
+        ax.spines['right'].set_color('#D8DEE9')
+        ax.spines['left'].set_color('#D8DEE9')
+        ax.tick_params(axis='x', colors='#D8DEE9')
+        ax.tick_params(axis='y', colors='#D8DEE9')
         
         # Información adicional
         self._add_info_text(ax, h, x_range)
         
         # Leyenda con mejor formato
-        ax.legend(loc='best', frameon=True, fontsize=10)
+        ax.legend(loc='best', frameon=True, fontsize=10,
+                 facecolor='#1C2C42', edgecolor='#D8DEE9', 
+                 labelcolor='#D8DEE9')
         
         return canvas
 

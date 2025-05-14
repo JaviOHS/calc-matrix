@@ -64,7 +64,7 @@ class CanvasDialogManager:
         
         # Agregar imagen debajo del HTML si se proporciona ruta
         if image_path:
-            image_label = create_image_label(image_path, width=200, height=200)
+            image_label = create_image_label(image_path, width=128, height=128)
             image_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             
             image_container = QWidget()

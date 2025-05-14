@@ -45,15 +45,21 @@ class PolynomialController:
 
     def get_derivatives(self):
         try:
-            results = self.manager.compute_derivatives()
-            return results
+            results = []
+            derivatives = self.manager.compute_derivatives()
+            for idx, derivative in enumerate(derivatives):
+                results.append((f"P{idx+1}", derivative))
+            return results[0][1]  # Devuelve solo el resultado sin el P1
         except ValueError as e:
             raise ValueError(f"Error al calcular derivadas:\n{e}")
 
     def get_integrals(self, constant=0):
         try:
-            results = self.manager.compute_integrals(constant)
-            return results
+            results = []
+            integrals = self.manager.compute_integrals(constant)
+            for idx, integral in enumerate(integrals):
+                results.append((f"P{idx+1}", integral))
+            return results[0][1]  # Devuelve solo el resultado sin el P1
         except ValueError as e:
             raise ValueError(f"Error al calcular integrales:\n{e}")
 

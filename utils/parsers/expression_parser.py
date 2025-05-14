@@ -51,12 +51,22 @@ class ExpressionParser:
         self.allowed_names = set(self.common_symbols.keys()) | {"x", "y", "dx", "dy"}
 
     def sanitize_expression(self, expr: str, use_3d=False) -> str:
-        # Reemplazos básicos
+        # Reemplazos básicos - Mover el reemplazo de · antes de otros reemplazos
+        expr = expr.replace("·", "*")  # Primero reemplazar el punto medio
+        
         replacements = {
-            "−": "-", "×": "*", "÷": "/", "·": "*", "^": "**",
-            "[": "(", "]": ")", "{": "(", "}": ")", "sen": "sin",
+            "−": "-", 
+            "×": "*", 
+            "÷": "/", 
+            "^": "**",
+            "[": "(", 
+            "]": ")", 
+            "{": "(", 
+            "}": ")", 
+            "sen": "sin",
             "=": "=="
         }
+        
         for bad, good in replacements.items():
             expr = expr.replace(bad, good)
 

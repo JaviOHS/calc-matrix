@@ -1,3 +1,13 @@
+/* --- OPERACIONES --- */
+#operationTitle {
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    border-left: 6px solid #ff8103;
+    padding-left: 2px;
+    margin-left: 12px;
+}
+
 /* --- ELEMENTOS EDUCATIVOS --- */
 #educationalCard {
     background-color: #0f161f;
@@ -62,15 +72,6 @@
     font-size: 14px;
     line-height: 1.5;
     margin-top: 4px;
-}
-
-/* --- OPERACIONES --- */
-#operationTitle {
-    font-size: 28px;
-    font-weight: bold;
-    color: white;
-    border-left: 6px solid #ff8103;
-    padding-left: 2px;
 }
 
 /* --- TOOLTIP  --- */
