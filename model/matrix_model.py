@@ -1,4 +1,5 @@
 import numpy as np
+from utils.validators.matrix_validator import MatrixValidator
 
 class Matrix:
     def __init__(self, rows, cols=None, data=None):
@@ -18,55 +19,48 @@ class Matrix:
         return str(self.data)
 
     def add(self, other):
-        if self.data.shape != other.data.shape:
-            raise ValueError("Las matrices deben tener el mismo tamaño.")
+        MatrixValidator.validate_dimensions(self, other, 'add')
         return Matrix(self.rows, self.cols, self.data + other.data)
 
     def subtract(self, other):
-        if self.data.shape != other.data.shape:
-            raise ValueError("Las matrices deben tener el mismo tamaño.")
+        MatrixValidator.validate_dimensions(self, other, 'subtract')
         return Matrix(self.rows, self.cols, self.data - other.data)
 
     def multiply(self, other):
-        if self.cols != other.rows:
-            raise ValueError("No se puede multiplicar: columnas de A ≠ filas de B.")
+        MatrixValidator.validate_dimensions(self, other, 'multiply')
         result_data = np.dot(self.data, other.data)
-        return Matrix(result_data.shape[0], result_data.shape[1], result_data)
+        return Matrix(self.rows, other.cols, result_data)
     
     def divide(self, other):
-        if self.rows != self.cols or other.rows != other.cols:
-            raise ValueError("Ambas matrices deben ser cuadradas para la división.")
-        if self.data.shape != other.data.shape:
-            raise ValueError("Las matrices deben tener las mismas dimensiones.")
-        det = np.linalg.det(other.data)
-        if det == 0:
-            raise ValueError("La matriz denominadora no es invertible (determinante = 0).")
+        MatrixValidator.validate_dimensions(self, other, 'divide')
+        MatrixValidator.validate_invertible(other)
         inverse_other = np.linalg.inv(other.data)
         result_data = np.dot(self.data, inverse_other)
         return Matrix(self.rows, self.cols, result_data)
 
     def determinant(self):
-        if self.rows != self.cols:
-            raise ValueError("La matriz debe ser cuadrada para calcular el determinante.")
-        det = np.linalg.det(self.data)
-        return round(det, 2)
+        MatrixValidator.validate_square(self, "calcular el determinante")
+        return round(np.linalg.det(self.data), 12)
     
     def inverse(self):
-        if self.rows != self.cols:
-            raise ValueError("La matriz debe ser cuadrada para calcular la inversa.")
-        det = np.linalg.det(self.data)
-        if det == 0:
-            raise ValueError("La matriz no tiene inversa (determinante = 0).")
+        MatrixValidator.validate_square(self, "calcular la inversa")
+        MatrixValidator.validate_invertible(self)
         inversa = np.linalg.inv(self.data)
         return Matrix(self.rows, self.cols, inversa)
     
     def solve(self, B):
-        if self.rows != self.cols:
-            raise ValueError("La matriz A debe ser cuadrada.")
-        if self.rows != B.rows or B.cols != 1:
-            raise ValueError("La matriz B debe tener las mismas filas que A y una sola columna.")
-        det = np.linalg.det(self.data)
-        if det == 0:
-            raise ValueError("La matriz A no tiene inversa. No hay solución única.")
+        MatrixValidator.validate_square(self, "resolver el sistema")
+        MatrixValidator.validate_dimensions(self, B, 'solve')
+        MatrixValidator.validate_invertible(self)
         solution = np.dot(np.linalg.inv(self.data), B.data)
         return Matrix(self.rows, 1, solution)
+    
+    def transpose(self):
+        """Calcula la transpuesta de la matriz."""
+        return Matrix(self.cols, self.rows, self.data.T)
+
+    def eigenvalues_and_eigenvectors(self):
+        """Calcula los valores y vectores propios de la matriz."""
+        MatrixValidator.validate_square(self, "calcular los valores y vectores propios")
+        eigenvalues, eigenvectors = np.linalg.eig(self.data)
+        return eigenvalues, eigenvectors

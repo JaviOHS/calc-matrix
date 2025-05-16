@@ -1,11 +1,9 @@
 from model.matrix_manager import MatrixManager
 from controller.matrix_controller import MatrixController
-from model.matrix_model import Matrix
 from ui.widgets.base_page import BasePage
-from ui.pages.matrix_page.operation_widgets.basic_operation import MatrixOperationWidget, MatrixDeterminantWidget, MatrixInverseWidget
-from ui.pages.matrix_page.operation_widgets.matrix_mult import MatrixMultiplicationWidget
-from ui.pages.matrix_page.operation_widgets.solver_sys_widget import MatrixSystemSolverWidget
-from ui.dialogs.matrix_result_dialog import MatrixResultDialog
+from ui.pages.matrix_page.matrix_operations.matrix_operation import MatrixOperationWidget, OneMatrixOperationWidget
+from ui.pages.matrix_page.matrix_operations.matrix_multiplication import MatrixMultiplicationWidget
+from ui.pages.matrix_page.matrix_operations.matrix_system_solver import MatrixSystemSolverWidget
 
 class MatrixPage(BasePage):
     def __init__(self, navigate_callback=None, manager=MatrixManager()):
@@ -19,9 +17,11 @@ class MatrixPage(BasePage):
             "Resta": ("resta", MatrixOperationWidget),
             "Multiplicación": ("multiplicacion", MatrixMultiplicationWidget),
             "División": ("division", MatrixOperationWidget),
-            "Determinante": ("determinante", MatrixDeterminantWidget),
-            "Inversa": ("inversa", MatrixInverseWidget),
-            "Sistema de Ecuaciones": ("sistema", MatrixSystemSolverWidget)
+            "Determinante": ("determinante", OneMatrixOperationWidget),
+            "Inversa": ("inversa", OneMatrixOperationWidget),
+            "Transpuesta": ("transpuesta", OneMatrixOperationWidget),
+            "Sistema de Ecuaciones": ("sistema", MatrixSystemSolverWidget),
+            "Vectores y Valores Propios": ("vectores_valores_propios", OneMatrixOperationWidget),
         }
 
     def execute_current_operation(self):
@@ -50,24 +50,11 @@ class MatrixPage(BasePage):
             self.show_message_dialog("🔴 ERROR", "#f44336", f"Error inesperado: {str(e)}")
             
     def show_result(self, result, message, operation_name=""):
-        if isinstance(result, list):
-            if operation_name == "Determinante":
-                for matrix_name, det_val in result:
-                    result_matrix = Matrix(1, 1)
-                    result_matrix.set_value(0, 0, det_val)
-                    dialog = MatrixResultDialog(result_matrix, operation=operation_name, parent=self)
-                    dialog.exec()
-                return
-
-            if operation_name == "Inversa":
-                for matrix_name, inverse_matrix in result:
-                    if isinstance(inverse_matrix, Matrix):  # Si es una matriz, muestra la inversa
-                        dialog = MatrixResultDialog(inverse_matrix, operation=operation_name, parent=self)
-                        dialog.exec()
-                    else:
-                        self.show_message_dialog("🔴 ERROR", "#f44336", inverse_matrix)
-                return
-
-        if isinstance(result, Matrix):
-            dialog = MatrixResultDialog(result, operation=operation_name, parent=self)
-            dialog.exec()
+        """Muestra el resultado de una operación matricial"""
+        from utils.result_handler import ResultHandler
+        
+        if ResultHandler.show_matrix_result(result, operation_name, self):
+            return
+                
+        # Si el ResultHandler no pudo manejar el resultado, mostrar diálogo genérico
+        self.show_message_dialog("🔵 RESULTADO GENÉRICO", "#1976d2", str(result))

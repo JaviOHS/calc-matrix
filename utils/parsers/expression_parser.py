@@ -1,6 +1,6 @@
 from sympy.parsing.sympy_parser import standard_transformations,implicit_multiplication_application,convert_xor,implicit_application,parse_expr
 from model.polynomial_model import Polynomial
-from utils.validators import exponents_validator, validate_characters, validate_parentheses,validate_symbols,validate_expression_syntax
+from utils.validators.modules_validators import exponents_validator, validate_characters, validate_parentheses,validate_symbols,validate_expression_syntax
 from utils.patterns import MATH_SYMBOLS, ODE_PATTERNS, SPECIAL_CHARS, ALLOWED_CHARS, ALLOWED_DIFFERENTIAL_CHARS
 import sympy as sp
 import re
@@ -75,12 +75,7 @@ class ExpressionParser:
 
     def validate_expression_symbols(self, expr: str, use_3d=False, is_differential=False):
         """Wrapper para la validación de símbolos"""
-        is_valid, error_msg = validate_symbols(
-            expr, 
-            self.allowed_names, 
-            use_3d, 
-            is_differential
-        )
+        is_valid, error_msg = validate_symbols(expr, self.allowed_names, use_3d, is_differential)
         if not is_valid:
             raise ValueError(error_msg)
 
@@ -88,7 +83,7 @@ class ExpressionParser:
         """Analiza una expresión matemática y la convierte a formato sympy"""
         try:
             if not raw_expr.strip():
-                raise ValueError("La expresión está vacía")
+                raise ValueError("La expresión está vacía.")
                 
             if len(raw_expr) > max_length:
                 raise ValueError(f"La expresión es demasiado larga (máximo: {max_length} caracteres)")
@@ -105,9 +100,7 @@ class ExpressionParser:
             # Seleccionar el conjunto de símbolos apropiado
             allowed_symbols = self.allowed_symbols_3d if (use_3d or is_differential) else self.allowed_symbols_2d
             
-            parsed = parse_expr(clean_expr, 
-                              transformations=self.transformations, 
-                              local_dict=allowed_symbols)
+            parsed = parse_expr(clean_expr, transformations=self.transformations, local_dict=allowed_symbols)
             
             # Evaluar si la expresión es una constante
             if parsed.is_constant():
@@ -149,8 +142,7 @@ class ExpressionParser:
             if not exponents_validator(raw_expr):
                 raise ValueError("El exponente es demasiado alto... (máximo: 1000)")
                 
-            # Para ecuaciones, siempre permitir caracteres diferenciales
-            # ya que representan EDOs donde la comilla simple es válida
+            # Para ecuaciones, siempre permitir caracteres diferenciales ya que representan EDOs donde la comilla simple es válida
             chars_to_validate = self.allowed_differential_chars
                 
             # Validar caracteres y paréntesis
@@ -165,8 +157,7 @@ class ExpressionParser:
             # Validar símbolos permitidos
             self.validate_expression_symbols(raw_expr, is_differential=True)
             
-            # Sanitizar la expresión
-            clean_expr = self.sanitize_expression(raw_expr)
+            clean_expr = self.sanitize_expression(raw_expr) # Sanitizar la expresión
                 
             # Manejar el caso especial donde ya viene como Eq
             if clean_expr.startswith("Eq("):
@@ -175,15 +166,11 @@ class ExpressionParser:
             # Dividir en LHS y RHS
             if '==' in clean_expr:
                 lhs, rhs = clean_expr.split('==', 1)
-                lhs_expr = parse_expr(lhs.strip(), transformations=self.transformations, 
-                                    local_dict=self.allowed_symbols_2d)
-                rhs_expr = parse_expr(rhs.strip(), transformations=self.transformations, 
-                                    local_dict=self.allowed_symbols_2d)
+                lhs_expr, rhs_expr = parse_expr(lhs.strip(), transformations=self.transformations, local_dict=self.allowed_symbols_2d)
                 return sp.Eq(lhs_expr, rhs_expr)
             else:
                 # Si no hay igual, asumir == 0
-                expr = parse_expr(clean_expr, transformations=self.transformations, 
-                                local_dict=self.allowed_symbols_2d)
+                expr = parse_expr(clean_expr, transformations=self.transformations, local_dict=self.allowed_symbols_2d)
                 return sp.Eq(expr, 0)
                 
         except ValueError as e:
@@ -257,5 +244,4 @@ class ExpressionParser:
             rhs = rhs.strip()
             return rhs or '0'
         else:
-            # Ya viene solo como RHS
             return equation
