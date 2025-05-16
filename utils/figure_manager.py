@@ -40,15 +40,14 @@ class FigureManager:
     
     def create_canvas(self, figsize=(10, 7), is_3d=False):
         """
-        Crea una figura y devuelve su canvas (uso común).
-        Cierra la figura después de crear el canvas para liberar recursos.
+        Crea una figura y devuelve su canvas
         
         Args:
             figsize (tuple): Tamaño de la figura
             is_3d (bool): Si es True, crea una figura 3D
             
         Returns:
-            tuple: (canvas, ejes)
+            FigureCanvas: El canvas de la figura
         """
         if is_3d:
             fig, ax, fig_id = self.create_3d_figure(figsize)
@@ -56,11 +55,12 @@ class FigureManager:
             fig, ax, fig_id = self.create_figure(figsize)
             
         canvas = FigureCanvas(fig)
+        canvas.ax = ax  # Guardamos el eje en el canvas para acceso posterior
         
         # Cerrar la figura después de crear el canvas
         self.close_figure(fig_id)
         
-        return canvas, ax
+        return canvas
     
     def close_figure(self, fig_id):
         """Cierra y elimina una figura registrada"""
@@ -76,3 +76,4 @@ class FigureManager:
     def __del__(self):
         """Destructor: asegura que se liberen todos los recursos"""
         self.close_all()
+        

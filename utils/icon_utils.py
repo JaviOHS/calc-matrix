@@ -3,6 +3,7 @@ from PySide6.QtGui import QPixmap, QPainter, QColor, QIcon
 from PySide6.QtCore import QSize, Qt
 
 def colored_svg_icon(path: str, color: QColor, size: QSize = QSize(24, 24)) -> QIcon:
+    """Crea un icono a partir de un archivo SVG y aplica un color."""
     renderer = QSvgRenderer(path)
     pixmap = QPixmap(size)
     pixmap.fill(Qt.transparent)
@@ -21,6 +22,7 @@ def colored_svg_icon(path: str, color: QColor, size: QSize = QSize(24, 24)) -> Q
     return QIcon(pixmap)
 
 def colored_svg_pixmap(path: str, color: QColor, size: QSize = QSize(32, 32)) -> QPixmap:
+    """Crea un pixmap a partir de un archivo SVG y aplica un color."""
     renderer = QSvgRenderer(path)
     pixmap = QPixmap(size)
     pixmap.fill(Qt.transparent)

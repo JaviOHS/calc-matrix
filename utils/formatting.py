@@ -1,26 +1,7 @@
 import re
 import sympy as sp
 import numpy as np
-
-# Paleta de colores consistente
-COLORS = {
-    'primary': '#037df5',    # Azul principal
-    'secondary': '#fc7e00',  # Naranja para encabezados secundarios
-    'success': '#02dc0d',    # Verde para resultados exitosos
-    'error': '#D32F2F',      # Rojo para errores
-    'neutral': '#616161',    # Gris para texto auxiliar
-    'light': '#e0e0e0'       # Gris claro
-}
-
-# Iconos para diferentes tipos de secciones
-ICONS = {
-    'input': '🔍',
-    'operation': '🟠',
-    'result': '🔵',
-    'roots': '📌',
-    'error': '❌',
-    'matrix': '📊',
-}
+from utils.patterns import DISPLAY_PATTERNS, COLORS, ICONS
 
 def create_section(title, content, color, icon=None):
     """Helper para crear secciones consistentes"""
@@ -163,6 +144,15 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             eq_text = format_polynomial(eq_text)
             sol_text = format_polynomial(sol_text)
 
+            # Aplicar patrones de visualización
+            for pattern, replacement in DISPLAY_PATTERNS.items():
+                if callable(replacement):
+                    eq_text = re.sub(pattern, replacement, eq_text)
+                    sol_text = re.sub(pattern, replacement, sol_text)
+                else:
+                    eq_text = re.sub(pattern, replacement, eq_text)
+                    sol_text = re.sub(pattern, replacement, sol_text)
+
             html_result.append(create_section('Ecuación Diferencial:<br>', eq_text, COLORS['secondary'], ICONS['operation']))
             html_result.append(create_section('Solución General:<br>', sol_text, COLORS['primary'], ICONS['result']))
             
@@ -204,7 +194,7 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         )
         
         return create_section(
-            f'Solución por Método de {method_name}:', 
+            f'Tabla de solución numérica:', # Nombre del método opcional 
             table_html, 
             COLORS['secondary'], 
             ICONS['operation']

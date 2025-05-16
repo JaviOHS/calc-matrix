@@ -33,3 +33,6 @@ class SymCalManager:
         
         return method_func(equation, initial_condition, x_range, h)
     
+    def clear(self):
+        """Limpia el modelo y los datos internos"""
+        self.model.clear()

@@ -4,7 +4,7 @@ from controller.vector_controller import VectorController
 import re
 from utils.formatting import format_math_expression
 
-ALLOWED_VECTOR_CHARS = re.compile(r'^[\[\]\d,\s+\-*/.]*$') 
+ALLOWED_VECTOR_CHARS = re.compile(r'^[\[\]\d,\s+\-*/.\·]*$')
 class VectorOpWidget(ExpressionOpWidget):
     def __init__(self, manager=VectorManager, controller=VectorController, operation_type=None):
         if operation_type == "operaciones_basicas":

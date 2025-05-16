@@ -38,13 +38,13 @@ def load_styles(app, font_family):
     for style_file in style_files:
         file_path = resource_path(f"styles/{style_file}")
         try:
-            with open(file_path, "r") as file:
+            with open(file_path, "r", encoding="utf-8") as file:
                 combined_styles += file.read() + "\n\n"
         except FileNotFoundError:
             print(f"Advertencia: Archivo de estilo no encontrado: {style_file}")
     
     combined_styles = combined_styles.replace("{{FONT_FAMILY}}", font_family)
-    app.setStyleSheet(combined_styles) # Aplicar estilos combinados
+    app.setStyleSheet(combined_styles)
 
 def main():
     """Función principal que inicia la aplicación."""

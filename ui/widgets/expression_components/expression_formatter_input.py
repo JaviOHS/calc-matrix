@@ -1,20 +1,18 @@
-from PySide6.QtGui import QTextCharFormat, QFont, QColor
+from PySide6.QtGui import QTextCharFormat
 from PySide6.QtWidgets import QTextEdit
-import re
+from utils.input_formating import (
+    create_base_format, 
+    create_superscript_format,
+    add_spacing_around_operators
+)
+from utils.patterns import BRACKET_COLORS
 
 class ExpressionFormatterInput:
     """Clase para formatear expresiones matemáticas en un QTextEdit"""
     
     def __init__(self, text_edit: QTextEdit):
         self.text_edit = text_edit
-        # Colores para los diferentes niveles de paréntesis
-        self.bracket_colors = [
-            QColor(255, 165, 0),
-            QColor(0, 0, 255),
-            QColor(0, 128, 0),
-            QColor(128, 0, 128),
-            QColor(255, 0, 0),
-        ]
+        self.bracket_colors = BRACKET_COLORS
         self.setup_formatting()
     
     def setup_formatting(self):
@@ -27,132 +25,78 @@ class ExpressionFormatterInput:
         position = cursor.position()
         text = self.text_edit.toPlainText()
         
-        # Guardar el texto original para calcular el desplazamiento del cursor
-        original_text = text
+        # Formatear texto
+        text = add_spacing_around_operators(text)
         
-        # Aplicar espaciado alrededor de operadores
-        text = self.add_spacing_around_operators(text)
+        # Actualizar posición del cursor
+        new_position = self._calculate_new_cursor_position(position, text)
         
-        # Calcular la nueva posición del cursor teniendo en cuenta los espacios añadidos a la izquierda del cursor
-        new_position = position
+        self._apply_formatting(text, new_position)
+    
+    def _calculate_new_cursor_position(self, position: int, formatted_text: str) -> int:
+        """Calcula la nueva posición del cursor después del formateo"""
         if position > 0:
-            # Contar espacios añadidos antes de la posición original
-            original_slice = original_text[:position]
-            formatted_slice = self.add_spacing_around_operators(original_slice)
-            new_position += len(formatted_slice) - len(original_slice)
-        
+            original_slice = self.text_edit.toPlainText()[:position]
+            formatted_slice = add_spacing_around_operators(original_slice)
+            position += len(formatted_slice) - len(original_slice)
+        return min(position, len(formatted_text))
+    
+    def _apply_formatting(self, text: str, cursor_position: int):
+        """Aplica el formateo al texto"""
         self.text_edit.blockSignals(True)
-
-        # Construir un nuevo documento formateado
         self.text_edit.clear()
+        
         new_cursor = self.text_edit.textCursor()
-
-        base_format = QTextCharFormat()
-        base_format.setFont(QFont("Cambria Math", 14))
-
-        super_format = QTextCharFormat(base_format)
-        super_format.setVerticalAlignment(QTextCharFormat.AlignSuperScript)
-
-        # Stack para llevar el seguimiento de paréntesis abiertos
+        base_format = create_base_format()
+        super_format = create_superscript_format(base_format)
         bracket_stack = []
-
+        
         i = 0
         while i < len(text):
             if text[i] == '^':
-                new_cursor.insertText('^', base_format)
-                i += 1
-                # Formatear superíndices
-                while i < len(text) and text[i].isdigit():
-                    new_cursor.insertText(text[i], super_format)
-                    i += 1
+                self._handle_superscript(text, i, new_cursor, base_format, super_format)
+                i = self._skip_superscript(text, i)
             elif text[i] == '(':
-                # Aplicar color según el nivel de anidamiento
-                bracket_level = len(bracket_stack)
-                color_index = bracket_level % len(self.bracket_colors)
-                bracket_format = QTextCharFormat(base_format)
-                bracket_format.setForeground(self.bracket_colors[color_index])
-                
-                new_cursor.insertText('(', bracket_format)
-                bracket_stack.append(color_index)
+                self._handle_opening_bracket(new_cursor, bracket_stack, base_format)
                 i += 1
             elif text[i] == ')':
-                # Usar el mismo color que el paréntesis de apertura correspondiente
-                if bracket_stack:
-                    color_index = bracket_stack.pop()
-                    bracket_format = QTextCharFormat(base_format)
-                    bracket_format.setForeground(self.bracket_colors[color_index])
-                    new_cursor.insertText(')', bracket_format)
-                else:
-                    # Si no hay paréntesis abiertos, usar el color base
-                    new_cursor.insertText(')', base_format)
+                self._handle_closing_bracket(new_cursor, bracket_stack, base_format)
                 i += 1
             else:
                 new_cursor.insertText(text[i], base_format)
                 i += 1
-
-        # Restaurar posición del cursor teniendo en cuenta los espacios añadidos
-        new_position = min(new_position, len(self.text_edit.toPlainText()))
-        new_cursor.setPosition(new_position)
+        
+        # Restaurar cursor
+        new_cursor.setPosition(cursor_position)
         self.text_edit.setTextCursor(new_cursor)
         self.text_edit.blockSignals(False)
     
-    def add_spacing_around_operators(self, text):
-        """Añade espacios alrededor de operadores matemáticos para mejorar la legibilidad"""
-        # Reemplazar * por · para multiplicación
-        text = text.replace('*', '·')
-        
-        # No agregar espacios dentro de exponentes
-        # Primero identificamos los exponentes
-        exp_pattern = r'\^\d+'
-        exp_matches = list(re.finditer(exp_pattern, text))
-        protected_regions = [(m.start(), m.end()) for m in exp_matches]
-        
-        # Función para verificar si una posición está en una región protegida
-        def is_protected(pos):
-            return any(start <= pos < end for start, end in protected_regions)
-        
-        # Primero, normalizar espacios existentes alrededor de operadores - Eliminar espacios múltiples y normalizar espaciado
-        normalized = []
-        i = 0
-        skip_space = False
-        
-        while i < len(text):
-            # Saltarse espacios redundantes
-            if text[i] == ' ':
-                if not skip_space:
-                    normalized.append(' ')
-                    skip_space = True
-            else:
-                normalized.append(text[i])
-                skip_space = False
-            i += 1
-        
-        text = ''.join(normalized)
-        
-        # Volver a calcular las regiones protegidas después de la normalización
-        exp_matches = list(re.finditer(exp_pattern, text))
-        protected_regions = [(m.start(), m.end()) for m in exp_matches]
-        
-        # Agregar espacios alrededor de operadores +, -, ·, / y =
-        result = []
-        i = 0
-        while i < len(text):
-            char = text[i]
-            
-            if i > 0 and char in '+-·/=,' and not is_protected(i):
-                # Verificar si ya hay un espacio antes del operador
-                if result and result[-1] != ' ':
-                    result.append(' ')
-                
-                # Añadir el operador
-                result.append(char)
-                
-                # Verificar si ya hay un espacio después del operador
-                if i + 1 < len(text) and text[i + 1] != ' ':
-                    result.append(' ')
-            else:
-                result.append(char)
-            i += 1
-        
-        return ''.join(result)
+    def _handle_superscript(self, text: str, pos: int, cursor, base_format, super_format):
+        cursor.insertText(text[pos], base_format)
+        pos += 1
+        while pos < len(text) and text[pos].isdigit():
+            cursor.insertText(text[pos], super_format)
+            pos += 1
     
+    def _skip_superscript(self, text: str, pos: int) -> int:
+        pos += 1
+        while pos < len(text) and text[pos].isdigit():
+            pos += 1
+        return pos
+    
+    def _handle_opening_bracket(self, cursor, bracket_stack, base_format):
+        bracket_level = len(bracket_stack)
+        color_index = bracket_level % len(self.bracket_colors)
+        bracket_format = QTextCharFormat(base_format)
+        bracket_format.setForeground(self.bracket_colors[color_index])
+        cursor.insertText('(', bracket_format)
+        bracket_stack.append(color_index)
+    
+    def _handle_closing_bracket(self, cursor, bracket_stack, base_format):
+        if bracket_stack:
+            color_index = bracket_stack.pop()
+            bracket_format = QTextCharFormat(base_format)
+            bracket_format.setForeground(self.bracket_colors[color_index])
+            cursor.insertText(')', bracket_format)
+        else:
+            cursor.insertText(')', base_format)

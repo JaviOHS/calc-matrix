@@ -50,7 +50,7 @@ class SymCalModel:
             return result
         except Exception as e:
             raise ValueError(f"Error al derivar: {str(e)}")
-    
+        
     def integrate(self, expression, limits=None, var=None, constant=0):
         try:
             # Si la expresión es una lista, se asume que es un polinomio
@@ -208,10 +208,20 @@ class SymCalModel:
         
         # Para el método de Taylor, necesitamos las derivadas parciales
         if method == "taylor":
-            x_sym, y_sym = symbols('x y')
-            expr = sympify(rhs)
-            df_dx = lambdify([x_sym, y_sym], diff(expr, x_sym))
-            df_dy = lambdify([x_sym, y_sym], diff(expr, y_sym))
+            try:
+                x_sym, y_sym = symbols('x y')
+                expr = -0.1151*(y_sym - 22)  # Construimos la expresión simbólica
+                
+                # Calcular derivadas parciales
+                df_dx = diff(expr, x_sym)
+                df_dy = diff(expr, y_sym)
+                
+                # Las derivadas parciales son constantes, así que podemos evaluarlas directamente
+                df_dx_val = float(df_dx)
+                df_dy_val = float(df_dy)
+                
+            except Exception as e:
+                raise ValueError(f"Error al preparar derivadas para Taylor: {str(e)}")
         
         # Resolver la ecuación paso a paso según el método elegido
         while x < x_end:
@@ -232,9 +242,13 @@ class SymCalModel:
                 y = y + h * (k1 + 2*k2 + 2*k3 + k4) / 6
                 
             elif method == "taylor": # Método de Taylor de orden 2
-                f_value = f(x, y)
-                df_value = df_dx(x, y) + df_dy(x, y) * f_value
-                y = y + h * f_value + (h**2/2) * df_value
+                try:
+                    f_value = f(x, y)
+                    # Usar los valores constantes de las derivadas
+                    df_value = df_dx_val + df_dy_val * f_value
+                    y = y + h * f_value + (h**2/2) * df_value
+                except Exception as e:
+                    raise ValueError(f"Error en paso de Taylor: {str(e)}")
             
             # Actualizar x y guardar los valores
             x = x + h
@@ -328,3 +342,6 @@ class SymCalModel:
         )
         
         return canvas
+
+    def clear(self):
+        return

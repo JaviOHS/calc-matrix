@@ -39,7 +39,7 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
         container_layout.setAlignment(Qt.AlignTop)
 
         # Añadir el título
-        label_system = QLabel("Sistema de ecuaciones a * x = b")
+        label_system = QLabel("Sistema de ecuaciones a · x = b")
         label_system.setAlignment(Qt.AlignCenter)
         label_system.setStyleSheet("font-weight: bold;")
         container_layout.addWidget(label_system)

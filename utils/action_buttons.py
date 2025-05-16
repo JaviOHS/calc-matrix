@@ -5,6 +5,7 @@ from utils.resources import resource_path
 from utils.icon_utils import colored_svg_icon
 
 class ActionButton(QPushButton):
+    """Clase base para botones de acción con iconos SVG."""
     def __init__(self, text, icon_name=None, icon_color=QColor(28, 44, 66),icon_size=QSize(20, 20), parent=None, object_name="ctaButton"):
         super().__init__(text, parent)
         

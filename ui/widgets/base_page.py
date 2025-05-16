@@ -439,3 +439,4 @@ class BasePage(QWidget):
     def show_result(self, result, message):
         """Método para ser implementado por las subclases"""
         pass
+    

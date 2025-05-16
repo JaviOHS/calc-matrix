@@ -9,6 +9,9 @@ class SymCalController:
         if not expression:
             raise ValueError("La expresión para derivar no puede estar vacía.")
         
+        if isinstance(expression, str) and ("'" in expression or "=" in expression):
+            raise ValueError("Esta expresión parece ser una ecuación diferencial. Por favor, use el módulo correspondiente.")
+        
         try:
             parsed_expr = self.parser.parse_expression(expression)
             return self.manager.get_derivative(parsed_expr, var)
@@ -18,6 +21,9 @@ class SymCalController:
     def compute_integral(self, expression, limits=None, var=None, constant=0):
         if not expression:
             raise ValueError("La expresión para integrar no puede estar vacía.")
+        
+        if isinstance(expression, str) and ("'" in expression or "=" in expression):
+            raise ValueError("Esta expresión parece ser una ecuación diferencial. Por favor, use el módulo correspondiente.")
         
         try:
             parsed_expr = self.parser.parse_expression(expression)
@@ -43,8 +49,16 @@ class SymCalController:
             parsed_expr = self.parser.parse_equation(expression)
             result = self.manager.solve_differential_equation(parsed_expr, initial_condition, x_range)
             return result
+        except ValueError as e:
+            raise ValueError(str(e))
         except Exception as e:
-            raise ValueError(f"Error al resolver la ecuación diferencial:\n{str(e)}")
+            error_msg = str(e)
+            if "invalid syntax" in error_msg:
+                raise ValueError("Sintaxis inválida. Verifique el formato de la ecuación.")
+            elif "division by zero" in error_msg:
+                raise ValueError("Error matemático: división por cero.")
+            else:
+                raise ValueError(f"Error al resolver la ecuación diferencial: {error_msg}")
         
     def _validate_ode_params(self, equation, initial_condition, x_range, h):
         """Método auxiliar para validar los parámetros comunes a todos los métodos numéricos"""
@@ -114,4 +128,3 @@ class SymCalController:
             return self.manager.compare_ode_methods(parsed_expr, initial_condition, x_range, h, methods)
         except Exception as e:
             raise ValueError(f"No se pudo realizar la comparación:\n{str(e)}")
-        
