@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QVBoxLayout, QVBoxLayout, QWidget
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from controller.graph_controller import GraphController
-from utils.spinbox_utils import create_spinbox
+from utils.spinbox_utils import create_float_spinbox
 from utils.create_range_row import create_range_row as create_range_layout
 
 class BaseGraphWidget(ExpressionOpWidget):
@@ -55,8 +55,8 @@ class Graph2DWidget(BaseGraphWidget):
         range_layout.setContentsMargins(20, 0, 0, 0)
         
         # Crear controles usando la función de utilidad
-        self.x_min = create_spinbox(default_val=-10.0)
-        self.x_max = create_spinbox(default_val=10.0)
+        self.x_min = create_float_spinbox(default_val=-10.0)
+        self.x_max = create_float_spinbox(default_val=10.0)
         
         # Armar la fila de rango X
         x_row = self.create_range_row("Rango x", self.x_min, self.x_max)
@@ -111,10 +111,10 @@ class Graph3DWidget(BaseGraphWidget):
         main_layout.setSpacing(4)
 
         # Crear controles
-        self.x_min = create_spinbox(default_val=-10.0)
-        self.x_max = create_spinbox(default_val=10.0)
-        self.y_min = create_spinbox(default_val=-10.0)
-        self.y_max = create_spinbox(default_val=10.0)
+        self.x_min = create_float_spinbox(default_val=-10.0)
+        self.x_max = create_float_spinbox(default_val=10.0)
+        self.y_min = create_float_spinbox(default_val=-10.0)
+        self.y_max = create_float_spinbox(default_val=10.0)
         
         # Armar la fila de rango X
         x_row = self.create_range_row("Rango x", self.x_min, self.x_max)

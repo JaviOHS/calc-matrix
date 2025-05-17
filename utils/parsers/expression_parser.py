@@ -166,7 +166,8 @@ class ExpressionParser:
             # Dividir en LHS y RHS
             if '==' in clean_expr:
                 lhs, rhs = clean_expr.split('==', 1)
-                lhs_expr, rhs_expr = parse_expr(lhs.strip(), transformations=self.transformations, local_dict=self.allowed_symbols_2d)
+                lhs_expr = parse_expr(lhs.strip(), transformations=self.transformations, local_dict=self.allowed_symbols_2d)
+                rhs_expr = parse_expr(rhs.strip(), transformations=self.transformations, local_dict=self.allowed_symbols_2d)
                 return sp.Eq(lhs_expr, rhs_expr)
             else:
                 # Si no hay igual, asumir == 0

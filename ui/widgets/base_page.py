@@ -354,7 +354,11 @@ class BasePage(QWidget):
         
         # Actualizar título de operación
         object_name = self.get_object_name()
-        operation_title = f"{operation_key} de <span style='color:#ff8103;'>{object_name}</span>"
+        if not object_name:
+            operation_title = self.highlight_last_word(operation_key)
+        else:
+            operation_title = f"{operation_key} de <span style='color:#ff8103;'>{object_name}</span>"
+        
         self.operation_title_label.setText(operation_title)
         self.operation_title_label.setWordWrap(True)  # Habilitar ajuste de texto
         self.operation_title_container.show()
@@ -385,20 +389,23 @@ class BasePage(QWidget):
         page_title = self.page_content.get("title", "Objeto")
         if "{" in page_title and "}" in page_title:
             return page_title.split("{")[1].replace("}", "")
-        return "Objeto"
+        return None
     
     def format_title(self, title_text):
-        """Formatea el título reemplazando el texto entre llaves con formato HTML de color"""
+        """
+        Formatea el título reemplazando el texto entre llaves con formato HTML de color.
+        Si no hay llaves, resalta la última palabra en naranja.
+        """
         if "{" in title_text and "}" in title_text:
             parts = title_text.split("{")
             before_brace = parts[0]
             after_brace = parts[1].split("}")
             highlighted_text = after_brace[0]
             end_text = after_brace[1] if len(after_brace) > 1 else ""
-            
             return f"{before_brace}<span style='color:#ff8103;'>{highlighted_text}</span>{end_text}"
-        return title_text
-
+        else:
+            return self.highlight_last_word(title_text)
+    
     def reset_interface(self):
         """Restablece la interfaz a su estado inicial"""
         self.toggle_button.hide()
@@ -439,4 +446,12 @@ class BasePage(QWidget):
     def show_result(self, result, message):
         """Método para ser implementado por las subclases"""
         pass
-    
+
+    def highlight_last_word(self, text):
+        """Resalta la última palabra de un texto en color naranja."""
+        words = text.split()
+        if len(words) >= 1:
+            main_text = " ".join(words[:-1])  # Todas las palabras excepto la última
+            highlighted_word = f"<span style='color:#ff8103;'>{words[-1]}</span>"  # Última palabra en naranja
+            return f"{main_text} {highlighted_word}"
+        return text

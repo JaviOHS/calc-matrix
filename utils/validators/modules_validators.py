@@ -1,9 +1,24 @@
 import re
 
+def validate_positive_integer(value):
+    """Validates that the input is a positive integer."""
+    if not isinstance(value, int) or value <= 0:
+        raise ValueError("El valor debe ser un número entero positivo.")
+
+def validate_range(value, min_value, max_value):
+    """Validates that the input is within a specified range."""
+    if not (min_value <= value <= max_value):
+        raise ValueError(f"El valor debe estar entre {min_value} y {max_value}.")
+
+def validate_algorithm_choice(choice, valid_choices):
+    """Validates that the chosen algorithm is valid."""
+    if choice not in valid_choices:
+        raise ValueError(f"Elección de algoritmo no válida. Debe ser uno de: {', '.join(valid_choices)}.")
+
 def is_valid_number(value):
-    """Verifica si el valor es un número válido (puede ser negativo, flotante o entero)."""
+    """Checks if a value is a valid number."""
     try:
-        float(value) 
+        float(value)
         return True
     except ValueError:
         return False

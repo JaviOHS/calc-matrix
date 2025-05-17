@@ -1,10 +1,11 @@
 from ui.pages.matrix_page.matrix_operations.matrix_operation import MatrixOperationWidget
 from model.matrix_model import Matrix
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QHeaderView
+from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QHeaderView, QHBoxLayout
 from utils.matrix_table import MatrixTableComponent
 from utils.ui_utils import UIUtils
 from utils.validators.matrix_validator import MatrixValidator
+from utils.spinbox_utils import create_int_spinbox
 
 class MatrixSystemSolverWidget(MatrixOperationWidget):
     def __init__(self, manager, controller):
@@ -33,6 +34,23 @@ class MatrixSystemSolverWidget(MatrixOperationWidget):
         
         # Crear tabla inicial
         self.update_table()
+
+    def _setup_dimension_config(self):
+        """Configura los widgets de dimensión con margen izquierdo consistente"""
+        config_widget = QWidget()
+        config_layout = QHBoxLayout(config_widget)
+        config_layout.setContentsMargins(32, 0, 0, 0)  # Asegurar margen izquierdo
+
+        # Label y spinbox para dimensiones
+        self.dim_label = QLabel("Dimensión del sistema (n x n):")
+        self.dim_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.dim_spinbox = create_int_spinbox(min_val=1, max_val=10, default_val=3)
+
+        config_layout.addWidget(self.dim_label)
+        config_layout.addWidget(self.dim_spinbox)
+        config_layout.addStretch()
+
+        self.layout.addWidget(config_widget)
 
     def update_table(self):
         """Actualiza la tabla del sistema de ecuaciones basada en la dimensión actual"""

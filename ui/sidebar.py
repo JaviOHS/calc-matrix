@@ -29,6 +29,7 @@ class Sidebar(QWidget):
             "Vectores": "vector",
             "Gráficas": "graph",
             "C. Simbólico": "sym_cal",
+            "Distribuciones": "distribution",
             "Acerca de": "about",
         }
 

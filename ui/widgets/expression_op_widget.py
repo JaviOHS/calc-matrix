@@ -7,12 +7,13 @@ from ui.dialogs.canvas_dialog_manager import CanvasDialogManager
 from utils.image_utils import create_image_label
 
 class ExpressionOpWidget(MathOperationWidget):
-    def __init__(self, manager, controller, operation_type=None, placeholder="", input_label="", image_path="assets/images/placeholder.png", use_dialog_for_result: bool = False):
+    def __init__(self, manager, controller, operation_type=None, placeholder="", input_label="", image_path="assets/images/placeholder.png", allow_expression: bool = True, use_dialog_for_result: bool = False):
         super().__init__(manager, controller, operation_type)
         self.operation_type = operation_type
         self.placeholder = placeholder
         self.input_label_text = input_label
         self.image_path = image_path
+        self.allow_expression = allow_expression
         self.use_dialog_for_result = use_dialog_for_result
         self.setup_ui()
 
@@ -35,16 +36,17 @@ class ExpressionOpWidget(MathOperationWidget):
         title_label.setObjectName("expressionLabel")
         input_layout.addWidget(title_label)
 
-        # Campo de expresión
-        self.expression_input = QTextEdit()
-        self.expression_input.setObjectName("expressionInput")
-        self.expression_input.setPlaceholderText(self.placeholder)
-        self.expression_input.setMaximumHeight(90)
-        input_layout.addWidget(self.expression_input)
+        # Solo agregar el QTextEdit de expresión si allow_expression es True
+        if self.allow_expression:
+            self.expression_input = QTextEdit()
+            self.expression_input.setObjectName("expressionInput")
+            self.expression_input.setPlaceholderText(self.placeholder)
+            self.expression_input.setMaximumHeight(90)
+            input_layout.addWidget(self.expression_input)
 
-        self.expression_formatter = ExpressionFormatterInput(self.expression_input)
-        self.canvas_dialog_manager = CanvasDialogManager(self)
-
+            self.expression_formatter = ExpressionFormatterInput(self.expression_input)
+            self.canvas_dialog_manager = CanvasDialogManager(self)
+        
         # Result section (if needed)
         if not self.use_dialog_for_result:
             result_section = QWidget()
@@ -76,9 +78,11 @@ class ExpressionOpWidget(MathOperationWidget):
         controls_layout = QHBoxLayout(controls)
         controls_layout.setContentsMargins(0, 5, 0, 0)
         controls_layout.setSpacing(20)
-
-        expression_buttons = ExpressionButtonsPanel(self.expression_input)
-        controls_layout.addWidget(expression_buttons, alignment=Qt.AlignLeft)
+    
+        # Solo agregar el panel de botones de expresión si allow_expression es True
+        if self.allow_expression:
+            expression_buttons = ExpressionButtonsPanel(self.expression_input)
+            controls_layout.addWidget(expression_buttons, alignment=Qt.AlignLeft)
 
         action_buttons = self.create_buttons()
         action_buttons.setObjectName("actionButtons") 
@@ -89,7 +93,9 @@ class ExpressionOpWidget(MathOperationWidget):
         self.setLayout(self.layout)
         
     def get_input_expression(self):
-        return self.expression_input.toPlainText().strip()
+        if hasattr(self, 'expression_input'):
+            return self.expression_input.toPlainText().strip()
+        return ""
 
     def display_result(self, html):
         if not self.use_dialog_for_result and hasattr(self, 'result_display'):

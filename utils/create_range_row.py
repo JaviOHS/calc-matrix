@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QHBoxLayout, QLabel
-from utils.spinbox_utils import create_spinbox
+from utils.spinbox_utils import create_float_spinbox
 
 def create_range_row(label_text=None, min_label="Min", max_label="Max", default_min=0.0, default_max=1.0, min_control=None, max_control=None, connector="a",spacing=6, label_width=None):
     """
@@ -32,12 +32,12 @@ def create_range_row(label_text=None, min_label="Min", max_label="Max", default_
     
     # Crear o usar controles proporcionados
     if min_control is None:
-        min_control = create_spinbox(default_val=default_min)
+        min_control = create_float_spinbox(default_val=default_min)
     else:
         min_control.setValue(default_min)
         
     if max_control is None:
-        max_control = create_spinbox(default_val=default_max)
+        max_control = create_float_spinbox(default_val=default_max)
     else:
         max_control.setValue(default_max)
     

@@ -227,6 +227,24 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         
         return "".join(html_result)
 
+    def format_distribution_result(numbers, method, seed):
+        """Formatea el resultado de la generación de números aleatorios"""
+        if seed is None: # Para ruido físico (o cualquier método sin semilla), mostrar solo el método
+            method_display = method.capitalize().replace("_", " ")
+        else:
+            method_display = f"{method.capitalize().replace('_', ' ')} - {seed}"
+        
+        # Formatear los números generados línea por línea
+        formatted_numbers = "<br>".join(clean_number(num) for num in numbers)
+        
+        # Ajustar el título de la sección según si hay semilla o no
+        title = 'Método: ' if seed is None else 'Método y Semilla: '
+        
+        return (
+            create_section(title, method_display, COLORS['secondary'], ICONS['operation']) +
+            create_section('Números generados:<br>', formatted_numbers, COLORS['primary'], ICONS['result'])
+        )
+
     # Modificar la sección principal del método para incluir el nuevo caso
     if operation_type == "evaluacion":
         return format_evaluation_result(expr, result)
@@ -259,6 +277,13 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         else:
             # Para soluciones analíticas
             return format_diff_eq(expr, result)
+    
+    elif operation_type == "distribution":
+        return format_distribution_result(
+            numbers=result,
+            method=method,
+            seed=expr["seed"]
+        )
     
     else:  # Polinomios y expresiones genéricas
         formatted_expr = format_polynomial(expr)

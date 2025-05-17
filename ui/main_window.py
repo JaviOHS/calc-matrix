@@ -8,6 +8,7 @@ from ui.pages.poly_page.poly_page import PolynomialPage
 from ui.pages.vector_page.vector_page import VectorPage
 from ui.pages.graph_page.graph_page import GraphPage
 from ui.pages.sym_cal_page.sym_cal_page import SymCalPage
+from ui.pages.distribution_page.distribution_page import DistributionPage
 from ui.pages.about_page import AboutPage
 
 from model.matrix_manager import MatrixManager
@@ -15,6 +16,7 @@ from model.polynomial_manager import PolynomialManager
 from model.vector_manager import VectorManager
 from model.graph_manager import GraphManager
 from model.sym_cal_manager import SymCalManager
+from model.distribution_manager import DistributionManager
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy
 from PySide6.QtCore import Qt
@@ -29,6 +31,7 @@ class MainWindow(QMainWindow):
         self.vector_manager = VectorManager()
         self.graph_manager = GraphManager()
         self.symbolic_calculation_manager = SymCalManager()
+        self.distribution_manager = DistributionManager()
 
         self.setup_window() # Configuración de la ventana
         self.setup_ui() # Inicializar UI
@@ -123,6 +126,8 @@ class MainWindow(QMainWindow):
             self.pages[name] = GraphPage(self.graph_manager)
         elif name == "sym_cal":
             self.pages[name] = SymCalPage(self.symbolic_calculation_manager)
+        elif name == "distribution":
+            self.pages[name] = DistributionPage(self.distribution_manager)
         elif name == "about":
             self.pages[name] = AboutPage()
         else:

@@ -1,8 +1,7 @@
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QComboBox, QVBoxLayout
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from utils.formatting import format_math_expression
-from utils.spinbox_utils import create_spinbox
-from utils.create_range_row import create_range_row
+from utils.spinbox_utils import create_float_spinbox
 
 class SymCalOpWidget(ExpressionOpWidget):
     def __init__(self, manager, controller, operation_type=None):
@@ -15,7 +14,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         placeholder = "Ejemplo: 2x^2 + 2x"
         
         if operation_type == "ecuaciones_diferenciales":
-            placeholder = "Ejemplos válidos: \ny' = x + y || dy/dx = x + y"
+            placeholder = "Ejemplos válidos: \n- y' = x + y\n- dy/dx = x + y"
         super().__init__(manager, controller, operation_type=operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=use_dialog_for_result)
 
         self.add_additional_inputs()
@@ -48,7 +47,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         top_layout.setSpacing(5)
 
         # Etiqueta de tipo de integral
-        instruction_label = QLabel("Tipo de integral:")
+        instruction_label = QLabel("🟠 Tipo de integral:")
         top_layout.addWidget(instruction_label)
 
         # ComboBox de tipo
@@ -63,15 +62,14 @@ class SymCalOpWidget(ExpressionOpWidget):
         self.limits_input_widget = QWidget()
         limits_layout = QHBoxLayout(self.limits_input_widget)
         limits_layout.setContentsMargins(20, 0, 0, 0)
-        limits_layout.setSpacing(5)
 
         limits_layout.addWidget(QLabel("📌 Límites: x ="))
-        self.lower_limit = create_spinbox(default_val=0)
+        self.lower_limit = create_float_spinbox(default_val=0)
         self.lower_limit.setFixedWidth(60)
         limits_layout.addWidget(self.lower_limit)
 
         limits_layout.addWidget(QLabel("→"))
-        self.upper_limit = create_spinbox(default_val=1)
+        self.upper_limit = create_float_spinbox(default_val=1)
         self.upper_limit.setFixedWidth(60)
         limits_layout.addWidget(self.upper_limit)
 
@@ -88,17 +86,14 @@ class SymCalOpWidget(ExpressionOpWidget):
 
     def add_differential_equation_inputs(self):
         """Configura los inputs adicionales para ecuaciones diferenciales"""
-        # Contenedor principal para todos los elementos
         method_container = QWidget()
-
         main_layout = QVBoxLayout(method_container)
         main_layout.setContentsMargins(20, 0, 20, 0)
-        main_layout.setSpacing(5)  # Reducido de 10 a 5
         
         # Selector de método (fila 1)
         method_row = QHBoxLayout()
-        method_row.setContentsMargins(0, 0, 0, 0)
-        method_row.addWidget(QLabel("Seleccione el método a utilizar:"))
+        method_row.setContentsMargins(10, 0, 0, 0)
+        method_row.addWidget(QLabel("🟠 Método:"))
         
         self.de_method_selector = QComboBox()
         self.de_method_selector.addItem("Analítico", "analytical")
@@ -111,50 +106,45 @@ class SymCalOpWidget(ExpressionOpWidget):
         method_row.addStretch()
         main_layout.addLayout(method_row)
         
-        # Fila 2: Condición inicial + Rango + Paso h
+        # Fila 2: Todo en un solo QHBoxLayout
         second_row = QHBoxLayout()
-        second_row.setContentsMargins(0, 0, 0, 0)
-        second_row.setSpacing(15)  # Ajusta el espacio entre los grupos principales
+        second_row.setContentsMargins(10, 0, 0, 0)
+        second_row.setSpacing(5)  # Espaciado base entre widgets
 
         # Condición inicial
-        initial_layout = QHBoxLayout()
-        initial_layout.setSpacing(2)  # Reducido el espacio entre elementos
-        initial_layout.addWidget(QLabel("🟠​ y ("))
-        self.numerical_x0 = create_spinbox(default_val=0)
-        initial_layout.addWidget(self.numerical_x0)
-        initial_layout.addWidget(QLabel(") ="))
-        self.numerical_y0 = create_spinbox(default_val=1)
-        initial_layout.addWidget(self.numerical_y0)
-        initial_widget = QWidget()
-        initial_widget.setLayout(initial_layout)
-        second_row.addWidget(initial_widget)
+        second_row.addWidget(QLabel("📌 y ("))
+        self.numerical_x0 = create_float_spinbox(default_val=0)
+        self.numerical_x0.setFixedWidth(60)
+        second_row.addWidget(self.numerical_x0)
+        second_row.addWidget(QLabel(") ="))
+        self.numerical_y0 = create_float_spinbox(default_val=1)
+        self.numerical_y0.setFixedWidth(60)
+        second_row.addWidget(self.numerical_y0)
+
+        # Agregar espacio entre secciones
+        second_row.addSpacing(85)
 
         # Rango
-        range_layout, self.numerical_x_start, self.numerical_x_end = create_range_row(
-            label_text="📌 Rango x", 
-            min_label="", 
-            max_label="", 
-            default_min=0, 
-            default_max=10,
-            spacing=2  # Reducido el espaciado
-        )
-        range_widget = QWidget()
-        range_widget.setLayout(range_layout)
-        second_row.addWidget(range_widget)
+        second_row.addWidget(QLabel("📏 Rango x:"))
+        self.numerical_x_start = create_float_spinbox(default_val=0)
+        self.numerical_x_start.setFixedWidth(60)
+        second_row.addWidget(self.numerical_x_start)
+        second_row.addWidget(QLabel("→"))
+        self.numerical_x_end = create_float_spinbox(default_val=10)
+        self.numerical_x_end.setFixedWidth(60)
+        second_row.addWidget(self.numerical_x_end)
+
+        # Agregar espacio entre secciones
+        second_row.addSpacing(85)  # 20 píxeles de espacio
 
         # Paso h
-        step_layout = QHBoxLayout()
-        step_layout.setSpacing(2)  # Reducido el espacio entre elementos
-        step_layout.addWidget(QLabel("👣​ Paso h ="))
-        self.numerical_h = create_spinbox(min_val=0.001, max_val=5, default_val=1, step=0.1)
-        step_layout.addWidget(self.numerical_h)
-        self.numerical_step_widget = QWidget()
-        self.numerical_step_widget.setLayout(step_layout)
-        second_row.addWidget(self.numerical_step_widget)
+        self.step_label = QLabel("👣​ Paso h =")
+        second_row.addWidget(self.step_label)
+        self.numerical_h = create_float_spinbox(min_val=0.001, max_val=5, default_val=1, step=0.1)
+        self.numerical_h.setFixedWidth(60)
+        second_row.addWidget(self.numerical_h)
 
-        # Añadir stretch al final para empujar todo hacia la izquierda
         second_row.addStretch()
-        
         main_layout.addLayout(second_row)
         
         # Conectar señal para mostrar/ocultar parámetros específicos
@@ -165,11 +155,13 @@ class SymCalOpWidget(ExpressionOpWidget):
         
         # Mostrar/ocultar parámetros según el método inicial
         self.toggle_step(self.de_method_selector.currentText())
-        
+
     def toggle_step(self, method):
         """Muestra u oculta el parámetro de paso según la selección"""
-        self.numerical_step_widget.setVisible(method in ["Euler", "Heun", "RK4", "Taylor 2° orden"])
-        self.layout.update()  # Ajustar el tamaño del widget
+        show_step = method in ["Euler", "Heun", "RK4", "Taylor 2° orden"]
+        self.step_label.setVisible(show_step)
+        self.numerical_h.setVisible(show_step)
+        self.layout.update()
 
     def execute_operation(self):
         expression = self.get_input_expression().strip()

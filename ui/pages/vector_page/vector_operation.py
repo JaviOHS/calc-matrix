@@ -26,9 +26,6 @@ class VectorOpWidget(ExpressionOpWidget):
 
     def validate_operation(self):
         expr = self.expression_input.toPlainText().strip()
-
-        if not expr:
-            return False, "La expresión no puede estar vacía"
         
         try:
             self.controller.parser.parse_expression(expr)

@@ -3,7 +3,7 @@ from model.polynomial_manager import PolynomialManager
 from controller.polynomial_controller import PolynomialController
 from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout
 from utils.formatting import format_math_expression
-from utils.spinbox_utils import create_spinbox
+from utils.spinbox_utils import create_float_spinbox
 
 class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
@@ -37,7 +37,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
 
             # Parte de x =
             inline_layout.addWidget(QLabel("x ="))
-            self.x_input = create_spinbox(default_val=1)
+            self.x_input = create_float_spinbox(default_val=1)
             inline_layout.addWidget(self.x_input)
             inline_layout.addStretch()
 
