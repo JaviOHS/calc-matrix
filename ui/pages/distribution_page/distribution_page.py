@@ -12,4 +12,21 @@ class DistributionPage(BasePage):
 
         self.operations = {
             "Simulación de Números Aleatorios": ("distribucion", DistributionOpWidget),
+            "Simulación de Monte Carlo": ("monte_carlo", DistributionOpWidget),
         }
+    
+    def execute_current_operation(self):
+        visible_key = next((k for k, v in self.operations.items() if v[0] == self.current_operation), None)
+        if not visible_key:
+            self.show_message_dialog("🔴 ERROR", "#f44336", f"No se encontró operación para clave '{self.current_operation}'")
+            return
+
+        widget = self.operation_widgets.get(visible_key)
+        if not widget:
+            self.show_message_dialog("🔴 ERROR", "#f44336", "No se encontró el widget de la operación.")
+            return
+        
+        # Capturar el resultado y posible error del widget
+        success, message = widget.on_calculate_clicked()
+        if not success:
+            self.show_message_dialog("🔴 ERROR", "#f44336", message)

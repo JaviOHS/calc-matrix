@@ -135,7 +135,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         second_row.addWidget(self.numerical_x_end)
 
         # Agregar espacio entre secciones
-        second_row.addSpacing(85)  # 20 píxeles de espacio
+        second_row.addSpacing(85)
 
         # Paso h
         self.step_label = QLabel("👣​ Paso h =")

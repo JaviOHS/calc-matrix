@@ -229,7 +229,13 @@
         "icon": "🎲",
         "title": "Simulación de Números Aleatorios",
         "description": "Implementa algoritmos para generar números aleatorios uniformes usando métodos como el de Mersenne Twister, Xorshifft, Congruencia Lineal y otros más."
+      },
+      {
+        "icon": "📊",
+        "title": "Simulación de Monte Carlo",
+        "description": "Aplica el método de Monte Carlo para resolver problemas complejos mediante simulaciones aleatorias."
       }
+
     ],
     "image": {
       "path": "assets/images/intro/deco.png",

@@ -89,7 +89,9 @@ ICONS = {
     'input': '🔍',
     'operation': '🟠',
     'result': '🔵',
-    'roots': '📌',
+    'pin': '📌',
     'error': '❌',
     'matrix': '📊',
+    'green': '🟢',
+    'red': '🔴',
 }

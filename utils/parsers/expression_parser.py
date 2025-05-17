@@ -117,7 +117,7 @@ class ExpressionParser:
             elif "multiply sequence" in error_msg or "can't multiply sequence" in error_msg:
                 raise ValueError("Expresión mal formada. Use · para multiplicación explícita entre términos.")
             elif "invalid syntax" in error_msg:
-                raise ValueError("Sintaxis inválida en la expresión")
+                raise ValueError("Sintaxis inválida en la expresión.")
             else:
                 raise ValueError(f"Error al procesar la expresión: {str(e)}")
 

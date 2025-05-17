@@ -104,7 +104,7 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
                 )
         roots_html += "</div>"
         
-        html_result.append(create_section('Raíces encontradas:', roots_html, COLORS['primary'], ICONS['roots']))
+        html_result.append(create_section('Raíces encontradas:', roots_html, COLORS['primary'], ICONS['pin']))
         
         return "".join(html_result)
 
@@ -215,7 +215,7 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         for poly_name, value in results:
             table_html += (
                 f"<tr>"
-                f"<td style='padding: 5px 10px; color: {COLORS['secondary']}; font-weight: bold;'>{ICONS['roots']} {poly_name}:</td>"
+                f"<td style='padding: 5px 10px; color: {COLORS['secondary']}; font-weight: bold;'>{ICONS['pin']} {poly_name}:</td>"
                 f"<td style='padding: 5px 10px;'>{clean_number(value)}</td>"
                 f"</tr>"
             )
@@ -243,6 +243,39 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         return (
             create_section(title, method_display, COLORS['secondary'], ICONS['operation']) +
             create_section('Números generados:<br>', formatted_numbers, COLORS['primary'], ICONS['result'])
+        )
+
+    def format_monte_carlo_result(result):
+        """Formatea el resultado de la integración Monte Carlo"""
+        # Extraer los datos relevantes
+        success = result.get("success", False)
+        integral_result = result.get("result", "N/A")
+        error = result.get("error", "N/A")
+        n_points = result.get("n_points", "N/A")
+        a = result.get("a", "N/A")
+        b = result.get("b", "N/A")
+        expression = result.get("expression", "N/A")
+
+        # Crear secciones para los parámetros y resultados
+        params_html = (
+            f"<div style='margin-left: 15px;'>"
+            f"<p><b>{ICONS['pin']} Límites:</b> [a = {clean_number(a)}, b = {clean_number(b)}]</p>"
+            f"<p><b>{ICONS['matrix']} Número de puntos:</b> {clean_number(n_points)}</p>"
+            f"<p><b>{ICONS['operation']} Expresión:</b> {format_polynomial(expression)}</p>"
+            f"</div>"
+        )
+
+        result_html = (
+            f"<div style='margin-left: 15px;'>"
+            f"<p><b>{ICONS['green']} Resultado de la integral:</b> {clean_number(integral_result)}</p>"
+            f"<p><b>{ICONS['red']} Error estimado:</b> {clean_number(error)}</p>"
+            f"</div>"
+        )
+
+        # Combinar las secciones en un formato final
+        return (
+            create_section("Parámetros de entrada:", params_html, COLORS["secondary"], ICONS["operation"]) +
+            create_section("Resultado:", result_html, COLORS["primary"], ICONS["result"])
         )
 
     # Modificar la sección principal del método para incluir el nuevo caso
@@ -284,6 +317,9 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             method=method,
             seed=expr["seed"]
         )
+    
+    elif operation_type == "monte_carlo":
+        return format_monte_carlo_result(result)
     
     else:  # Polinomios y expresiones genéricas
         formatted_expr = format_polynomial(expr)

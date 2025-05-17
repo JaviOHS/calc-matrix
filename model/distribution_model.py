@@ -1,5 +1,7 @@
 from model._custom_generators import *
 from ui.pages.distribution_page.method_config import METHOD_CONFIG
+import numpy as np
+from sympy import symbols, lambdify, sympify
 
 class Distribution:
     def __init__(self, algorithm="mersenne", seed=None, **kwargs):
@@ -49,4 +51,58 @@ class Distribution:
 
     def get_numbers(self):
         return self.numbers
-    
+
+    def monte_carlo_integration(self, expr, a, b, n_points=10000):
+        """
+        Calcula la integral definida de una expresión matemática en el intervalo [a, b]
+        utilizando el método de Monte Carlo.
+        
+        Args:
+            expr: Expresión matemática (string o expresión simbólica)
+            a: Límite inferior de integración
+            b: Límite superior de integración
+            n_points: Número de puntos aleatorios a generar
+            
+        Returns:
+            dict: Resultado de la integración con información adicional
+        """
+        try:
+            # Convertir la expresión a una función evaluable
+            x = symbols('x')
+            if isinstance(expr, str):
+                sym_expr = sympify(expr)
+            else:
+                sym_expr = expr
+                
+            f = lambdify(x, sym_expr, 'numpy')
+            
+            # Generar puntos aleatorios en el intervalo [a, b]
+            if not self.numbers or len(self.numbers) < n_points:
+                self.generate_numbers(n_points)
+                
+            # Convertir los números aleatorios al intervalo [a, b]
+            x_random = np.array(self.numbers[:n_points]) * (b - a) + a
+            
+            # Evaluar la función en los puntos aleatorios
+            try:
+                f_values = f(x_random)
+            except Exception as e:
+                raise ValueError(f"Error al evaluar la función: {str(e)}")
+            
+            # Calcular la integral aproximada
+            integral_result = (b - a) * np.mean(f_values)
+            
+            # Calcular el error estándar
+            std_error = (b - a) * np.std(f_values) / np.sqrt(n_points)
+            
+            return {
+                "result": float(integral_result),
+                "error": float(std_error),
+                "n_points": n_points,
+                "a": a,
+                "b": b,
+                "expression": str(sym_expr)
+            }
+            
+        except Exception as e:
+            raise ValueError(f"Error en la integración Monte Carlo: {str(e)}")
