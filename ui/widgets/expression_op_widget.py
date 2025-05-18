@@ -36,6 +36,9 @@ class ExpressionOpWidget(MathOperationWidget):
         title_label.setObjectName("expressionLabel")
         input_layout.addWidget(title_label)
 
+        # Inicializar canvas_dialog_manager siempre, independientemente de allow_expression
+        self.canvas_dialog_manager = CanvasDialogManager(self)
+
         # Solo agregar el QTextEdit de expresión si allow_expression es True
         if self.allow_expression:
             self.expression_input = QTextEdit()
@@ -45,7 +48,6 @@ class ExpressionOpWidget(MathOperationWidget):
             input_layout.addWidget(self.expression_input)
 
             self.expression_formatter = ExpressionFormatterInput(self.expression_input)
-            self.canvas_dialog_manager = CanvasDialogManager(self)
         
         # Result section (if needed)
         if not self.use_dialog_for_result:

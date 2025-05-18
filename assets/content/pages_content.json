@@ -222,7 +222,7 @@
     }
   },
   "distribution": {
-    "title": "Distribuciones Aleatorias",
+    "title": "Distribuciones Estadísticas",
     "description": "<p>🔍 <b>Adéntrate en el mundo de las distribuciones estadísticas</b>. Desde la normal hasta la binomial, aquí aprenderás a manejar distribuciones con facilidad.</p><p>💡 <b>¿Qué puedes hacer?</b></p>",
     "features": [
       {
@@ -234,8 +234,12 @@
         "icon": "📊",
         "title": "Simulación de Monte Carlo",
         "description": "Aplica el método de Monte Carlo para resolver problemas complejos mediante simulaciones aleatorias."
+      },
+      {
+        "icon": "🦠",
+        "title": "Propagación de Epidemias",
+        "description": "Simula la propagación de epidemias utilizando el método de Markov. Comprende su aplicación en epidemiología."
       }
-
     ],
     "image": {
       "path": "assets/images/intro/deco.png",
@@ -251,8 +255,7 @@
       "title": "¿Sabías que...?",
       "fact": "Las distribuciones estadísticas son fundamentales en la inferencia estadística. Permiten modelar fenómenos aleatorios y realizar predicciones."
     }
-  }
-  ,
+  },
   "about": {
     "title": "Acerca de {CalcMatrix} 🚀",
     "description": "<p>👋 <b>¡Hola!</b> En esta sección encontrarás información sobre el desarrollo de CalcMatrix.",

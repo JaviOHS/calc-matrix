@@ -1,6 +1,6 @@
 from controller.graph_controller import GraphController 
 from model.graph_manager import GraphManager
-from sympy import symbols, diff, integrate, sympify, Function, lambdify
+from sympy import symbols, diff, integrate, sympify, Function
 import sympy as sp
 import numpy as np
 

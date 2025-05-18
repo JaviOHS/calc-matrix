@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QHBoxLayout
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from controller.distribution_controller import DistributionController
 from model.distribution_manager import DistributionManager
-from .method_config import METHOD_CONFIG
+from .method_config import *
 from utils.formatting import format_math_expression
 from utils.spinbox_utils import create_int_spinbox, create_float_spinbox
 
@@ -16,6 +16,11 @@ class DistributionOpWidget(ExpressionOpWidget):
             placeholder = "Ejemplo: x^2 + 3x + 2"
             allow_expression = True
             use_dialog_for_result = True
+        elif operation_type == "markov_epidemic":
+            input_label = "Ingrese los parámetros para la simulación de epidemias:"
+            placeholder = None
+            allow_expression = False
+            use_dialog_for_result = True
         else:
             input_label = "Seleccione el método e ingrese los parámetros:"
             placeholder = None
@@ -27,6 +32,8 @@ class DistributionOpWidget(ExpressionOpWidget):
         # Configurar interfaz según la operación
         if operation_type == "monte_carlo":
             self.setup_monte_carlo_ui()
+        elif operation_type == "markov_epidemic":
+            self.setup_markov_epidemic_ui()
         else:
             self.setup_distribution_ui()
 
@@ -41,8 +48,8 @@ class DistributionOpWidget(ExpressionOpWidget):
         self.update_dynamic_fields()  # Inicializar campos
 
     def setup_monte_carlo_ui(self):
-        """Configura la interfaz para integración Monte Carlo"""
-        # Método de generación de números aleatorios (primera fila)
+        """Configura la interfaz para integración Monte Carlo usando la configuración"""
+        # Método selector
         mc_method_container = QWidget()
         mc_method_layout = QHBoxLayout(mc_method_container)
         mc_method_layout.setContentsMargins(0, 0, 0, 0)
@@ -56,40 +63,41 @@ class DistributionOpWidget(ExpressionOpWidget):
         mc_method_layout.addStretch()
         self.input_layout.addWidget(mc_method_container)
 
-        # Límites, puntos y semilla (segunda fila)
-        params_container = QWidget()
-        params_layout = QHBoxLayout(params_container)
-        params_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # Límites de integración
-        params_layout.addWidget(QLabel("📌 Límites: x ="))
-        self.mc_lower_limit = create_float_spinbox(default_val=0)
-        self.mc_lower_limit.setFixedWidth(60)
-        params_layout.addWidget(self.mc_lower_limit)
-        
-        params_layout.addWidget(QLabel("→"))
-        self.mc_upper_limit = create_float_spinbox(default_val=1)
-        self.mc_upper_limit.setFixedWidth(60)
-        params_layout.addWidget(self.mc_upper_limit)
-        params_layout.addSpacing(65)
-        
-        # Número de puntos
-        params_layout.addWidget(QLabel("📊 Número de puntos:"))
-        self.mc_points = create_int_spinbox(min_val=100, max_val=1000000, default_val=10000, step=1000)
-        self.mc_points.setFixedWidth(100)
-        params_layout.addWidget(self.mc_points)
-        params_layout.addSpacing(65)
-        
-        # Semilla
-        params_layout.addWidget(QLabel("🔑 Semilla:"))
-        self.mc_seed = create_int_spinbox(min_val=0, max_val=999999, default_val=42)
-        self.mc_seed.setFixedWidth(100)
-        params_layout.addWidget(self.mc_seed)
-        params_layout.addSpacing(65)
-        
-        params_layout.addStretch()
+        # Parámetros de Monte Carlo
+        params_container = self.create_parameter_container(MONTE_CARLO_CONFIG["fields"])
         self.input_layout.addWidget(params_container)
         
+    def setup_markov_epidemic_ui(self):
+        """Configura la interfaz para simulación de epidemias usando la configuración"""
+        # Método selector
+        markov_method_container = QWidget()
+        markov_method_layout = QHBoxLayout(markov_method_container)
+        markov_method_layout.setContentsMargins(0, 0, 0, 0)
+        
+        markov_method_layout.addWidget(QLabel("🟠 Algoritmo aleatorio:"))
+        self.markov_method_combo = QComboBox()
+        for key, config in METHOD_CONFIG.items():
+            self.markov_method_combo.addItem(config["display_name"], key)
+        markov_method_layout.addWidget(self.markov_method_combo)
+        
+        markov_method_layout.addStretch()
+        self.input_layout.addWidget(markov_method_container)
+
+        # Parámetros de población
+        self.input_layout.addWidget(
+            self.create_parameter_container(MARKOV_CONFIG["population_params"])
+        )
+        
+        # Parámetros de tasas
+        self.input_layout.addWidget(
+            self.create_parameter_container(MARKOV_CONFIG["rate_params"])
+        )
+        
+        # Parámetros de simulación
+        self.input_layout.addWidget(
+            self.create_parameter_container(MARKOV_CONFIG["simulation_params"])
+        )
+
     def create_method_selector(self):
         method_container = QWidget()
         method_layout = QHBoxLayout(method_container)
@@ -154,9 +162,10 @@ class DistributionOpWidget(ExpressionOpWidget):
         return "mersenne"  # Valor por defecto
 
     def perform_operation(self):
-        # Determinar qué operación realizar basada en operation_type
         if self.operation_type == "monte_carlo":
             return self.perform_monte_carlo_integration()
+        elif self.operation_type == "markov_epidemic":
+            return self.perform_markov_epidemic_simulation()
         else:
             return self.perform_random_generation()
 
@@ -196,18 +205,18 @@ class DistributionOpWidget(ExpressionOpWidget):
 
     def perform_monte_carlo_integration(self):
         try:
-            # Recopilar datos de la interfaz
+            # Recopilar datos de la interfaz usando el sufijo _spinbox
             expression = self.get_input_expression().strip()
                 
-            a = self.mc_lower_limit.value()
-            b = self.mc_upper_limit.value()
+            a = self.lower_limit_spinbox.value()
+            b = self.upper_limit_spinbox.value()
             
             if a >= b:
                 return False, "El límite inferior debe ser menor que el superior."
                 
-            n_points = self.mc_points.value()
+            n_points = self.points_spinbox.value()
             algorithm = self.mc_method_combo.currentData()
-            seed = self.mc_seed.value()
+            seed = self.seed_spinbox.value()
             
             # Preparar los parámetros para el controlador
             params = {
@@ -230,10 +239,52 @@ class DistributionOpWidget(ExpressionOpWidget):
                     operation_type="monte_carlo",
                     method="integration"
                 )
-                # Devolver el HTML en un diccionario junto con la indicación de no mostrar imagen
-                return True, {"html": formatted_output, "canvas": None}
+                return True, {
+                    "html": formatted_output,
+                    "canvas": None  # Asegurar que no se envía canvas
+                }
             else:
                 return False, result.get("error", "Error desconocido.")
+            
+        except Exception as e:
+            return False, str(e)
+
+    def perform_markov_epidemic_simulation(self):
+        """Ejecuta la simulación del modelo de Markov para epidemias"""
+        try:
+            # Recopilar parámetros de la interfaz usando el sufijo _spinbox
+            params = {
+                "population": self.population_spinbox.value(),
+                "initial_infected": self.initial_infected_spinbox.value(),
+                "initial_recovered": self.initial_recovered_spinbox.value(),
+                "beta": self.beta_spinbox.value(),
+                "gamma": self.gamma_spinbox.value(),
+                "days": self.days_spinbox.value(),
+                "dt": self.dt_spinbox.value(),
+                "algorithm": self.markov_method_combo.currentData(),
+                "seed": self.seed_spinbox.value()
+            }
+            
+            # Ejecutar simulación a través del controlador
+            result = self.controller.execute_operation("markov_epidemic", **params)
+            
+            if result.get("success", False):
+                epidemic_data = result.get("result", {})
+                
+                # Usar el formateador para generar el HTML
+                formatted_output = format_math_expression(
+                    expr=params,
+                    result=epidemic_data,
+                    operation_type="markov_epidemic"
+                )
+                
+                return True, {
+                    "html": formatted_output,
+                    "canvas": epidemic_data.get("canvas"),
+                    "image_path": None
+                }
+            else:
+                return False, result.get("error", "Error desconocido en la simulación")
                 
         except Exception as e:
             return False, str(e)
@@ -246,30 +297,75 @@ class DistributionOpWidget(ExpressionOpWidget):
         else:
             error_msg = f"{result}"
             return False, error_msg
+        
+    def create_parameter_container(self, fields, spacing=20):
+        container = QWidget()
+        layout = QHBoxLayout(container)
+        layout.setContentsMargins(0, 0, 0, 0)
+        
+        for field in fields:
+            layout.addWidget(QLabel(field["label"]))
+            
+            if field["type"] == "float":
+                spinbox = create_float_spinbox(
+                    min_val=field["min"],
+                    max_val=field["max"],
+                    default_val=field["default"],
+                    step=field.get("step", 0.1),
+                    decimals=field.get("decimals", 2),
+                    width=field["width"]
+                )
+            else:  # int
+                spinbox = create_int_spinbox(
+                    min_val=field["min"],
+                    max_val=field["max"],
+                    default_val=field["default"],
+                    step=field.get("step", 1),
+                    width=field["width"]
+                )
+                
+            setattr(self, f"{field['name']}_spinbox", spinbox)
+            layout.addWidget(spinbox)
+            
+            if spacing:
+                layout.addSpacing(spacing)
+                
+        layout.addStretch()
+        return container
 
     def process_operation_result(self, result):
-        """Sobrescribir el método para manejar el caso especial de Monte Carlo"""
+        """Procesa el resultado de la operación para mostrar en el diálogo"""
         try:
-            if self.operation_type == "monte_carlo" and isinstance(result, dict) and "html" in result:
+            if isinstance(result, dict) and "html" in result:
                 html_content = result.get("html")
                 canvas = result.get("canvas")
-                image_path = result.get("image_path")  # Puede ser None para no mostrar imagen
                 
-                if self.use_dialog_for_result:
-                    self.canvas_dialog_manager.show_result_dialog(
-                        html_content=html_content, 
-                        canvas=canvas,
-                        image_path=image_path
-                    )
-                else:
-                    # Para el caso estándar, mostrar resultado en el widget
-                    self.display_result(html_content)
-                    if canvas:
-                        self.show_canvas_dialog(canvas)
-                return  # Salir del método si ya manejamos el caso especial
+                dialog_config = {
+                    "markov_epidemic": {
+                        "title": "🦠 SIMULACIÓN DE EPIDEMIA",
+                        "title_color": "#ff8103"
+                    },
+                    "monte_carlo": {
+                        "title": "📊 INTEGRACIÓN MONTE CARLO",
+                        "title_color": "#2196F3"
+                    }
+                }
+                
+                # Obtener la configuración específica para el tipo de operación
+                config = dialog_config.get(self.operation_type, {})
+                
+                self.canvas_dialog_manager.show_result_dialog(
+                    html_content=html_content,
+                    canvas=canvas,
+                    title=config.get("title"),
+                    title_color=config.get("title_color"),
+                    image_path=None  # Forzar None para no mostrar imagen
+                )
+                return
             
-            # Para otros casos, llamar al método original
+            # Para otros casos, usar el comportamiento por defecto
             super().process_operation_result(result)
+            
         except Exception as e:
             error_html = f"<div style='color: #D32F2F;'>❌ Error al procesar el resultado: {str(e)}</div>"
             if self.use_dialog_for_result:

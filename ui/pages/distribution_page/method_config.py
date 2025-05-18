@@ -59,3 +59,29 @@ METHOD_CONFIG = {
         ]
     }
 }
+
+MONTE_CARLO_CONFIG = {
+    "fields": [
+        {"name": "lower_limit", "label": "📌 Límites: x =", "type": "float", "default": 0, "min": -1000, "max": 1000, "width": 60},
+        {"name": "upper_limit", "label": "→", "type": "float", "default": 1, "min": -1000, "max": 1000, "width": 60},
+        {"name": "points", "label": "📊 Número de puntos:", "type": "int", "default": 10000, "min": 100, "max": 1000000, "step": 1000, "width": 100},
+        {"name": "seed", "label": "🔑 Semilla:", "type": "int", "default": 42, "min": 0, "max": 999999, "width": 100}
+    ]
+}
+
+MARKOV_CONFIG = {
+    "population_params": [
+        {"name": "population", "label": "👥 Población total:", "type": "int", "default": 45000, "min": 10, "max": 1000000, "step": 100, "width": 100},
+        {"name": "initial_infected", "label": "🦠 Infectados iniciales:", "type": "int", "default": 20, "min": 1, "max": 1000, "width": 80},
+        {"name": "initial_recovered", "label": "💪 Recuperados iniciales:", "type": "int", "default": 0, "min": 0, "max": 100, "width": 80}
+    ],
+    "rate_params": [
+        {"name": "beta", "label": "🔄 Beta (tasa de infección):", "type": "float", "default": 0.45, "min": 0.0, "max": 1.0, "step": 0.001, "decimals": 3, "width": 80},
+        {"name": "gamma", "label": "💊 Gamma (tasa de recuperación):", "type": "float", "default": 0.25, "min": 0.0, "max": 1.0, "step": 0.05, "width": 80}
+    ],
+    "simulation_params": [
+        {"name": "days", "label": "📅 Días a simular:", "type": "int", "default": 30, "min": 1, "max": 365, "width": 80},
+        {"name": "dt", "label": "⏱️ Intervalo de tiempo (dt):", "type": "float", "default": 0.1, "min": 0.01, "max": 1.0, "width": 80},
+        {"name": "seed", "label": "🔑 Semilla:", "type": "int", "default": 42, "min": 0, "max": 999999, "width": 80}
+    ]
+}

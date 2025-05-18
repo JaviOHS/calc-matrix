@@ -1,7 +1,9 @@
-from model._custom_generators import *
-from ui.pages.distribution_page.method_config import METHOD_CONFIG
 import numpy as np
 from sympy import symbols, lambdify, sympify
+from model._custom_generators import *
+from model.graph_manager import GraphManager
+from controller.graph_controller import GraphController
+from ui.pages.distribution_page.method_config import METHOD_CONFIG
 
 class Distribution:
     def __init__(self, algorithm="mersenne", seed=None, **kwargs):
@@ -10,6 +12,7 @@ class Distribution:
         self.kwargs = kwargs
         self.generator = self._create_generator()
         self.numbers = []
+        self.graph_controller = GraphController(GraphManager())
 
     def _create_generator(self):
         if self.algorithm == "mersenne":
@@ -53,21 +56,8 @@ class Distribution:
         return self.numbers
 
     def monte_carlo_integration(self, expr, a, b, n_points=10000):
-        """
-        Calcula la integral definida de una expresión matemática en el intervalo [a, b]
-        utilizando el método de Monte Carlo.
-        
-        Args:
-            expr: Expresión matemática (string o expresión simbólica)
-            a: Límite inferior de integración
-            b: Límite superior de integración
-            n_points: Número de puntos aleatorios a generar
-            
-        Returns:
-            dict: Resultado de la integración con información adicional
-        """
+        """Calcula la integral definida de una expresión matemática en el intervalo [a, b] utilizando el método de Monte Carlo."""
         try:
-            # Convertir la expresión a una función evaluable
             x = symbols('x')
             if isinstance(expr, str):
                 sym_expr = sympify(expr)
@@ -82,18 +72,15 @@ class Distribution:
                 
             # Convertir los números aleatorios al intervalo [a, b]
             x_random = np.array(self.numbers[:n_points]) * (b - a) + a
-            
-            # Evaluar la función en los puntos aleatorios
+
             try:
                 f_values = f(x_random)
             except Exception as e:
                 raise ValueError(f"Error al evaluar la función: {str(e)}")
             
-            # Calcular la integral aproximada
-            integral_result = (b - a) * np.mean(f_values)
+            integral_result = (b - a) * np.mean(f_values) # Calcular la integral aproximada
             
-            # Calcular el error estándar
-            std_error = (b - a) * np.std(f_values) / np.sqrt(n_points)
+            std_error = (b - a) * np.std(f_values) / np.sqrt(n_points) # Calcular el error estándar
             
             return {
                 "result": float(integral_result),
@@ -106,3 +93,72 @@ class Distribution:
             
         except Exception as e:
             raise ValueError(f"Error en la integración Monte Carlo: {str(e)}")
+    
+    def markov_epidemic_simulation(self, params):
+        try:
+            # Extraer parámetros
+            N = int(params.get('population', 1000))
+            I0 = int(params.get('initial_infected', 1))
+            R0 = int(params.get('initial_recovered', 0))
+            beta = float(params.get('beta', 0.3))
+            gamma = float(params.get('gamma', 0.1))
+            days = int(params.get('days', 30))
+            dt = float(params.get('dt', 0.1))
+
+            # Inicializar estados
+            S0 = N - I0 - R0
+            S, I, R = [S0], [I0], [R0]
+            times = [0]
+
+            # Simulación basada en ecuaciones diferenciales
+            steps = int(days / dt)
+            for step in range(steps):
+                current_S = S[-1]
+                current_I = I[-1]
+                current_R = R[-1]
+
+                # Calcular cambios usando las ecuaciones diferenciales
+                dS = -beta * current_S * current_I / N * dt
+                dI = (beta * current_S * current_I / N - gamma * current_I) * dt
+                dR = gamma * current_I * dt
+
+                # Actualizar estados
+                next_S = current_S + dS
+                next_I = current_I + dI
+                next_R = current_R + dR
+
+                # Asegurar que los valores sean consistentes
+                next_S = max(0, next_S)
+                next_I = max(0, next_I)
+                next_R = max(0, next_R)
+
+                S.append(next_S)
+                I.append(next_I)
+                R.append(next_R)
+                times.append(times[-1] + dt)
+
+            # Generar el gráfico
+            canvas = self.graph_controller.create_epidemic_plot(times, S, I, R, params)
+
+            return {
+                "times": times,
+                "susceptible": S,
+                "infected": I,
+                "recovered": R,
+                "parameters": {
+                    "population": N,
+                    "initial_infected": I0,
+                    "initial_recovered": R0,
+                    "initial_susceptible": S0,
+                    "beta": beta,
+                    "gamma": gamma,
+                    "days": days,
+                    "dt": dt,
+                    "R0": beta / gamma
+                },
+                "canvas": canvas
+            }
+
+        except Exception as e:
+            raise ValueError(f"Error en la simulación de Markov: {str(e)}")
+

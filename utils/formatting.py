@@ -258,17 +258,21 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
 
         # Crear secciones para los parámetros y resultados
         params_html = (
-            f"<div style='margin-left: 15px;'>"
-            f"<p><b>{ICONS['pin']} Límites:</b> [a = {clean_number(a)}, b = {clean_number(b)}]</p>"
-            f"<p><b>{ICONS['matrix']} Número de puntos:</b> {clean_number(n_points)}</p>"
-            f"<p><b>{ICONS['operation']} Expresión:</b> {format_polynomial(expression)}</p>"
+            f"<div style='margin-left: 2px;'>"
+            f"<ul>"
+            f"<li><b>Límites:</b> [a = {clean_number(a)}, b = {clean_number(b)}]</li>"
+            f"<li><b>Número de puntos:</b> {clean_number(n_points)}</li>"
+            f"<li><b>Expresión:</b> {format_polynomial(expression)}</li>"
+            f"</ul>"
             f"</div>"
         )
 
         result_html = (
-            f"<div style='margin-left: 15px;'>"
-            f"<p><b>{ICONS['green']} Resultado de la integral:</b> {clean_number(integral_result)}</p>"
-            f"<p><b>{ICONS['red']} Error estimado:</b> {clean_number(error)}</p>"
+            f"<div style='margin-left: 2px;'>"
+            f"<ul>"
+            f"<li><b>Resultado de la integral:</b> {clean_number(integral_result)}</li>"
+            f"<li><b>Error estimado:</b> {clean_number(error)}</li>"
+            f"</ul>"
             f"</div>"
         )
 
@@ -278,9 +282,94 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
             create_section("Resultado:", result_html, COLORS["primary"], ICONS["result"])
         )
 
+    def format_markov_epidemic_result(params, epidemic_data):
+        """Formatea el resultado de la simulación de epidemias"""
+        # Calcular el R₀ (número reproductivo básico)
+        r0 = params['beta'] / params['gamma']
+        
+        # Preparar la sección de parámetros con mejor formato y colores
+        params_html = (
+            f"<div style='padding: 15px;'>"
+            f"<ul style='list-style-type: '📌'; padding: 0; margin: 0;'>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Población total:</span> {params['population']}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Infectados iniciales:</span> {params['initial_infected']}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Recuperados iniciales:</span> {params['initial_recovered']}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Susceptibles iniciales:</span> {params['population'] - params['initial_infected'] - params['initial_recovered']}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Tasa de infección (β):</span> {params['beta']:.3f}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Tasa de recuperación (γ):</span> {params['gamma']:.3f}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Número reproductivo (R₀):</span> {r0:.2f}</li>"
+            f"</ul>"
+            f"</div>"
+        )
+
+        # Análisis con mejor formato visual
+        analysis_html = (
+            f"<div style='padding: 15px; border-radius: 8px;'>"
+        )
+
+        # Pico de infección
+        infected = epidemic_data.get('infected', [])
+        times = epidemic_data.get('times', [])
+        if infected:
+            max_infected = max(infected)
+            max_infected_day = times[infected.index(max_infected)]
+            analysis_html += (
+                f"<div style='margin: 8px 0; padding: 8px; border-left: 3px solid #CE723B;'>"
+                f"<p style='margin: 0;'><span style='color: #f44336; font-weight: bold;'>🔴 Pico de infección:</span> "
+                f"{int(max_infected)} personas (Día {max_infected_day:.0f})</p>"
+                f"</div>"
+            )
+
+        # Análisis del R₀
+        analysis_html += (
+            f"<div style='margin: 8px 0; padding: 8px;'>"
+            f"<p style='margin: 0;'><span style='font-weight: bold;'>📊 Análisis del R₀:</span><br>"
+            f"<span style='color: {'#ff8103' if r0 > 1 else '#4FC1FF'};'>"
+            f"{'La epidemia está en fase de crecimiento' if r0 > 1 else 'La epidemia está en fase de retroceso'}"
+            f"</span> (R₀ = {r0:.2f})</p>"
+            f"</div>"
+        )
+
+        # Duración de la epidemia
+        duration = next((t for t, i in zip(times, infected) if i < 1), params['days'])
+        analysis_html += (
+            f"<div style='margin: 8px 0; padding: 8px;'>"
+            f"<p style='margin: 0;'><span style='font-weight: bold;'>⏳ Duración estimada:</span> {duration:.0f} días</p>"
+            f"</div>"
+        )
+
+        # Porcentaje final
+        final_infected = epidemic_data.get('recovered', [])[-1]
+        final_infected_percentage = (final_infected / params['population']) * 100
+        analysis_html += (
+            f"<div style='margin: 8px 0; padding: 8px;'>"
+            f"<p style='margin: 0;'><span style='font-weight: bold;'>📈 Población infectada total:</span> {final_infected_percentage:.2f}%</p>"
+            f"</div>"
+            f"</div>"
+        )
+
+        return (
+            create_section(
+                "Parámetros de la simulación:", 
+                params_html, 
+                COLORS['secondary'], 
+                ICONS['operation']
+            ) +
+            create_section(
+                "Análisis de resultados:", 
+                analysis_html,
+                COLORS['primary'], 
+                ICONS['result']
+            )
+        )
+
     # Modificar la sección principal del método para incluir el nuevo caso
     if operation_type == "evaluacion":
         return format_evaluation_result(expr, result)
+
+    # Agregar el caso de Markov en la sección principal del método
+    if operation_type == "markov_epidemic":
+        return format_markov_epidemic_result(expr, result)
 
     # Formatear según el tipo de operación
     if operation_type in ["vector", "matrix"]:
