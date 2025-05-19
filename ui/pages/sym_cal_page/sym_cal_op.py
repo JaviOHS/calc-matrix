@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QComboBox, QVBoxLayout
 from ui.widgets.expression_op_widget import ExpressionOpWidget
-from utils.formatting import format_math_expression
+from utils.formating.formatting import format_math_expression
 from utils.spinbox_utils import create_float_spinbox
 
 class SymCalOpWidget(ExpressionOpWidget):
@@ -8,12 +8,12 @@ class SymCalOpWidget(ExpressionOpWidget):
         self.manager = manager
         self.controller = controller
         self.operation_type = operation_type
-        use_dialog_for_result = True if operation_type == "ecuaciones_diferenciales" else False
+        use_dialog_for_result = True if operation_type == "differential_equation" else False
 
         input_label = f"Ingresa una expresión para realizar cálculo de {operation_type.replace("_", " ")}:"
         placeholder = "Ejemplo: 2x^2 + 2x"
         
-        if operation_type == "ecuaciones_diferenciales":
+        if operation_type == "differential_equation":
             placeholder = "Ejemplos válidos: \n- y' = x + y\n- dy/dx = x + y"
         super().__init__(manager, controller, operation_type=operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=use_dialog_for_result)
 
@@ -24,7 +24,7 @@ class SymCalOpWidget(ExpressionOpWidget):
         if not expression:
             return False, "Por favor ingresa una expresión para continuar."
         try:
-            if self.operation_type == "ecuaciones_diferenciales":
+            if self.operation_type == "differential_equation":
                 self.controller.parser.parse_equation(expression)
             else:
                 self.controller.parser.parse_expression(expression)
@@ -33,9 +33,9 @@ class SymCalOpWidget(ExpressionOpWidget):
             return False, f"Expresión inválida: {str(e)}"
 
     def add_additional_inputs(self):
-        if self.operation_type == "integrales":
+        if self.operation_type == "integral":
             self.add_integral_limits_inputs()
-        elif self.operation_type == "ecuaciones_diferenciales":
+        elif self.operation_type == "differential_equation":
             self.add_differential_equation_inputs()
 
     def add_integral_limits_inputs(self):
@@ -165,9 +165,9 @@ class SymCalOpWidget(ExpressionOpWidget):
 
     def execute_operation(self):
         expression = self.get_input_expression().strip()
-        if self.operation_type == "derivadas":
+        if self.operation_type == "derivative":
             result = self.controller.compute_derivative(expression)
-        elif self.operation_type == "integrales":
+        elif self.operation_type == "integral":
             if hasattr(self, 'integral_type') and self.integral_type.currentData() == "definite":
                 # Para integral definida
                 limits = (self.lower_limit.value(), self.upper_limit.value())
@@ -175,7 +175,7 @@ class SymCalOpWidget(ExpressionOpWidget):
             else:
                 # Para integral indefinida
                 result = self.controller.compute_integral(expression)
-        elif self.operation_type == "ecuaciones_diferenciales":
+        elif self.operation_type == "differential_equation":
             x_range = (self.numerical_x_start.value(), self.numerical_x_end.value())
             initial_condition = (self.numerical_x0.value(), self.numerical_y0.value())
             
@@ -212,7 +212,7 @@ class SymCalOpWidget(ExpressionOpWidget):
     def prepare_result_display(self, result):
         expr_str = self.get_input_expression().strip()
         try:
-            if self.operation_type == "ecuaciones_diferenciales":
+            if self.operation_type in ["derivative", "integral", "differential_equation"]:
                 parsed_expr = self.controller.parser.parse_equation(expr_str)
                 method = self.de_method_selector.currentData() if hasattr(self, 'de_method_selector') else None
                 

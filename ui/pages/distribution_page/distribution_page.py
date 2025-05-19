@@ -11,7 +11,7 @@ class DistributionPage(BasePage):
 
 
         self.operations = {
-            "Simulación de Números Aleatorios": ("distribucion", DistributionOpWidget),
+            "Simulación de Números Aleatorios": ("random_numbers", DistributionOpWidget),
             "Simulación de Monte Carlo": ("monte_carlo", DistributionOpWidget),
             "Propagación de Epidemias - Markov": ("markov_epidemic", DistributionOpWidget),
         }

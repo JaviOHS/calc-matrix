@@ -114,7 +114,7 @@ class ExpressionOpWidget(MathOperationWidget):
         """Procesa el resultado de la operación para mostrarlo adecuadamente"""
         try:
             # CASO ESPECIAL: Ecuaciones diferenciales con capacidad de comparación
-            if self.operation_type == "ecuaciones_diferenciales" and isinstance(result, dict) and "canvas" in result:
+            if self.operation_type == "differential_equation" and isinstance(result, dict) and "canvas" in result:
                 # Verificar si tenemos los atributos necesarios para la comparación
                 if all(hasattr(self, attr) for attr in ['numerical_x_start', 'numerical_x_end', 'numerical_x0', 'numerical_y0', 'de_method_selector']):
                     # Extraer HTML y canvas

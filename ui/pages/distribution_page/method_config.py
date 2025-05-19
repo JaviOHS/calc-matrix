@@ -85,3 +85,43 @@ MARKOV_CONFIG = {
         {"name": "seed", "label": "🔑 Semilla:", "type": "int", "default": 42, "min": 0, "max": 999999, "width": 80}
     ]
 }
+
+TRANSFORM_CONFIG = {
+    "normal": {
+        "display_name": "Normal (Box-Muller)",
+        "fields": []
+    },
+    "exponential": {
+        "display_name": "Exponencial",
+        "fields": [
+            {"name": "lambda", "label": "λ (lambda):", "type": "float", "default": 1.0, "min": 0.1, "max": 10.0, "step": 0.1, "decimals": 2, "width": 80}
+        ]
+    },
+    "poisson": {
+        "display_name": "Poisson",
+        "fields": [
+            {"name": "lambda", "label": "λ (lambda):", "type": "float", "default": 1.0, "min": 0.1, "max": 20.0, "step": 0.1, "decimals": 2, "width": 80}
+        ]
+    },
+    "binomial": {
+        "display_name": "Binomial",
+        "fields": [
+            {"name": "n", "label": "n (intentos):", "type": "int", "default": 10, "min": 1, "max": 1000, "step": 1, "width": 80},
+            {"name": "p", "label": "p (probabilidad):", "type": "float", "default": 0.5, "min": 0.0, "max": 1.0, "step": 0.01, "decimals": 2, "width": 80}
+        ]
+    },
+    "gamma": {
+        "display_name": "Gamma",
+        "fields": [
+            {"name": "alpha", "label": "α (forma):", "type": "float", "default": 1.0, "min": 1.0, "max": 10.0, "step": 0.1, "decimals": 2, "width": 80},
+            {"name": "beta", "label": "β (escala):", "type": "float", "default": 1.0, "min": 0.1, "max": 10.0, "step": 0.1, "decimals": 2, "width": 80}
+        ]
+    },
+    "beta": {
+        "display_name": "Beta",
+        "fields": [
+            {"name": "alpha", "label": "α (forma 1):", "type": "float", "default": 2.0, "min": 0.1, "max": 10.0, "step": 0.1, "decimals": 2, "width": 80},
+            {"name": "beta", "label": "β (forma 2):", "type": "float", "default": 2.0, "min": 0.1, "max": 10.0, "step": 0.1, "decimals": 2, "width": 80}
+        ]
+    }
+}

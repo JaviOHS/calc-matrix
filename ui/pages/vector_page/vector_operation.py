@@ -2,7 +2,7 @@ from ui.widgets.expression_op_widget import ExpressionOpWidget
 from model.vector_manager import VectorManager
 from controller.vector_controller import VectorController
 import re
-from utils.formatting import format_math_expression
+from utils.formating.formatting import format_math_expression
 
 ALLOWED_VECTOR_CHARS = re.compile(r'^[\[\]\d,\s+\-*/.\·]*$')
 class VectorOpWidget(ExpressionOpWidget):

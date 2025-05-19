@@ -11,9 +11,9 @@ class SymCalPage(BasePage):
 
 
         self.operations = {
-            "Derivación": ("derivadas", SymCalOpWidget),
-            "Integración": ("integrales", SymCalOpWidget),
-            "Ecuaciones Diferenciales": ("ecuaciones_diferenciales", SymCalOpWidget),
+            "Derivación": ("derivative", SymCalOpWidget),
+            "Integración": ("integral", SymCalOpWidget),
+            "Ecuaciones Diferenciales": ("differential_equation", SymCalOpWidget),
         }
 
     def execute_current_operation(self):

@@ -227,8 +227,8 @@
     "features": [
       {
         "icon": "🎲",
-        "title": "Simulación de Números Aleatorios",
-        "description": "Implementa algoritmos para generar números aleatorios uniformes usando métodos como el de Mersenne Twister, Xorshifft, Congruencia Lineal y otros más."
+        "title": "Generación y Transformación de Números Aleatorios",
+        "description": "Genera números aleatorios y transforma distribuciones. Comprende su aplicación en simulaciones."
       },
       {
         "icon": "📊",

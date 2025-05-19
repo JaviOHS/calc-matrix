@@ -4,6 +4,7 @@ from model._custom_generators import *
 from model.graph_manager import GraphManager
 from controller.graph_controller import GraphController
 from ui.pages.distribution_page.method_config import METHOD_CONFIG
+from model._dis_transform import DistributionTransformer
 
 class Distribution:
     def __init__(self, algorithm="mersenne", seed=None, **kwargs):
@@ -13,6 +14,7 @@ class Distribution:
         self.generator = self._create_generator()
         self.numbers = []
         self.graph_controller = GraphController(GraphManager())
+        self.transformer = DistributionTransformer()
 
     def _create_generator(self):
         if self.algorithm == "mersenne":
@@ -161,4 +163,38 @@ class Distribution:
 
         except Exception as e:
             raise ValueError(f"Error en la simulación de Markov: {str(e)}")
+    
+    def transform_distribution(self, distribution_type, params=None):
+        """Transforma los números uniformes a la distribución especificada."""
+        if not self.numbers:
+            raise ValueError("No hay números generados para transformar")
+
+        if params is None:
+            params = {}
+
+        try:
+            if distribution_type == "normal":
+                return self.transformer.box_muller(self.numbers)
+            elif distribution_type == "exponential":
+                lambda_param = params.get('lambda', 1.0)
+                return self.transformer.exponential(self.numbers, lambda_param)
+            elif distribution_type == "poisson":
+                lambda_param = params.get('lambda', 1.0)
+                return self.transformer.poisson(self.numbers, lambda_param)
+            elif distribution_type == "binomial":
+                n = params.get('n', 10)
+                p = params.get('p', 0.5)
+                return self.transformer.binomial(self.numbers, n, p)
+            elif distribution_type == "gamma":
+                alpha = params.get('alpha', 1.0)
+                beta = params.get('beta', 1.0)
+                return self.transformer.gamma(self.numbers, alpha, beta)
+            elif distribution_type == "beta":
+                alpha = params.get('alpha', 1.0)
+                beta = params.get('beta', 1.0)
+                return self.transformer.beta(self.numbers, alpha, beta)
+            else:
+                raise ValueError(f"Tipo de distribución no soportada: {distribution_type}")
+        except Exception as e:
+            raise ValueError(f"Error en la transformación: {str(e)}")
 

@@ -13,6 +13,8 @@ class DistributionController:
                 return self.monte_carlo_integration(**kwargs)
             elif operation == "markov_epidemic":
                 return self.simulate_markov_epidemic(**kwargs)
+            elif operation == "transform_distribution":
+                return self.transform_distribution(**kwargs)
             else:
                 raise ValueError(f"Operación no soportada: {operation}")
         except Exception as e:
@@ -124,3 +126,17 @@ class DistributionController:
             
         except Exception as e:
             return {"success": False, "error": str(e),"message": "Error en la simulación de la epidemia."}
+
+    def transform_distribution(self, numbers, distribution_type, **params):
+        """Transforma números uniformes a la distribución especificada."""
+        try:
+            result = self.manager.transform_numbers(numbers, distribution_type, **params)
+            return {
+                "success": True,
+                "original": result["original"],
+                "transformed": result["transformed"],
+                "distribution": result["distribution"],
+                "parameters": result["parameters"]
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}

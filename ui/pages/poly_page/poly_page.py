@@ -14,7 +14,7 @@ class PolynomialPage(BasePage):
             "Raíces": ("raices", PolynomialOpWidget),
             "Derivación": ("derivacion", PolynomialOpWidget),
             "Integración": ("integracion", PolynomialOpWidget),
-            "Evaluación": ("evaluacion", PolynomialOpWidget),
+            "Evaluación": ("evaluation", PolynomialOpWidget),
         }
         
     def execute_current_operation(self):
@@ -44,7 +44,7 @@ class PolynomialPage(BasePage):
                     return
                 result = self.controller.execute_operation(op_key, expression)
 
-            elif op_key == "evaluacion":
+            elif op_key == "evaluation":
                 x_value = widget.get_evaluation_value()
                 if x_value is None or x_value.strip() == "":
                     self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", "Se necesita un valor x para evaluar los polinomios")

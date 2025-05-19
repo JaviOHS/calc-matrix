@@ -2,7 +2,7 @@ from model.vector_manager import VectorManager
 from controller.vector_controller import VectorController
 from ui.pages.vector_page.vector_operation import VectorOpWidget
 from ui.widgets.base_page import BasePage
-from utils.formatting import format_math_expression
+from utils.formating.formatting import format_math_expression
 
 class VectorPage(BasePage):
     def __init__(self, navigate_callback=None, manager=VectorManager()):

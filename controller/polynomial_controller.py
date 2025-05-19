@@ -20,7 +20,7 @@ class PolynomialController:
             else:
                 constant = args[0]
             return self.get_integrals(constant)
-        elif operation_name == "evaluacion":
+        elif operation_name == "evaluation":
             if len(args) != 1:
                 raise ValueError("Se necesita un valor x para evaluar los polinomios.")
             return self.evaluate_polynomials(args[0])

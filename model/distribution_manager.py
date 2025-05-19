@@ -1,5 +1,5 @@
 from model.distribution_model import Distribution
-from utils.validators.modules_validators import validate_positive_integer, validate_algorithm_choice
+from utils.validators.expression_validators import validate_algorithm_choice, validate_positive_integer
 from ui.pages.distribution_page.method_config import METHOD_CONFIG
 
 class DistributionManager:
@@ -103,4 +103,33 @@ class DistributionManager:
             
         except Exception as e:
             raise ValueError(f"Error en la simulación: {str(e)}")
-        
+    
+    def transform_numbers(self, numbers, distribution_type, **params):
+        """Transforma una lista de números a la distribución especificada."""
+        try:
+            # Convertir string de números a lista
+            if isinstance(numbers, str):
+                numbers = [float(x.strip()) for x in numbers.split(',')]
+                
+            # Validar que los números estén en [0,1]
+            if not all(0 <= x <= 1 for x in numbers):
+                raise ValueError("Todos los números deben estar en el intervalo [0,1]")
+
+            distribution = self.create_distribution("mersenne")
+            distribution.numbers = numbers
+            transformed = distribution.transform_distribution(distribution_type, params)
+            
+            return {
+                "original": numbers,
+                "transformed": transformed,
+                "distribution": distribution_type,
+                "parameters": params
+            }
+            
+        except Exception as e:
+            raise ValueError(f"Error en la transformación: {str(e)}")
+
+    def validate_algorithm_choice(self, choice, valid_choices):
+        """Valida que la elección del algoritmo sea válida."""
+        if choice not in valid_choices:
+            raise ValueError(f"Elección de algoritmo no válida. Debe ser uno de: {', '.join(valid_choices)}.")

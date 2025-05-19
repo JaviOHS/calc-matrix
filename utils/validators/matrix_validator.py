@@ -34,7 +34,7 @@ class MatrixValidator:
     @staticmethod
     def validate_matrix_value(value, row=None, col=None, matrix_name=""):
         """Valida que un valor sea un número válido para una matriz"""
-        from utils.validators.modules_validators import is_valid_number
+        from utils.validators.expression_validators import is_valid_number
         
         if not is_valid_number(value):
             position = f" en fila {row+1}, columna {col+1}" if row is not None and col is not None else ""

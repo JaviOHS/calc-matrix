@@ -1,6 +1,6 @@
 from sympy.parsing.sympy_parser import standard_transformations,implicit_multiplication_application,convert_xor,implicit_application,parse_expr
 from model.polynomial_model import Polynomial
-from utils.validators.modules_validators import exponents_validator, validate_characters, validate_parentheses,validate_symbols,validate_expression_syntax
+from utils.validators.expression_validators import exponents_validator, validate_characters, validate_parentheses,validate_symbols,validate_expression_syntax
 from utils.patterns import MATH_SYMBOLS, ODE_PATTERNS, SPECIAL_CHARS, ALLOWED_CHARS, ALLOWED_DIFFERENTIAL_CHARS
 import sympy as sp
 import re

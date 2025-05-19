@@ -2,7 +2,7 @@ from ui.widgets.expression_op_widget import ExpressionOpWidget
 from model.polynomial_manager import PolynomialManager
 from controller.polynomial_controller import PolynomialController
 from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout
-from utils.formatting import format_math_expression
+from utils.formating.formatting import format_math_expression
 from utils.spinbox_utils import create_float_spinbox
 
 class PolynomialOpWidget(ExpressionOpWidget):
@@ -22,7 +22,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
         self.custom_setup()
 
     def custom_setup(self):
-        if self.operation_type == "evaluacion":
+        if self.operation_type == "evaluation":
             # Buscamos el label del título que se creó antes
             title_label = self.findChild(QLabel, "expressionLabel")
 
@@ -63,7 +63,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
     def collect_polynomials(self):
         expr = self.expression_input.toPlainText().strip()
 
-        if self.operation_type in {"raices", "derivacion", "integracion", "evaluacion"}:
+        if self.operation_type in {"raices", "derivacion", "integracion", "evaluation"}:
             try:
                 poly = self.controller.parser.to_polynomial(self._parsed_expr)
                 return [poly] # Para operaciones de polinomios, se convierte a polinomio
@@ -80,11 +80,11 @@ class PolynomialOpWidget(ExpressionOpWidget):
             raise ValueError(error_message)
 
         # Reusar self._parsed_expr en lugar de parsear de nuevo
-        if self.operation_type == "evaluacion":
+        if self.operation_type == "evaluation":
             x_value = self.x_input.value()
             poly = self.controller.parser.to_polynomial(self._parsed_expr)
             self.controller.manager.add_polynomial(poly)
-            result = self.controller.execute_operation("evaluacion", float(x_value))
+            result = self.controller.execute_operation("evaluation", float(x_value))
             return [("P1", result[0])]
         else:
             if self.operation_type in {"derivacion", "integracion", "raices"}:
@@ -105,8 +105,8 @@ class PolynomialOpWidget(ExpressionOpWidget):
         if self.operation_type == "raices":
             _, roots = result[0]  # resultado tipo ('P1', [...])
             return format_math_expression(expression, roots, operation_type="roots")
-        elif self.operation_type == "evaluacion":
-            return format_math_expression(expression, result, operation_type="evaluacion")
+        elif self.operation_type == "evaluation":
+            return format_math_expression(expression, result, operation_type="evaluation")
         else:
             formatted_expr = format_math_expression(expression, result, operation_type="polynomial")  # Aquí se llama a la función
             return formatted_expr  # Mostrar el resultado completo
