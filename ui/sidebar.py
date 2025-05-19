@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QPushButton, QLabel
 from PySide6.QtGui import QColor
 from PySide6.QtCore import QSize, Qt
-from utils.resources import resource_path
-from utils.icon_utils import colored_svg_icon
-from utils.image_utils import create_image_label 
+from utils.core.resources import resource_path
+from utils.components.icon_utils import colored_svg_icon
+from utils.components.image_utils import create_image_label 
 
 class Sidebar(QWidget):
     def __init__(self, switch_page_callback):

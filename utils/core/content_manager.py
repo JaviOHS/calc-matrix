@@ -1,5 +1,5 @@
 import json
-import os
+from .resources import resource_path
 
 class ContentManager:
     """Gestor de contenido dinámico para las páginas de la aplicación"""
@@ -21,14 +21,14 @@ class ContentManager:
     def _load_content(self):
         """Carga el contenido del JSON"""
         try:
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-            content_path = os.path.join(base_dir, "assets", "content", "pages_content.json")
+            # Usa resource_path para obtener la ruta del archivo
+            content_path = resource_path("assets/content/pages_content.json")
             
             with open(content_path, 'r', encoding='utf-8') as file:
                 self._content = json.load(file)
         except Exception as e:
             print(f"Error al cargar el contenido: {e}")
-            self._content = {"home": {}} # Contenido mínimo de respaldo en caso de error
+            self._content = {"home": {}}  # Contenido mínimo de respaldo en caso de error
     
     def get_page_content(self, page_key):
         """Obtiene el contenido para una página específica"""
@@ -43,4 +43,3 @@ class ContentManager:
         if 0 <= feature_index < len(features):
             return features[feature_index]
         return None
-    

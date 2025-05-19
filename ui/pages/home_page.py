@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QFrame, QScrollArea
 from PySide6.QtCore import Qt
 from ui.widgets.base_page import BasePage
-from utils.image_utils import create_image_label
+from utils.components.image_utils import create_image_label
 
 class MainHomePage(BasePage):
     def __init__(self, navigate_callback=None):

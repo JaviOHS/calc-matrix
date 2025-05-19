@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSizePolicy, QFrame, QScrollArea, QStackedWidget, QMenu, QWidgetAction
 from PySide6.QtCore import Qt, QPoint
 from PySide6.QtGui import QAction
-from utils.image_utils import create_image_label
-from utils.content_manager import ContentManager
-from utils.action_buttons import ActionButton
+from utils.components.image_utils import create_image_label
+from utils.core.content_manager import ContentManager
+from utils.components.action_buttons import ActionButton
 from ui.dialogs.message_dialog import MessageDialog
 
 class BasePage(QWidget):

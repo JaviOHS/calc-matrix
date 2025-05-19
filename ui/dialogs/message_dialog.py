@@ -1,7 +1,7 @@
 from ui.dialogs.base_dialog import BaseDialog
 from PySide6.QtWidgets import QLabel, QHBoxLayout, QWidget, QSizePolicy
 from PySide6.QtCore import Qt
-from utils.image_utils import create_image_label
+from utils.components.image_utils import create_image_label
 
 class MessageDialog(BaseDialog):
     def __init__(self, title: str, title_color: str, message: str = "", image_name: str = "success.png", parent=None, custom_widget: QWidget = None):

@@ -4,7 +4,7 @@ from ui.widgets.math_operation_widget import MathOperationWidget
 from ui.widgets.expression_components.expression_buttons_panel import ExpressionButtonsPanel
 from ui.widgets.expression_components.expression_formatter_input import ExpressionFormatterInput
 from ui.dialogs.canvas_dialog_manager import CanvasDialogManager
-from utils.image_utils import create_image_label
+from utils.components.image_utils import create_image_label
 
 class ExpressionOpWidget(MathOperationWidget):
     def __init__(self, manager, controller, operation_type=None, placeholder="", input_label="", image_path="assets/images/placeholder.png", allow_expression: bool = True, use_dialog_for_result: bool = False):

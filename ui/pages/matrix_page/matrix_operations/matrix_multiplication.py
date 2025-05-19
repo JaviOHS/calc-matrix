@@ -1,9 +1,9 @@
 from ui.pages.matrix_page.matrix_operations.matrix_operation import MatrixOperationWidget
-from utils.matrix_table import MatrixTableComponent
-from utils.ui_utils import UIUtils
+from utils.layout.matrix_table import MatrixTableComponent
+from utils.components.ui_utils import UIUtils
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout, QGridLayout, QVBoxLayout
-from utils.spinbox_utils import create_int_spinbox
+from utils.components.spinbox_utils import create_int_spinbox
 
 class MatrixMultiplicationWidget(MatrixOperationWidget):
     def __init__(self, manager, controller):

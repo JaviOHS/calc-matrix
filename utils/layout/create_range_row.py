@@ -1,5 +1,5 @@
 from PySide6.QtWidgets import QHBoxLayout, QLabel
-from utils.spinbox_utils import create_float_spinbox
+from utils.components.spinbox_utils import create_float_spinbox
 
 def create_range_row(label_text=None, min_label="Min", max_label="Max", default_min=0.0, default_max=1.0, min_control=None, max_control=None, connector="a",spacing=6, label_width=None):
     """

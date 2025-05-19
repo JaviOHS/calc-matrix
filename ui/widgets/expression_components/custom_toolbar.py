@@ -1,5 +1,5 @@
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
-from utils.action_buttons import ActionButton
+from utils.components.action_buttons import ActionButton
 
 class CustomNavigationToolbar(NavigationToolbar2QT):
     """Barra de herramientas personalizada de Matplotlib"""

@@ -2,10 +2,10 @@ from ui.pages.matrix_page.matrix_operations.matrix_operation import MatrixOperat
 from model.matrix_model import Matrix
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QHeaderView, QHBoxLayout
-from utils.matrix_table import MatrixTableComponent
-from utils.ui_utils import UIUtils
+from utils.layout.matrix_table import MatrixTableComponent
+from utils.components.ui_utils import UIUtils
 from utils.validators.matrix_validator import MatrixValidator
-from utils.spinbox_utils import create_int_spinbox
+from utils.components.spinbox_utils import create_int_spinbox
 
 class MatrixSystemSolverWidget(MatrixOperationWidget):
     def __init__(self, manager, controller):

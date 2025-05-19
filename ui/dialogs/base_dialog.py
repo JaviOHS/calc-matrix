@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QDialog, QVBoxLayout, QLabel, QHBoxLayout, QFrame
 from PySide6.QtCore import Qt, QSize
-from utils.action_buttons import ActionButton
+from utils.components.action_buttons import ActionButton
 
 class BaseDialog(QDialog):
     """Clase base para todos los diálogos de la aplicación"""

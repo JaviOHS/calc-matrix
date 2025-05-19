@@ -1,6 +1,6 @@
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QHBoxLayout
 from ui.widgets.expression_op_widget import ExpressionOpWidget
-from utils.spinbox_utils import create_int_spinbox, create_float_spinbox
+from utils.components.spinbox_utils import create_int_spinbox, create_float_spinbox
 
 class DistributionBaseOpWidget:
     """Clase base para operaciones de distribución"""

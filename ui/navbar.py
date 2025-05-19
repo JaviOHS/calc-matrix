@@ -1,9 +1,9 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QLabel
 from PySide6.QtGui import QColor
 from PySide6.QtCore import Qt, QSize
-from utils.resources import resource_path
-from utils.icon_utils import colored_svg_pixmap
-from utils.action_buttons import ActionButton
+from utils.core.resources import resource_path
+from utils.components.icon_utils import colored_svg_pixmap
+from utils.components.action_buttons import ActionButton
 
 class TopNavbar(QWidget):
     def __init__(self, main_window, toggle_sidebar_callback, username="Usuario"):

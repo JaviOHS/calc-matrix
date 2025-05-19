@@ -51,7 +51,7 @@ class MatrixPage(BasePage):
             
     def show_result(self, result, message, operation_name=""):
         """Muestra el resultado de una operación matricial"""
-        from utils.result_handler import ResultHandler
+        from utils.formating.result_handler import ResultHandler
         
         if ResultHandler.show_matrix_result(result, operation_name, self):
             return

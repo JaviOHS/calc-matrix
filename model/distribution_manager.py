@@ -1,5 +1,5 @@
 from model.distribution_model import Distribution
-from utils.validators.expression_validators import validate_algorithm_choice, validate_positive_integer
+from utils.validators.expression_validators import validate_positive_integer
 from ui.pages.distribution_page.method_config import METHOD_CONFIG
 
 class DistributionManager:
@@ -8,7 +8,7 @@ class DistributionManager:
         self.valid_algorithms = list(METHOD_CONFIG.keys()) # Usar las claves de METHOD_CONFIG como algoritmos válidos
 
     def create_distribution(self, algorithm, seed=None, **kwargs):
-        validate_algorithm_choice(algorithm, self.valid_algorithms)
+        self.validate_algorithm_choice(algorithm, self.valid_algorithms)
         distribution = Distribution(algorithm, seed, **kwargs)
         self.distributions.append(distribution)
         return distribution
@@ -87,7 +87,7 @@ class DistributionManager:
             
         try:
             # Validar el algoritmo y crear la distribución
-            validate_algorithm_choice(algorithm, self.valid_algorithms)
+            self.validate_algorithm_choice(algorithm, self.valid_algorithms)
             distribution = self.create_distribution(algorithm, seed, **kwargs)
             
             # Ejecutar la simulación y obtener resultados con el canvas

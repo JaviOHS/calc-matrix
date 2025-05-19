@@ -1,6 +1,6 @@
 from PySide6.QtGui import QTextCharFormat
 from PySide6.QtWidgets import QTextEdit
-from utils.input_formating import (
+from utils.formating.input_formating import (
     create_base_format, 
     create_superscript_format,
     add_spacing_around_operators

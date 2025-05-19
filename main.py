@@ -1,8 +1,8 @@
-from utils.resources import resource_path
+from utils.core.resources import resource_path
 from PySide6.QtWidgets import QApplication
 from ui.main_window import MainWindow
 from PySide6.QtGui import QFontDatabase
-from utils.shortcuts import ShortcutManager
+from utils.core.shortcuts import ShortcutManager
 import sys
 
 def setup_fonts():

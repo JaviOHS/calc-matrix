@@ -1,11 +1,11 @@
 from ui.widgets.math_operation_widget import MathOperationWidget
-from utils.matrix_table import MatrixTableComponent
-from utils.ui_utils import UIUtils
+from utils.layout.matrix_table import MatrixTableComponent
+from utils.components.ui_utils import UIUtils
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QGridLayout, QHBoxLayout, QSizePolicy
 from PySide6.QtCore import QEvent, Qt
 from model.matrix_model import Matrix
 from utils.validators.matrix_validator import MatrixValidator
-from utils.spinbox_utils import create_int_spinbox
+from utils.components.spinbox_utils import create_int_spinbox
 
 class MatrixOperationWidget(MathOperationWidget):
     def __init__(self, manager, controller, allow_multiple_matrices=True):

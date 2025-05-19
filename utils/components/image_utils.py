@@ -1,7 +1,7 @@
 from PySide6.QtGui import QPixmap
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel
-from utils.resources import resource_path
+from utils.core.resources import resource_path
 
 def load_pixmap(image_path, from_resources=True):
     path = resource_path(image_path) if from_resources else image_path

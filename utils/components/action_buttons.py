@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QPushButton
 from PySide6.QtCore import Qt, QSize
 from PySide6.QtGui import QColor
-from utils.resources import resource_path
-from utils.icon_utils import colored_svg_icon
+from utils.core.resources import resource_path
+from utils.components.icon_utils import colored_svg_icon
 
 class ActionButton(QPushButton):
     """Clase base para botones de acción con iconos SVG."""

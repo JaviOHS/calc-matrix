@@ -31,7 +31,7 @@ class AboutPage(BasePage):
                 image_container_layout = QVBoxLayout(image_container)
                 image_container_layout.setContentsMargins(0, 0, 0, 0)
                 
-                from utils.image_utils import create_image_label
+                from utils.components.image_utils import create_image_label
                 image = create_image_label(
                     self.get_image_path(), 
                     width=self.get_image_width(), 

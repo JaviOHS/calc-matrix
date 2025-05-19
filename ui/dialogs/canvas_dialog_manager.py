@@ -1,7 +1,7 @@
 from ui.dialogs.message_dialog import MessageDialog
 from ui.widgets.expression_components.custom_toolbar import CustomNavigationToolbar
 from PySide6.QtWidgets import QWidget, QVBoxLayout, QTextBrowser, QSizePolicy, QHBoxLayout
-from utils.image_utils import create_image_label
+from utils.components.image_utils import create_image_label
 
 class CanvasDialogManager:
     """Gestor para mostrar diálogos con canvas (gráficos) y/o resultados HTML"""

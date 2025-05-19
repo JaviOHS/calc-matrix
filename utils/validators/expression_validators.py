@@ -1,44 +1,35 @@
 import re
 
 def validate_positive_integer(value):
-    """Validates that the input is a positive integer."""
+    """Valida que el valor sea un número entero positivo."""
     if not isinstance(value, int) or value <= 0:
         raise ValueError("El valor debe ser un número entero positivo.")
 
 def validate_range(value, min_value, max_value):
-    """Validates that the input is within a specified range."""
+    """Valida que el valor esté dentro de un rango específico."""
     if not (min_value <= value <= max_value):
         raise ValueError(f"El valor debe estar entre {min_value} y {max_value}.")
-
-def validate_algorithm_choice(choice, valid_choices):
-    """Validates that the chosen algorithm is valid."""
-    if choice not in valid_choices:
-        raise ValueError(f"Elección de algoritmo no válida. Debe ser uno de: {', '.join(valid_choices)}.")
-
+    
 def is_valid_number(value):
-    """Checks if a value is a valid number."""
+    """Verifica si el valor es un número válido (entero o decimal)."""
     try:
         float(value)
         return True
     except ValueError:
         return False
     
-def exponents_validator(expression: str, max_exponente: int = 1000) -> bool:
-    """
-    Devuelve True si los exponentes están dentro del límite permitido, False si no.
-    """
-    # Busca expresiones del tipo x^123456 o x**123456
-    exponentes = re.findall(r'x\^(\d+)|x\*\*(\d+)', expression)
-    exponentes = [int(exp) for group in exponentes for exp in group if exp]
+def exponents_validator(expression: str, max_exponent: int = 1000) -> tuple[bool, str]:
+    """Valida que los exponentes estén dentro del límite permitido.Devuelve una tupla (is_valid, error_message)."""
+    exponent = re.findall(r'x\^(\d+)|x\*\*(\d+)', expression) # Busca expresiones del tipo x^123456 o x**123456
+    exponent = [int(exp) for group in exponent for exp in group if exp]
 
-    # Verifica si algún exponente supera el límite
-    for exp in exponentes:
-        if exp > max_exponente:
-            return False
-    return True
+    for exp in exponent:
+        if exp > max_exponent:
+            return False, f"El exponente {exp} excede el límite máximo ({max_exponent})."
+    return True, ""
 
 def validate_characters(expression: str, allowed_chars: set, special_chars_map: dict) -> tuple[bool, str]:
-    """Valida que la expresión solo contenga caracteres permitidos."""
+    """Valida que la expresión contenga solo caracteres permitidos."""
     invalid_chars = set()
     for char in expression:
         if char not in allowed_chars:
@@ -77,37 +68,21 @@ def validate_parentheses(expression: str) -> tuple[bool, str]:
 
 def validate_expression_syntax(expression: str) -> tuple[bool, str]:
     """Valida la sintaxis básica de una expresión matemática."""
+    expression = re.sub(r'\s*([+\-*/^])\s*', r' \1 ', expression) # Normalizar espacios alrededor de operadores
     
-    # Normalizar espacios alrededor de operadores
-    expression = re.sub(r'\s*([+\-*/^])\s*', r' \1 ', expression)
-    
-    # Verificar operadores consecutivos
-    if re.search(r'[+\-*/^]{2,}', expression): 
+    if re.search(r'[+\-*/^]{2,}', expression): # Verificar operadores consecutivos
         return False, "Operadores consecutivos no permitidos."
     
-    # Verificar funciones matemáticas vacías
-    if re.search(r'\w+\(\s*\)', expression): 
+    if re.search(r'\w+\(\s*\)', expression): # Verificar funciones matemáticas vacías
         return False, "Funciones matemáticas vacías no permitidas."
     
-    # Verificar términos mal formados
-    if re.search(r'\d+[a-zA-Z]+\d+[a-zA-Z]+', expression): 
-        return False, "Expresión mal formada. Revise los términos y use * para multiplicación."
+    if re.search(r'\d+[a-zA-Z]+\d+[a-zA-Z]+', expression): # Verificar términos mal formados
+        return False, "Expresión mal formada. Revise los términos y use · para multiplicación."
     
     return True, ""
 
 def validate_symbols(expr: str, allowed_names: set, use_3d: bool = False, is_differential: bool = False) -> tuple[bool, str]:
-    """
-    Valida los símbolos en la expresión según el tipo de gráfica.
-    
-    Args:
-        expr: Expresión a validar
-        allowed_names: Conjunto de nombres permitidos
-        use_3d: Indica si es una gráfica 3D
-        is_differential: Indica si es una ecuación diferencial
-    
-    Returns:
-        tuple[bool, str]: (es_válido, mensaje_error)
-    """
+    """Valida los símbolos en la expresión según el tipo de gráfica."""
     pattern = r'\b([a-zA-Z][a-zA-Z0-9]*)\b'
     found_symbols = set(re.findall(pattern, expr))
     

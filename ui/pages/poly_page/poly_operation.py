@@ -3,7 +3,7 @@ from model.polynomial_manager import PolynomialManager
 from controller.polynomial_controller import PolynomialController
 from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout
 from utils.formating.formatting import format_math_expression
-from utils.spinbox_utils import create_float_spinbox
+from utils.components.spinbox_utils import create_float_spinbox
 
 class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):

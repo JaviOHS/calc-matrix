@@ -1,9 +1,9 @@
-from utils.figure_manager import FigureManager
+from utils.core.figure_manager import FigureManager
 from controller.plot_controller.plot_2d_controller import Plot2DController
 from controller.plot_controller.plot_3d_controller import Plot3DController
 from controller.plot_controller.plot_ode_controller import PlotODEController
 from controller.plot_controller.plot_dis_controller import PlotDistributionController
-from utils.plot_style_helper import PlotStyleHelper
+from utils.layout.plot_style_helper import PlotStyleHelper
 
 class GraphController:
     def __init__(self, manager):

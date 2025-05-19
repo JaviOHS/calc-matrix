@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QComboBox, QVBoxLayout
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from utils.formating.formatting import format_math_expression
-from utils.spinbox_utils import create_float_spinbox
+from utils.components.spinbox_utils import create_float_spinbox
 
 class SymCalOpWidget(ExpressionOpWidget):
     def __init__(self, manager, controller, operation_type=None):

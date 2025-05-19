@@ -1,8 +1,8 @@
 from PySide6.QtWidgets import QVBoxLayout, QVBoxLayout, QWidget
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from controller.graph_controller import GraphController
-from utils.spinbox_utils import create_float_spinbox
-from utils.create_range_row import create_range_row as create_range_layout
+from utils.components.spinbox_utils import create_float_spinbox
+from utils.layout.create_range_row import create_range_row as create_range_layout
 
 class BaseGraphWidget(ExpressionOpWidget):
     """Widget base para visualización de gráficas"""
