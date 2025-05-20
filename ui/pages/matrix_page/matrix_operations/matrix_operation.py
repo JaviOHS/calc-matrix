@@ -55,8 +55,7 @@ class MatrixOperationWidget(MathOperationWidget):
         config_layout.setContentsMargins(20, 0, 0, 0)
 
         # Label y spinbox para dimensiones
-        self.dim_label = QLabel("Dimensión de la matriz:" if not self.allow_multiple_matrices 
-                               else "Dimensión de las matrices (n x n):")
+        self.dim_label = QLabel("Dimensión de la matriz:" if not self.allow_multiple_matrices else "Dimensión de las matrices (n x n):")
         self.dim_label.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.dim_spinbox = create_int_spinbox(min_val=1, max_val=10, default_val=4)
         

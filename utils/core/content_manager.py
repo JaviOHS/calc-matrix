@@ -3,7 +3,6 @@ from .resources import resource_path
 
 class ContentManager:
     """Gestor de contenido dinámico para las páginas de la aplicación"""
-    
     _instance = None
     _content = None
     
@@ -21,7 +20,6 @@ class ContentManager:
     def _load_content(self):
         """Carga el contenido del JSON"""
         try:
-            # Usa resource_path para obtener la ruta del archivo
             content_path = resource_path("assets/content/pages_content.json")
             
             with open(content_path, 'r', encoding='utf-8') as file:

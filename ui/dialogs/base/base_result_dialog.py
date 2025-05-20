@@ -1,4 +1,4 @@
-from ui.dialogs.base_dialog import BaseDialog
+from ui.dialogs.base.base_dialog import BaseDialog
 from PySide6.QtWidgets import QLabel, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget, QScrollArea
 from PySide6.QtCore import Qt
 
@@ -19,16 +19,7 @@ class BaseResultDialog(BaseDialog):
         self.background_layout.addWidget(self.result_container)
 
     def create_data_table(self, rows, cols, data_accessor=None, needs_scroll=False):
-        """
-        Crea una tabla para mostrar datos numéricos
-        
-        Args:
-            rows: Número de filas
-            cols: Número de columnas
-            data_accessor: Función que recibe (r, c) y devuelve el valor en esa posición
-            needs_scroll: Indica si la tabla necesita scroll vertical
-        """
-        cell_size = 70
+        cell_size = 65
         
         # Crear widget contenedor para la tabla (con o sin scroll)
         widget = QWidget()

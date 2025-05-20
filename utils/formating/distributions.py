@@ -1,11 +1,11 @@
 from .base import create_section, clean_number
-from ..patterns import COLORS, ICONS
 from .polynomials import format_polynomial
+from ..patterns import COLORS, ICONS
 
 def format_transform_distribution_result(original_data, transformed_data, method, transform_method, transform_params):
     """Formatea el resultado de la transformación de distribuciones"""
     # Límite de datos a mostrar
-    max_display = 15
+    max_display = 900
     display_all = len(original_data) <= max_display
     
     # Nombres amigables para los métodos
@@ -21,7 +21,7 @@ def format_transform_distribution_result(original_data, transformed_data, method
         f"<ul>"
         f"<li><b>Método generador:</b> {method_display}</li>"
         f"<li><b>Transformación:</b> {transform_display} {f'({params_text})' if params_text else ''}</li>"
-        f"<li><b>Total generado:</b> {len(original_data)} números</li>"
+        # f"<li><b>Total generado:</b> {len(original_data)} números</li>"
         f"</ul>"
         f"</div>"
     )
@@ -34,9 +34,9 @@ def format_transform_distribution_result(original_data, transformed_data, method
         "<thead>"
         "<tr>"
         "<th style='padding: 12px; border-bottom: 2px solid #ff8103; "
-        "color: #2196F3; font-weight: bold; width: 50%;'>Uniforme [0,1]</th>"
+        "color: #2196F3; font-weight: bold; width: 50%; text-align: center;'>Uniforme [0,1]</th>"
         "<th style='padding: 12px; border-bottom: 2px solid #ff8103; "
-        "color: #9C27B0; font-weight: bold; width: 50%;'>" + transform_display + "</th>"
+        "color: #9C27B0; font-weight: bold; width: 50%; text-align: center;'>" + transform_display + "</th>"
         "</tr>"
         "</thead>"
         "<tbody>"
@@ -48,15 +48,15 @@ def format_transform_distribution_result(original_data, transformed_data, method
             table_html += (
                 "<tr>"
                 "<td colspan='2' style='padding: 8px; border-bottom: 1px solid #EEEEEE; "
-                "color: #777777; font-style: italic;'>... " + str(len(original_data) - max_display) + " valores más ...</td>"
+                "color: #777777; font-style: italic; text-align: center;'>... " + str(len(original_data) - max_display) + " valores más ...</td>"
                 "</tr>"
             )
             break
         
         table_html += (
             "<tr>"
-            f"<td style='padding: 8px; border-bottom: 1px solid #EEEEEE;'>{clean_number(orig)}</td>"
-            f"<td style='padding: 8px; border-bottom: 1px solid #EEEEEE;'>{clean_number(trans)}</td>"
+            f"<td style='padding: 8px; border-bottom: 1px solid #EEEEEE; text-align: center;'>{clean_number(orig)}</td>"
+            f"<td style='padding: 8px; border-bottom: 1px solid #EEEEEE; text-align: center;'>{clean_number(trans)}</td>"
             "</tr>"
         )
     

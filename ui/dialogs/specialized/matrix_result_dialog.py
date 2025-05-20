@@ -1,4 +1,4 @@
-from ui.dialogs.base_result_dialog import BaseResultDialog
+from ui.dialogs.base.base_result_dialog import BaseResultDialog
 from PySide6.QtCore import Qt
 
 class MatrixResultDialog(BaseResultDialog):

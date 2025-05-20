@@ -3,7 +3,7 @@ from PySide6.QtCore import Qt
 from ui.widgets.math_operation_widget import MathOperationWidget
 from ui.widgets.expression_components.expression_buttons_panel import ExpressionButtonsPanel
 from ui.widgets.expression_components.expression_formatter_input import ExpressionFormatterInput
-from ui.dialogs.canvas_dialog_manager import CanvasDialogManager
+from ui.dialogs.dialog_factory import DialogFactory
 from utils.components.image_utils import create_image_label
 
 class ExpressionOpWidget(MathOperationWidget):
@@ -31,13 +31,9 @@ class ExpressionOpWidget(MathOperationWidget):
 
         self.input_layout = input_layout # Guardar la referencia al layout de entrada
 
-        # Label más sutil
         title_label = QLabel(self.input_label_text)
         title_label.setObjectName("expressionLabel")
         input_layout.addWidget(title_label)
-
-        # Inicializar canvas_dialog_manager siempre, independientemente de allow_expression
-        self.canvas_dialog_manager = CanvasDialogManager(self)
 
         # Solo agregar el QTextEdit de expresión si allow_expression es True
         if self.allow_expression:
@@ -49,7 +45,7 @@ class ExpressionOpWidget(MathOperationWidget):
 
             self.expression_formatter = ExpressionFormatterInput(self.expression_input)
         
-        # Result section (if needed)
+        # Solo agregar contenedor de resultado si use_dialog_for_result es False
         if not self.use_dialog_for_result:
             result_section = QWidget()
             result_section.setObjectName("resultSection")
@@ -103,88 +99,47 @@ class ExpressionOpWidget(MathOperationWidget):
         if not self.use_dialog_for_result and hasattr(self, 'result_display'):
             self.result_display.setText(html)
 
-    def show_canvas_dialog(self, canvas):
-        self.canvas_dialog_manager.show_canvas_dialog(canvas)
-
-    def show_result_in_dialog(self, html_content, canvas=None):
-        """Muestra el resultado en un diálogo, combinando HTML y canvas si está disponible"""
-        self.canvas_dialog_manager.show_result_dialog(html_content, canvas)
-
     def process_operation_result(self, result):
         """Procesa el resultado de la operación para mostrarlo adecuadamente"""
         try:
-            # CASO ESPECIAL: Ecuaciones diferenciales con capacidad de comparación
-            if self.operation_type == "differential_equation" and isinstance(result, dict) and "canvas" in result:
-                # Verificar si tenemos los atributos necesarios para la comparación
-                if all(hasattr(self, attr) for attr in ['numerical_x_start', 'numerical_x_end', 'numerical_x0', 'numerical_y0', 'de_method_selector']):
-                    # Extraer HTML y canvas
-                    html_content = result.get("html")
-                    canvas = result["canvas"]
-                    
-                    # Obtener parámetros para el diálogo especializado
-                    equation = self.get_input_expression().strip()
-                    x_range = (self.numerical_x_start.value(), self.numerical_x_end.value())
-                    initial_condition = (self.numerical_x0.value(), self.numerical_y0.value())
-                    method = self.de_method_selector.currentData()
-                    h = self.numerical_h.value() if hasattr(self, 'numerical_h') else 0.1
-                    
-                    # Obtener modelo simbólico si está disponible
-                    sym_model = self.controller.manager.model if hasattr(self.controller, 'manager') else None
-                    
-                    # Mostrar diálogo especializado con opción de comparación Y el HTML
-                    if self.use_dialog_for_result:
-                        self.canvas_dialog_manager.show_ode_solution_dialog(
-                            canvas=canvas,
-                            equation=equation,
-                            initial_condition=initial_condition,
-                            x_range=x_range,
-                            h=h,
-                            method=method,
-                            sym_model=sym_model,
-                            title="🟢 SOLUCIÓN DE EDO",
-                            html_content=html_content  # Pasar el HTML para mostrarlo
-                        )
-                    else:
-                        # Mostrar HTML en el widget y canvas en diálogo separado
-                        self.display_result(html_content)
-                        self.canvas_dialog_manager.show_ode_solution_dialog(
-                            canvas=canvas,
-                            equation=equation,
-                            initial_condition=initial_condition,
-                            x_range=x_range,
-                            h=h,
-                            method=method,
-                            sym_model=sym_model,
-                            title="🟢 SOLUCIÓN DE EDO"
-                        )
-                    return  # Importante: terminar aquí si ya manejamos el caso
+            params = self._get_operation_params() # Crear un diccionario con parámetros adicionales según el tipo de operación
             
-            # COMPORTAMIENTO ESTÁNDAR PARA EL RESTO DE CASOS
-            html_content = None
-            canvas = None
-            
-            if isinstance(result, dict) and "html" in result:
-                html_content = result.get("html")
-                canvas = result.get("canvas")
-                
-                if self.use_dialog_for_result:
-                    self.show_result_in_dialog(html_content, canvas)
-                else:
-                    # Solo mostrar el HTML en el widget de resultado
-                    self.display_result(html_content)
-                    
-                    # Si hay un canvas pero no estamos usando diálogo, mostrar canvas por separado
-                    if canvas:
-                        self.show_canvas_dialog(canvas)
+            # Usar la fábrica de diálogos para mostrar el resultado apropiado
+            if self.use_dialog_for_result:
+                DialogFactory.show_result_dialog(result=result, operation_type=self.operation_type,parent=self,**params)
             else:
-                # El resultado es directamente HTML (comportamiento anterior)
-                if self.use_dialog_for_result:
-                    self.show_result_in_dialog(result)
+                # Si no usamos diálogo, mostrar en el widget interno
+                if isinstance(result, dict) and "html" in result:
+                    self.display_result(result["html"])
+                    
+                    # Si hay canvas, mostrarlo en un diálogo aparte
+                    if "canvas" in result and result["canvas"]:
+                        DialogFactory.show_canvas_dialog(canvas=result["canvas"],operation_type=self.operation_type,parent=self,**params)
                 else:
-                    self.display_result(result)
+                    self.display_result(result) # El resultado es directamente HTML
+
         except Exception as e:
             error_html = f"<div style='color: #D32F2F;'>❌ Error al procesar el resultado: {str(e)}</div>"
             if self.use_dialog_for_result:
-                self.show_result_in_dialog(error_html)
+                DialogFactory.show_message_dialog(title="❌ ERROR",message=error_html,title_color="#d32f2f",image_name="error.png",parent=self)
             else:
                 self.display_result(error_html)
+    
+    def _get_operation_params(self):
+        """Obtiene parámetros adicionales según el tipo de operación"""
+        params = {}
+        
+        # Parámetros para ecuaciones diferenciales
+        if self.operation_type == "differential_equation":
+            # Verificar si tenemos los atributos necesarios
+            if all(hasattr(self, attr) for attr in ['numerical_x_start', 'numerical_x_end', 'numerical_x0', 'numerical_y0', 'de_method_selector']):
+                params.update({
+                    "equation": self.get_input_expression().strip(),
+                    "x_range": (self.numerical_x_start.value(), self.numerical_x_end.value()),
+                    "initial_condition": (self.numerical_x0.value(), self.numerical_y0.value()),
+                    "method": self.de_method_selector.currentData(),
+                    "h": self.numerical_h.value() if hasattr(self, 'numerical_h') else 0.1,
+                    "sym_model": self.controller.manager.model if hasattr(self.controller, 'manager') else None
+                })
+        
+        return params

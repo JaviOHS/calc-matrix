@@ -21,20 +21,13 @@ class DistributionOpWidget(ExpressionOpWidget):
             placeholder = None
             allow_expression = False
             use_dialog_for_result = True
-        elif operation_type == "transform_distribution":
-            input_label = "Transformación de distribuciones:"
+        else:
+            input_label = "Seleccione los métodos e ingrese los parámetros:"
             placeholder = None
             allow_expression = False
             use_dialog_for_result = True
-        else:
-            input_label = "Seleccione el método e ingrese los parámetros:"
-            placeholder = None
-            allow_expression = False
-            use_dialog_for_result = False
             
-        super().__init__(manager, controller, operation_type, input_label=input_label, 
-                        placeholder=placeholder, allow_expression=allow_expression, 
-                        use_dialog_for_result=use_dialog_for_result)
+        super().__init__(manager, controller, operation_type, input_label=input_label, placeholder=placeholder, allow_expression=allow_expression, use_dialog_for_result=use_dialog_for_result)
         
         # Configurar interfaz según la operación
         self.setup_operation_handler()
@@ -46,7 +39,6 @@ class DistributionOpWidget(ExpressionOpWidget):
         elif self.operation_type == "markov_epidemic":
             self.operation_handler = MarkovOperation(self)
         else:
-            # Por defecto, generación de números aleatorios
             self.operation_handler = RandomOperation(self)
 
     def perform_operation(self):
@@ -68,42 +60,20 @@ class DistributionOpWidget(ExpressionOpWidget):
         """Procesa el resultado de la operación para mostrar en el diálogo"""
         try:
             if isinstance(result, dict) and "html" in result:
-                html_content = result.get("html")
-                canvas = result.get("canvas")
+                # Importar el diálogo especializado
+                from ui.dialogs.simple.distribution_dialog import DistributionDialog
                 
-                dialog_config = {
-                    "markov_epidemic": {
-                        "title": "🦠 SIMULACIÓN DE EPIDEMIA",
-                        "title_color": "#ff8103"
-                    },
-                    "monte_carlo": {
-                        "title": "📊 INTEGRACIÓN MONTE CARLO",
-                        "title_color": "#2196F3"
-                    },
-                    "transform_distribution": {
-                        "title": "🔄 TRANSFORMACIÓN DE DISTRIBUCIÓN",
-                        "title_color": "#9C27B0"
-                    }
-                }
+                # Crear y mostrar el diálogo apropiado
+                dialog = DistributionDialog(operation_type=self.operation_type,result_data=result,parent=self)
+                dialog.exec()
+            else:
+                # Para otros casos, usar el comportamiento por defecto
+                super().process_operation_result(result)
                 
-                # Obtener la configuración específica para el tipo de operación
-                config = dialog_config.get(self.operation_type, {})
-                
-                self.canvas_dialog_manager.show_result_dialog(
-                    html_content=html_content,
-                    canvas=canvas,
-                    title=config.get("title"),
-                    title_color=config.get("title_color"),
-                    image_path=None  # Forzar None para no mostrar imagen
-                )
-                return
-            
-            # Para otros casos, usar el comportamiento por defecto
-            super().process_operation_result(result)
-            
         except Exception as e:
             error_html = f"<div style='color: #D32F2F;'>❌ Error al procesar el resultado: {str(e)}</div>"
             if self.use_dialog_for_result:
                 self.show_result_in_dialog(error_html)
             else:
                 self.display_result(error_html)
+                

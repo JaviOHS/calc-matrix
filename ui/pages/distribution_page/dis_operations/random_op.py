@@ -1,8 +1,8 @@
-from PySide6.QtWidgets import (QSpinBox, QDoubleSpinBox, QWidget, QLabel, 
-                               QHBoxLayout, QVBoxLayout, QFrame, QGroupBox)
-from ..dis_base import DistributionBaseOpWidget
+from PySide6.QtWidgets import QSpinBox, QDoubleSpinBox, QWidget, QLabel, QHBoxLayout, QVBoxLayout, QFrame, QGroupBox
+from ..distribution_base import DistributionBaseOpWidget
 from ..method_config import METHOD_CONFIG, TRANSFORM_CONFIG
 from utils.formating.formatting import format_math_expression
+
 class RandomOperation(DistributionBaseOpWidget):
     """Clase para las operaciones de generación de números aleatorios y transformación de distribuciones"""
     
@@ -218,8 +218,11 @@ class RandomOperation(DistributionBaseOpWidget):
                 result=transform_result["transformed"],
                 operation_type="transform_distribution"
             )
-            
-            return True, result_html
+
+            return True, {
+                "html": result_html,
+                "canvas": None
+            }
 
         except Exception as e:
             return False, str(e)

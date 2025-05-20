@@ -1,25 +1,17 @@
 from PySide6.QtWidgets import QWidget
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QComboBox
-from ..dis_base import DistributionBaseOpWidget
+from ..distribution_base import DistributionBaseOpWidget
 from ..method_config import METHOD_CONFIG, MONTE_CARLO_CONFIG
 from utils.formating.formatting import format_math_expression
 
 class MonteCarloOp(DistributionBaseOpWidget):
     """Clase para las operaciones de integración Monte Carlo"""
-    
     def __init__(self, parent_widget):
-        """
-        Inicializa la operación de integración Monte Carlo
-        
-        Args:
-            parent_widget: El widget padre que contiene esta operación
-        """
         self.parent = parent_widget
         self.setup_ui()
         
     def setup_ui(self):
         """Configura la interfaz para integración Monte Carlo usando la configuración"""
-        # Método selector
         mc_method_container = QWidget()
         mc_method_layout = QHBoxLayout(mc_method_container)
         mc_method_layout.setContentsMargins(0, 0, 0, 0)
@@ -33,7 +25,7 @@ class MonteCarloOp(DistributionBaseOpWidget):
         mc_method_layout.addStretch()
         self.parent.input_layout.addWidget(mc_method_container)
 
-        # Parámetros de Monte Carlo
+        # Parámetros de integración
         params_container = self.create_parameter_container(MONTE_CARLO_CONFIG["fields"])
         self.parent.input_layout.addWidget(params_container)
     
@@ -68,15 +60,10 @@ class MonteCarloOp(DistributionBaseOpWidget):
                 
             # Procesar el resultado
             if result.get("success", False):
-                formatted_output = format_math_expression(
-                    expr=expression,
-                    result=result,
-                    operation_type="monte_carlo",
-                    method="integration"
-                )
+                formatted_output = format_math_expression(expr=expression, result=result, operation_type="monte_carlo", method="integration")
                 return True, {
                     "html": formatted_output,
-                    "canvas": None  # Asegurar que no se envía canvas
+                    "canvas": None,
                 }
             else:
                 return False, result.get("error", "Error desconocido.")

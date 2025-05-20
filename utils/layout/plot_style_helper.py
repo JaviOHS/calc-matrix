@@ -1,4 +1,5 @@
 class PlotStyleHelper:
+    """Clase para aplicar un estilo oscuro a las gráficas de Matplotlib."""
     def __init__(self):
         # Colores base
         self.BACKGROUND_COLOR = '#0F161F'

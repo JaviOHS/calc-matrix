@@ -1,8 +1,9 @@
 from .base import create_section
-from .polynomials import format_polynomial, format_roots_result, format_evaluation_result
+from .polynomials import format_polynomial, format_evaluation_result, format_roots_result
 from .matrices import format_vector
-from .diff_equations import *
-from .distributions import *
+from .diff_equations import format_diff_eq, format_numerical_method
+from .distributions import format_transform_distribution_result, format_monte_carlo_result, format_markov_epidemic_result
+from ..patterns import COLORS, ICONS
 
 def format_math_expression(expr, result, operation_type="generic", method=None):
     """Formatea resultados matemáticos según el tipo de operación"""

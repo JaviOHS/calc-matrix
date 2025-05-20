@@ -4,7 +4,7 @@ from PySide6.QtGui import QAction
 from utils.components.image_utils import create_image_label
 from utils.core.content_manager import ContentManager
 from utils.components.action_buttons import ActionButton
-from ui.dialogs.message_dialog import MessageDialog
+from ui.dialogs.simple.message_dialog import MessageDialog
 
 class BasePage(QWidget):
     def __init__(self, navigate_callback=None, page_key=None, controller=None, manager=None):

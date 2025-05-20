@@ -1,5 +1,5 @@
 from model.matrix_model import Matrix
-from ui.dialogs.matrix_result_dialog import MatrixResultDialog, EigenvectorsDialog
+from ui.dialogs.specialized.matrix_result_dialog import MatrixResultDialog, EigenvectorsDialog
 
 class ResultHandler:
     @staticmethod

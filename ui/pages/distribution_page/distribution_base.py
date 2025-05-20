@@ -1,10 +1,8 @@
 from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QHBoxLayout
-from ui.widgets.expression_op_widget import ExpressionOpWidget
 from utils.components.spinbox_utils import create_int_spinbox, create_float_spinbox
 
 class DistributionBaseOpWidget:
     """Clase base para operaciones de distribución"""
-    
     def create_method_selector(self, config_dict, default_key="mersenne", label_text="🟠 Método:"):
         method_container = QWidget()
         method_layout = QHBoxLayout(method_container)

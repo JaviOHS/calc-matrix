@@ -14,15 +14,7 @@ class FigureManager:
         plt.rcParams.update({'figure.max_open_warning': 50})
         
     def create_figure(self, figsize=(10, 7)):
-        """
-        Crea una nueva figura y la registra en el gestor.
-        
-        Args:
-            figsize (tuple): Tamaño de la figura (ancho, alto) en pulgadas
-            
-        Returns:
-            tuple: (figura, ejes, id_de_figura)
-        """
+        """Crea una nueva figura y la registra en el gestor."""
         fig, ax = plt.subplots(figsize=figsize)
         self.figure_count += 1
         fig_id = f"fig_{self.figure_count}"
@@ -39,23 +31,14 @@ class FigureManager:
         return fig, ax, fig_id
     
     def create_canvas(self, figsize=(10, 7), is_3d=False):
-        """
-        Crea una figura y devuelve su canvas
-        
-        Args:
-            figsize (tuple): Tamaño de la figura
-            is_3d (bool): Si es True, crea una figura 3D
-            
-        Returns:
-            FigureCanvas: El canvas de la figura
-        """
+        """Crea una figura y devuelve su canvas"""
         if is_3d:
             fig, ax, fig_id = self.create_3d_figure(figsize)
         else:
             fig, ax, fig_id = self.create_figure(figsize)
             
         canvas = FigureCanvas(fig)
-        canvas.ax = ax  # Guardamos el eje en el canvas para acceso posterior
+        canvas.ax = ax
         
         # Cerrar la figura después de crear el canvas
         self.close_figure(fig_id)

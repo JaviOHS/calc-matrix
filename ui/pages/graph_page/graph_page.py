@@ -10,8 +10,8 @@ class GraphPage(BasePage):
         super().__init__(navigate_callback, page_key="graph", controller=self.controller, manager=manager)
 
         self.operations = {
-            "Gráficas 2D": ("graficas_2d", Graph2DWidget),
-            "Gráficas 3D": ("graficas_3d", Graph3DWidget),
+            "Gráficas 2D": ("2d_graph", Graph2DWidget),
+            "Gráficas 3D": ("3d_graph", Graph3DWidget),
         }
 
     def execute_current_operation(self):

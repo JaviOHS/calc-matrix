@@ -50,36 +50,24 @@ class MatrixManager:
         self._ensure_matrices_exist()
         resultados = []
         for idx, matrix in enumerate(self.matrices):
-            if not isinstance(matrix, Matrix):
-                resultados.append((f"M{idx+1}", "Entrada inválida (no es una matriz)."))
-                continue
-            try:
-                det = matrix.determinant()
-                resultados.append((f"M{idx+1}", det))
-            except ValueError as e:
-                resultados.append((f"M{idx+1}", str(e)))
+            det = matrix.determinant()
+            resultados.append((f"M{idx+1}", det))
         return resultados
 
     def get_inverses(self):
         self._ensure_matrices_exist()
         resultados = []
         for idx, matrix in enumerate(self.matrices):
-            try:
-                inversa = matrix.inverse()
-                resultados.append((f"M{idx+1}", inversa))
-            except ValueError as e:
-                resultados.append((f"M{idx+1}", str(e)))
+            inversa = matrix.inverse()
+            resultados.append((f"M{idx+1}", inversa))
         return resultados
     
     def get_transpose(self):
         self._ensure_matrices_exist()
         resultados = []
         for idx, matrix in enumerate(self.matrices):
-            try:
-                transpuesta = matrix.transpose()
-                resultados.append((f"M{idx+1}", transpuesta))
-            except ValueError as e:
-                resultados.append((f"M{idx+1}", str(e)))
+            transpuesta = matrix.transpose()
+            resultados.append((f"M{idx+1}", transpuesta))
         return resultados
 
     def solve_system(self):
@@ -96,14 +84,8 @@ class MatrixManager:
         self._ensure_matrices_exist()
         resultados = []
         for idx, matrix in enumerate(self.matrices):
-            if not isinstance(matrix, Matrix):
-                resultados.append((f"M{idx+1}", "Entrada inválida (no es una matriz)."))
-                continue
-            try:
-                eigenvalues, eigenvectors = matrix.eigenvalues_and_eigenvectors()
-                resultados.append((f"M{idx+1}", (eigenvalues, eigenvectors)))
-            except ValueError as e:
-                resultados.append((f"M{idx+1}", str(e)))
+            eigenvalues, eigenvectors = matrix.eigenvalues_and_eigenvectors()
+            resultados.append((f"M{idx+1}", (eigenvalues, eigenvectors)))
         return resultados
 
     def validate_matrix_dimensions(self, matrix_a, matrix_b, operation):

@@ -27,10 +27,15 @@ class BaseGraphWidget(ExpressionOpWidget):
         return layout
     
     def display_result(self, result):
-        if self.use_dialog_for_result and hasattr(result, 'draw'):
-            self.show_canvas_dialog(result)
+        """Procesa el resultado para mostrarlo en diálogo o directamente"""
+        if hasattr(result, 'draw'):
+            try:
+                self.process_operation_result(result)
+            except Exception as e:
+                error_message = f"<div style='color: #D32F2F;'>❌ Error mostrando gráfica: {str(e)}</div>"
+                self.process_operation_result(error_message)
         else:
-            self.result_display.setText(str(result))
+            super().display_result(result)
 
     def clear_result(self):
         if self.canvas:
@@ -43,7 +48,7 @@ class BaseGraphWidget(ExpressionOpWidget):
         super().cleanup()
 
 class Graph2DWidget(BaseGraphWidget):
-    def __init__(self, manager=GraphController, controller=GraphController, operation_type=None):
+    def __init__(self, manager=GraphController, controller=GraphController, operation_type="2d_graph"):
         input_label = "Ingrese los rangos y la función a graficar en 2D."
         placeholder = "Puede ingresar varias funciones separadas por comas. Ejemplo: x^2, x^3, x^4"
         super().__init__(manager, controller, operation_type, input_label, placeholder)
@@ -54,20 +59,15 @@ class Graph2DWidget(BaseGraphWidget):
         range_layout = QVBoxLayout(self.range_widget)
         range_layout.setContentsMargins(20, 0, 0, 0)
         
-        # Crear controles usando la función de utilidad
         self.x_min = create_float_spinbox(default_val=-10.0)
         self.x_max = create_float_spinbox(default_val=10.0)
         
-        # Armar la fila de rango X
         x_row = self.create_range_row("Rango x", self.x_min, self.x_max)
         self.input_layout.insertLayout(2, x_row)
         self.layout.insertWidget(2, self.range_widget)
 
     def get_inputs(self):
-        return {
-            "expression": self.expression_input.toPlainText(),
-            "x_range": (self.x_min.value(), self.x_max.value())
-        }
+        return {"expression": self.expression_input.toPlainText(),"x_range": (self.x_min.value(), self.x_max.value())}
 
     def validate_operation(self):
         expressions = self.expression_input.toPlainText()
@@ -85,7 +85,7 @@ class Graph2DWidget(BaseGraphWidget):
         try:
             if not valid:
                 raise ValueError(msg)
-            result = self.controller.execute_operation("graficas_2d", self.get_inputs())
+            result = self.controller.execute_operation("2d_graph", self.get_inputs())
             return True, result
         except Exception as e:
             return False, str(e)
@@ -93,12 +93,13 @@ class Graph2DWidget(BaseGraphWidget):
     def on_calculate_clicked(self):
         success, result = self.perform_operation()
         if success:
-            self.display_result(result)
+            self.process_operation_result(result)
         else:
-            print("Error:", result)
+            error_message = f"<div style='color: #D32F2F;'>❌ Error: {result}</div>"
+            self.process_operation_result(error_message)
 
 class Graph3DWidget(BaseGraphWidget):
-    def __init__(self, manager=GraphController, controller=GraphController, operation_type=None):
+    def __init__(self, manager=GraphController, controller=GraphController, operation_type="3d_graph"):
         input_label = "Ingrese los rangos y la función a graficar en 3D."
         placeholder = "Ejemplo: x^2 + y^2"
         super().__init__(manager, controller, operation_type, input_label, placeholder)
@@ -110,28 +111,21 @@ class Graph3DWidget(BaseGraphWidget):
         main_layout.setContentsMargins(20, 0, 0, 0)
         main_layout.setSpacing(4)
 
-        # Crear controles
         self.x_min = create_float_spinbox(default_val=-10.0)
         self.x_max = create_float_spinbox(default_val=10.0)
         self.y_min = create_float_spinbox(default_val=-10.0)
         self.y_max = create_float_spinbox(default_val=10.0)
         
-        # Armar la fila de rango X
         x_row = self.create_range_row("Rango x", self.x_min, self.x_max)
         self.input_layout.insertLayout(2, x_row)
         
-        # Armar la fila de rango Y
         y_row = self.create_range_row("Rango y", self.y_min, self.y_max)
         self.input_layout.insertLayout(2, y_row)
         
         self.layout.insertWidget(2, self.range_widget)
 
     def get_inputs(self):
-        return {
-            "expression": self.expression_input.toPlainText(),
-            "x_range": (self.x_min.value(), self.x_max.value()),
-            "y_range": (self.y_min.value(), self.y_max.value())
-        }
+        return {"expression": self.expression_input.toPlainText(),"x_range": (self.x_min.value(), self.x_max.value()),"y_range": (self.y_min.value(), self.y_max.value())}
 
     def validate_operation(self):
         expr = self.expression_input.toPlainText()
@@ -147,7 +141,7 @@ class Graph3DWidget(BaseGraphWidget):
         try:
             if not valid:
                 raise ValueError(msg)
-            result = self.controller.execute_operation("graficas_3d", self.get_inputs())
+            result = self.controller.execute_operation("3d_graph", self.get_inputs())
             return True, result
         except Exception as e:
             return False, str(e)
@@ -155,6 +149,7 @@ class Graph3DWidget(BaseGraphWidget):
     def on_calculate_clicked(self):
         success, result = self.perform_operation()
         if success:
-            self.display_result(result)
+            self.process_operation_result(result)
         else:
-            print("Error:", result)
+            error_message = f"<div style='color: #D32F2F;'>❌ Error: {result}</div>"
+            self.process_operation_result(error_message)
