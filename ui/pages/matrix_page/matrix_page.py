@@ -1,9 +1,9 @@
 from model.matrix_manager import MatrixManager
 from controller.matrix_controller import MatrixController
 from ui.widgets.base_page import BasePage
-from ui.pages.matrix_page.matrix_operations.matrix_operation import MatrixOperationWidget, OneMatrixOperationWidget
-from ui.pages.matrix_page.matrix_operations.matrix_multiplication import MatrixMultiplicationWidget
-from ui.pages.matrix_page.matrix_operations.matrix_system_solver import MatrixSystemSolverWidget
+from ui.pages.matrix_page.operations.base_operation import MatrixOperationWidget, OneMatrixOperationWidget
+from ui.pages.matrix_page.operations.matrix_multiplication import MatrixMultiplicationWidget
+from ui.pages.matrix_page.operations.matrix_system_solver import MatrixSystemSolverWidget
 
 class MatrixPage(BasePage):
     def __init__(self, navigate_callback=None, manager=MatrixManager()):
@@ -13,15 +13,15 @@ class MatrixPage(BasePage):
 
         # Definir las operaciones disponibles
         self.operations = {
-            "Suma": ("suma", MatrixOperationWidget),
-            "Resta": ("resta", MatrixOperationWidget),
-            "Multiplicación": ("multiplicacion", MatrixMultiplicationWidget),
+            "Suma": ("plus", MatrixOperationWidget),
+            "Resta": ("substract", MatrixOperationWidget),
+            "Multiplicación": ("multiplication", MatrixMultiplicationWidget),
             "División": ("division", MatrixOperationWidget),
-            "Determinante": ("determinante", OneMatrixOperationWidget),
-            "Inversa": ("inversa", OneMatrixOperationWidget),
-            "Transpuesta": ("transpuesta", OneMatrixOperationWidget),
-            "Sistema de Ecuaciones": ("sistema", MatrixSystemSolverWidget),
-            "Vectores y Valores Propios": ("vectores_valores_propios", OneMatrixOperationWidget),
+            "Determinante": ("determinant", OneMatrixOperationWidget),
+            "Inversa": ("reverse", OneMatrixOperationWidget),
+            "Transpuesta": ("transposed", OneMatrixOperationWidget),
+            "Sistema de Ecuaciones": ("system_solver", MatrixSystemSolverWidget),
+            "Vectores y Valores Propios": ("eigenvalues", OneMatrixOperationWidget),
         }
 
     def execute_current_operation(self):

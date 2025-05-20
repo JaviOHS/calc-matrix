@@ -1,4 +1,4 @@
-from ui.pages.matrix_page.matrix_operations.matrix_operation import MatrixOperationWidget
+from ui.pages.matrix_page.operations.base_operation import MatrixOperationWidget
 from model.matrix_model import Matrix
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QVBoxLayout, QWidget, QLabel, QHeaderView, QHBoxLayout

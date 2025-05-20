@@ -1,4 +1,5 @@
 from PySide6.QtGui import QTextCharFormat, QFont
+from PySide6.QtWidgets import QTextEdit
 import re
 from typing import List, Tuple
 
@@ -13,6 +14,36 @@ def create_superscript_format(base_format: QTextCharFormat) -> QTextCharFormat:
     super_format = QTextCharFormat(base_format)
     super_format.setVerticalAlignment(QTextCharFormat.AlignSuperScript)
     return super_format
+
+def setup_text_edit_signals(text_edit: QTextEdit, format_callback, limit_callback):
+    """
+    Configura las señales para el formateo y límite de caracteres del QTextEdit.
+    
+    Args:
+        text_edit (QTextEdit): El widget al que se aplicarán las señales
+        format_callback: Función de callback para el formateo
+        limit_callback: Función de callback para el límite de caracteres
+    """
+    text_edit.textChanged.connect(limit_callback)
+    text_edit.textChanged.connect(format_callback)
+
+def enforce_character_limit(text_edit: QTextEdit, char_limit: int):
+    """
+    Verifica y aplica el límite de caracteres en el QTextEdit.
+    
+    Args:
+        text_edit (QTextEdit): El widget a limitar
+        char_limit (int): Número máximo de caracteres permitidos
+    """
+    text = text_edit.toPlainText()
+    if len(text) > char_limit:
+        text_edit.blockSignals(True)
+        text_edit.setPlainText(text[:char_limit])
+        text_edit.blockSignals(False)
+        
+        cursor = text_edit.textCursor()
+        cursor.setPosition(char_limit)
+        text_edit.setTextCursor(cursor)
 
 def add_spacing_around_operators(text: str) -> str:
     """Añade espacios alrededor de operadores matemáticos"""

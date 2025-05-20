@@ -4,49 +4,55 @@ from controller.polynomial_controller import PolynomialController
 from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout
 from utils.formating.formatting import format_math_expression
 from utils.components.spinbox_utils import create_float_spinbox
+from utils.components.two_column import TwoColumnWidget
 
 class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
-        if operation_type == "operaciones_combinadas":
-            input_label = "Ingrese varios polinomios para realizar cálculo de operaciones combinadas:"
+        input_label = "Ingrese expresión"
+        if operation_type == "combined_operations":
             placeholder = "Ejemplo: (x^2 + 2x + 1) + (4x^2 + 3x + 4)"
         else:
-            input_label = f"Ingrese un polinomio para realizar cálculo de {operation_type.replace("_", " ")}:"
             placeholder = "Ejemplo: x^2 + 2x + 1"
 
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label)
-        
+        self.custom_setup()
         self.input_mode = "text"
         self.last_valid_text = ""
         self._parsed_expr = None 
-        self.custom_setup()
 
     def custom_setup(self):
+        # Ocultar el título si existe
+        self.title_label.hide()
+        result_container = self.detach_result_container()
+
+        # Crear widget de dos columnas
+        two_column_widget = TwoColumnWidget(
+            column1_label=self.input_label_text,
+            column2_label="Resultado",
+        )
+        two_column_widget.add_to_column1(self.expression_input)
+
+        # Añadir el contenedor de resultado a la segunda columna
+        two_column_widget.add_to_column2(result_container)
+
+        # Insertar el widget de dos columnas en el layout principal
+        self.layout.insertWidget(1, two_column_widget)
+
+        # Configurar el spinbox si es necesario
         if self.operation_type == "evaluation":
-            # Buscamos el label del título que se creó antes
-            title_label = self.findChild(QLabel, "expressionLabel")
+            self.x_input = create_float_spinbox(min_val=-1000, max_val=1000, step=0.1)
 
-            # Creamos contenedor horizontal para el label + input de x
-            inline_container = QWidget()
-            inline_layout = QHBoxLayout(inline_container)
-            inline_layout.setContentsMargins(0, 0, 0, 0)
-            inline_layout.setSpacing(6)
+            x_label = QLabel("📍 Valor de x:")
 
-            # Nuevo label (usamos el mismo texto pero en un contenedor más flexible)
-            inline_layout.addWidget(QLabel("Ingrese un polinomio y valor de"))
+            layout = QHBoxLayout()
+            layout.addWidget(x_label)
+            layout.addWidget(self.x_input)
+            layout.addStretch()
 
-            # Parte de x =
-            inline_layout.addWidget(QLabel("x ="))
-            self.x_input = create_float_spinbox(default_val=1)
-            inline_layout.addWidget(self.x_input)
-            inline_layout.addStretch()
-
-            # Reemplazamos el viejo label por el contenedor nuevo
-            parent_layout = title_label.parentWidget().layout()
-            title_index = parent_layout.indexOf(title_label)
-            parent_layout.removeWidget(title_label)
-            title_label.deleteLater()
-            parent_layout.insertWidget(title_index, inline_container)
+            # Añadir el spinbox al diseño de la primera columna
+            container_widget = QWidget()
+            container_widget.setLayout(layout)
+            two_column_widget.add_to_column1(container_widget)
 
     def validate_operation(self):
         expr = self.expression_input.toPlainText().strip()
@@ -63,7 +69,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
     def collect_polynomials(self):
         expr = self.expression_input.toPlainText().strip()
 
-        if self.operation_type in {"raices", "derivacion", "integracion", "evaluation"}:
+        if self.operation_type in {"roots", "derivative", "integral", "evaluation"}:
             try:
                 poly = self.controller.parser.to_polynomial(self._parsed_expr)
                 return [poly] # Para operaciones de polinomios, se convierte a polinomio
@@ -87,7 +93,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
             result = self.controller.execute_operation("evaluation", float(x_value))
             return [("P1", result[0])]
         else:
-            if self.operation_type in {"derivacion", "integracion", "raices"}:
+            if self.operation_type in {"derivative", "integral", "roots"}:
                 poly = self.controller.parser.to_polynomial(self._parsed_expr)
                 self.controller.manager.add_polynomial(poly)
                 result = self.controller.execute_operation(self.operation_type)
@@ -102,7 +108,7 @@ class PolynomialOpWidget(ExpressionOpWidget):
     def prepare_result_display(self, result):
         expression = self.expression_input.toPlainText().strip()
 
-        if self.operation_type == "raices":
+        if self.operation_type == "roots":
             _, roots = result[0]  # resultado tipo ('P1', [...])
             return format_math_expression(expression, roots, operation_type="roots")
         elif self.operation_type == "evaluation":

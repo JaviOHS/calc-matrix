@@ -10,10 +10,10 @@ class PolynomialPage(BasePage):
         super().__init__(navigate_callback, page_key="polynomial", controller=self.controller, manager=manager)
 
         self.operations = {
-            "Operaciones Combinadas": ("operaciones_combinadas", PolynomialOpWidget),
-            "Raíces": ("raices", PolynomialOpWidget),
-            "Derivación": ("derivacion", PolynomialOpWidget),
-            "Integración": ("integracion", PolynomialOpWidget),
+            "Operaciones Combinadas": ("combined_operations", PolynomialOpWidget),
+            "Raíces": ("roots", PolynomialOpWidget),
+            "Derivación": ("derivative", PolynomialOpWidget),
+            "Integración": ("integral", PolynomialOpWidget),
             "Evaluación": ("evaluation", PolynomialOpWidget),
         }
         
@@ -37,7 +37,7 @@ class PolynomialPage(BasePage):
         try:
             op_key = self.current_operation
 
-            if op_key == "operaciones_combinadas":
+            if op_key == "combined_operations":
                 expression = widget.collect_polynomials()[0]
                 if not expression:
                     self.show_message_dialog("🟡 VALIDACIÓN", "#ffcc32", "Se necesita una expresión para evaluar")

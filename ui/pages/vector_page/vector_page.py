@@ -11,10 +11,10 @@ class VectorPage(BasePage):
         super().__init__(navigate_callback, page_key="vector", controller=self.controller, manager=manager)
 
         self.operations = {
-            "Operaciones Básicas": ("operaciones_basicas", VectorOpWidget),
-            "Magnitud": ("magnitud", VectorOpWidget),
-            "Producto punto": ("producto_punto", VectorOpWidget),
-            "Producto cruzado": ("producto_cruzado", VectorOpWidget),
+            "Operaciones Básicas": ("basic_operations", VectorOpWidget),
+            "Magnitud": ("magnitude", VectorOpWidget),
+            "Producto punto": ("dot_product", VectorOpWidget),
+            "Producto cruzado": ("cross_product", VectorOpWidget),
         }
 
     def execute_current_operation(self):

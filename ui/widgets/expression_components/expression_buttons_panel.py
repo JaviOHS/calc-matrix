@@ -14,9 +14,11 @@ class ExpressionButtonsPanel(QWidget):
             ("^", "^"), ("√", "sqrt("), ("π", "π"), ("e", "e"), ("ln", "ln("),
             ("log", "log("), ("sin", "sin("), ("cos", "cos("), ("tan", "tan("),
             ("x", "x") ,("y'", "y'(x) ="), ("=", "="), 
-            ("+", "+"), ("-", "-"), ("*", "*"), ("/", "/"),
-            ("(", "("), (")", ")"), ("{", "{"), ("}", "}"),
-            ("[", "["), ("]", "]"), ("{", "{"), ("}", "}"),
+            ("+", "+"), ("-", "-"), ("·", "·"), ("/", "/"),
+            ("( )", "( )"), ("[ ]", "[ ]"),
+            ("1", "1"), ("2", "2"), ("3", "3"),
+            ("4", "4"), ("5", "5"), ("6", "6"),
+            ("7", "7"), ("8", "8"), ("9", "9")
         ]
 
         layout = QGridLayout(self)
@@ -27,7 +29,7 @@ class ExpressionButtonsPanel(QWidget):
             button = ActionButton(label,parent=self,object_name="ctaButton")
             button.setMinimumSize(42, 42)
             button.clicked.connect(lambda _, text=insert_text: self.insert_symbol(text))
-            layout.addWidget(button, index // 8, index % 8)
+            layout.addWidget(button, index // 9, index % 9)
 
     def insert_symbol(self, text):
         cursor = self.text_edit.textCursor()

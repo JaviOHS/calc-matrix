@@ -35,10 +35,13 @@ class BasePage(QWidget):
         self.operation_title_container.hide()  # Oculto inicialmente
         
         operation_title_layout = QHBoxLayout(self.operation_title_container)
-        operation_title_layout.setContentsMargins(30, 20, 10, 10)
+        # Reducir los márgenes para que el título tenga más espacio horizontal
+        operation_title_layout.setContentsMargins(20, 15, 10, 10)
         
         self.operation_title_label = QLabel()
         self.operation_title_label.setObjectName("operationTitle")
+        self.operation_title_label.setMaximumHeight(60)
+        self.operation_title_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         
         operation_title_layout.addWidget(self.operation_title_label)
         operation_title_layout.addStretch()
@@ -355,11 +358,19 @@ class BasePage(QWidget):
         # Actualizar título de operación
         object_name = self.get_object_name()
         if not object_name:
+            # Reducir el título si es muy largo
+            if len(operation_key) > 45:
+                operation_key = operation_key[:37] + "..."
             operation_title = self.highlight_last_word(operation_key)
         else:
+            # Acortar el nombre del objeto si es muy largo
+            if len(object_name) > 20:
+                object_name = object_name[:17] + "..."
             operation_title = f"{operation_key} de <span style='color:#ff8103;'>{object_name}</span>"
         
         self.operation_title_label.setText(operation_title)
+        # Ajustar el label para una línea preferentemente
+        self.operation_title_label.setMinimumWidth(400)  # Ancho mínimo para mejor legibilidad
         self.operation_title_label.setWordWrap(True)  # Habilitar ajuste de texto
         self.operation_title_container.show()
         

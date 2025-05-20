@@ -13,7 +13,7 @@ class DistributionPage(BasePage):
         self.operations = {
             "Simulación de Números Aleatorios": ("random_numbers", DistributionOpWidget),
             "Simulación de Monte Carlo": ("monte_carlo", DistributionOpWidget),
-            "Propagación de Epidemias - Markov": ("markov_epidemic", DistributionOpWidget),
+            "Propagación de Epidemias - Modelo de Markov": ("markov_epidemic", DistributionOpWidget),
         }
     
     def execute_current_operation(self):

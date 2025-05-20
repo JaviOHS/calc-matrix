@@ -1,9 +1,9 @@
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from controller.distribution_controller import DistributionController
 from model.distribution_manager import DistributionManager
-from .dis_operations.random_op import RandomOperation
-from .dis_operations.monte_carlo_op import MonteCarloOp
-from .dis_operations.markov_op import MarkovOperation
+from .operations.random_op import RandomOperation
+from .operations.monte_carlo_op import MonteCarloOp
+from .operations.markov_op import MarkovOperation
 
 class DistributionOpWidget(ExpressionOpWidget):
     def __init__(self, manager=DistributionManager, controller=DistributionController, operation_type=None):
@@ -12,24 +12,27 @@ class DistributionOpWidget(ExpressionOpWidget):
         
         # Configurar etiqueta según el tipo de operación
         if operation_type == "monte_carlo":
-            input_label = "Ingrese los parámetros para la integración por Monte Carlo:"
+            input_label = "Ingrese expresión para integración de Monte Carlo"
             placeholder = "Ejemplo: x^2 + 3x + 2"
             allow_expression = True
             use_dialog_for_result = True
+            button_text = "Calcular"
         elif operation_type == "markov_epidemic":
-            input_label = "Ingrese los parámetros para la simulación de epidemias:"
+            input_label = None
             placeholder = None
             allow_expression = False
             use_dialog_for_result = True
+            button_text = "Simular"
         else:
-            input_label = "Seleccione los métodos e ingrese los parámetros:"
+            input_label = "Generación de números aleatorios"
             placeholder = None
             allow_expression = False
             use_dialog_for_result = True
+            button_text = "Generar"
             
         super().__init__(manager, controller, operation_type, input_label=input_label, placeholder=placeholder, allow_expression=allow_expression, use_dialog_for_result=use_dialog_for_result)
         
-        # Configurar interfaz según la operación
+        self.calculate_button.setText(button_text)
         self.setup_operation_handler()
 
     def setup_operation_handler(self):

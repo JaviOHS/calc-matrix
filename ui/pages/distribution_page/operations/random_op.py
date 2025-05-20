@@ -1,18 +1,15 @@
-from PySide6.QtWidgets import QSpinBox, QDoubleSpinBox, QWidget, QLabel, QHBoxLayout, QVBoxLayout, QFrame, QGroupBox
+from PySide6.QtWidgets import QSpinBox, QDoubleSpinBox, QWidget, QLabel, QHBoxLayout, QVBoxLayout
 from ..distribution_base import DistributionBaseOpWidget
 from ..method_config import METHOD_CONFIG, TRANSFORM_CONFIG
 from utils.formating.formatting import format_math_expression
+from utils.components.spinbox_utils import create_int_spinbox
+from utils.components.two_column import TwoColumnWidget
 
 class RandomOperation(DistributionBaseOpWidget):
     """Clase para las operaciones de generación de números aleatorios y transformación de distribuciones"""
     
     def __init__(self, parent_widget):
-        """
-        Inicializa la operación de generación de números aleatorios
-        
-        Args:
-            parent_widget: El widget padre que contiene esta operación
-        """
+        """Inicializa la operación de generación de números aleatorios"""
         self.parent = parent_widget
         self.dynamic_fields = {}
         self.transform_fields = {}
@@ -20,57 +17,35 @@ class RandomOperation(DistributionBaseOpWidget):
         
     def setup_ui(self):
         """Configura la interfaz para generación de números aleatorios y transformación"""
-        # Crear contenedor principal con dos columnas
-        main_container = QWidget()
-        main_layout = QHBoxLayout(main_container)
-        main_layout.setContentsMargins(0, 0, 0, 0)
-        
-        # ===== COLUMNA 1: GENERACIÓN DE NÚMEROS =====
-        generation_group = QGroupBox("Generación de números aleatorios")
-        generation_layout = QVBoxLayout(generation_group)
-        
-        # Selector de método de generación
+        # Crear el componente de dos columnas
+        self.parent.title_label.hide()  # Acceder a través del parent
+        self.two_column_widget = TwoColumnWidget(column1_label=self.parent.input_label_text, column2_label="Transformación de distribución")
+
+        # Añadir inputs a la primera columna
         method_container, self.method_combo = self.create_method_selector(METHOD_CONFIG, label_text="🎲 Método:")
-        generation_layout.addWidget(method_container)
-        
-        # Contenedor para los campos dinámicos de generación
+        self.two_column_widget.add_to_column1(method_container)
+
         self.generation_fields_container = QWidget()
         self.generation_fields_layout = QVBoxLayout(self.generation_fields_container)
         self.generation_fields_layout.setContentsMargins(0, 0, 0, 0)
-        generation_layout.addWidget(self.generation_fields_container)
-        
-        generation_layout.addStretch()
-        main_layout.addWidget(generation_group)
-        
-        # Separador visual
-        separator = QFrame()
-        separator.setFrameShape(QFrame.VLine)
-        separator.setFrameShadow(QFrame.Sunken)
-        main_layout.addWidget(separator)
-        
-        # ===== COLUMNA 2: TRANSFORMACIÓN =====
-        transform_group = QGroupBox("Transformación de distribución")
-        transform_layout = QVBoxLayout(transform_group)
-        
-        # Selector de método de transformación
+        self.two_column_widget.add_to_column1(self.generation_fields_container)
+
+        # Añadir inputs a la segunda columna
         transform_method_container, self.transform_combo = self.create_method_selector(
             TRANSFORM_CONFIG, 
             default_key="normal", 
             label_text="🔄 Transformar a:"
         )
-        transform_layout.addWidget(transform_method_container)
+        self.two_column_widget.add_to_column2(transform_method_container)
         
-        # Contenedor para los campos dinámicos de transformación
         self.transform_fields_container = QWidget()
         self.transform_fields_layout = QVBoxLayout(self.transform_fields_container)
         self.transform_fields_layout.setContentsMargins(0, 0, 0, 0)
-        transform_layout.addWidget(self.transform_fields_container)
-        
-        transform_layout.addStretch()
-        main_layout.addWidget(transform_group)
-        
-        # Añadir el contenedor principal al layout del widget padre
-        self.parent.input_layout.addWidget(main_container)
+        self.two_column_widget.add_to_column2(self.transform_fields_container)
+
+        # Añadir el componente al layout principal
+        self.parent.input_layout.addWidget(self.two_column_widget)
+        self.parent.input_layout.setContentsMargins(0, 0, 0, 0)
         
         # Conectar eventos
         self.method_combo.currentIndexChanged.connect(self.update_dynamic_fields)
@@ -79,7 +54,7 @@ class RandomOperation(DistributionBaseOpWidget):
         # Inicializar campos
         self.update_dynamic_fields()
         self.update_transform_fields()
-    
+        
     def update_dynamic_fields(self):
         """Actualiza los campos dinámicos de generación según el método seleccionado"""
         # Limpiar campos existentes
@@ -129,8 +104,11 @@ class RandomOperation(DistributionBaseOpWidget):
                 spinbox.setDecimals(field.get("decimals", 2))
                 spinbox.setSingleStep(field.get("step", 0.1))
             else:
-                spinbox = QSpinBox()
-                spinbox.setSingleStep(field.get("step", 1))
+                spinbox = create_int_spinbox(
+                    min_val=field["min"],
+                    max_val=field["max"],
+                    default_val=field["default"]
+                )
             
             # Configurar propiedades comunes
             spinbox.setMinimum(field["min"])

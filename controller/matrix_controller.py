@@ -3,41 +3,37 @@ class MatrixController:
         self.manager = manager
         # Mapeo de operaciones a métodos
         self.operations = {
-            "suma": self.sum_matrices,
-            "resta": self.subtract_all,
-            "multiplicacion": self.multiply_all,
+            "plus": self.sum_matrices,
+            "substract": self.subtract_all,
+            "multiplication": self.multiply_all,
             "division": self.divide_all,
-            "determinante": self.get_determinants,
-            "inversa": self.get_inverses,
-            "transpuesta": self.get_transpose,
-            "vectores_valores_propios": self.get_vector_and_eigenvalues,
-            "sistema": self.solve_system,
+            "determinant": self.get_determinants,
+            "reverse": self.get_inverses,
+            "transposed": self.get_transpose,
+            "system_solver": self.solve_system,
+            "eigenvalues": self.get_vector_and_eigenvalues,
         }
 
     def execute_operation(self, operation_name: str):
         """Ejecuta la operación solicitada por nombre"""
         if operation_name not in self.operations:
             raise ValueError(f"Operación no soportada: {operation_name}.")
+        return self.operations[operation_name]()
         
-        try:
-            return self.operations[operation_name]()
-        except Exception as e:
-            raise ValueError(f"Error en operación '{operation_name}': {str(e)}.")
-
     def validate_operation(self, operation, matrices):
         """Valida que la operación se pueda realizar con las matrices dadas"""
         if not matrices:
             raise ValueError("No hay matrices para operar")
             
-        if operation in ['suma', 'resta', 'multiplicacion']:
+        if operation in ['plus', 'substract', 'multiplication']:
             if len(matrices) < 2:
-                raise ValueError(f"Se necesitan al menos 2 matrices para {operation}")
-        elif operation in ['division', 'sistema']:
+                raise ValueError(f"Se necesitan al menos 2 matrices para realizar esta operación.")
+        elif operation in ['division', 'system_solver']:
             if len(matrices) != 2:
-                raise ValueError(f"Se necesitan exactamente 2 matrices para {operation}")
+                raise ValueError(f"Se necesitan exactamente 2 matrices para realizar esta operación.")
         elif operation in ['determinante', 'inversa', 'valores_propios', 'vectores_propios']:
             if len(matrices) != 1:
-                raise ValueError(f"Se necesita exactamente 1 matriz para {operation}")
+                raise ValueError(f"Se necesita exactamente 1 matriz para realizar esta operación.")
 
     def sum_matrices(self):
         try:

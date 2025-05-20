@@ -29,46 +29,28 @@ class ExpressionOpWidget(MathOperationWidget):
         input_layout.setSpacing(8)
         input_layout.setContentsMargins(20, 0, 20, 0)
 
-        self.input_layout = input_layout # Guardar la referencia al layout de entrada
+        self.input_layout = input_layout
+        self.input_section = input_section
 
-        title_label = QLabel(self.input_label_text)
-        title_label.setObjectName("expressionLabel")
-        input_layout.addWidget(title_label)
-
+        # Solo mostrar title_label si no estamos usando TwoColumnWidget
+        self.title_label = QLabel(self.input_label_text)
+        self.title_label.setObjectName("expressionLabel")
+        input_layout.addWidget(self.title_label)
+        
         # Solo agregar el QTextEdit de expresión si allow_expression es True
         if self.allow_expression:
             self.expression_input = QTextEdit()
             self.expression_input.setObjectName("expressionInput")
             self.expression_input.setPlaceholderText(self.placeholder)
-            self.expression_input.setMaximumHeight(90)
+            self.expression_input.setMaximumHeight(150)
             input_layout.addWidget(self.expression_input)
 
             self.expression_formatter = ExpressionFormatterInput(self.expression_input)
         
         # Solo agregar contenedor de resultado si use_dialog_for_result es False
         if not self.use_dialog_for_result:
-            result_section = QWidget()
-            result_section.setObjectName("resultSection")
-            result_layout = QHBoxLayout(result_section)
-            result_layout.setContentsMargins(8, 4, 8, 4)
-            result_layout.setSpacing(8)
-            self.result_display = QTextEdit()
-            self.result_display.setObjectName("resultDisplay")
-            self.result_display.setReadOnly(True)
-            self.result_display.setFrameStyle(QTextEdit.NoFrame)
-            self.result_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            self.result_display.document().setDocumentMargin(5)
-            self.result_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-
-            self.result_display.setText("⭐ Aquí se mostrará la solución")
-            result_layout.addWidget(self.result_display)
-
-            if self.image_path:
-                self.preview_image = create_image_label(self.image_path, height=80)
-                self.preview_image.setObjectName("previewImage")
-                result_layout.addWidget(self.preview_image, alignment=Qt.AlignRight)
-
-            input_layout.addWidget(result_section)
+            self.result_container = self._create_result_container()
+            input_layout.addWidget(self.result_container)
 
         self.layout.addWidget(input_section)
 
@@ -76,7 +58,7 @@ class ExpressionOpWidget(MathOperationWidget):
         controls_layout = QHBoxLayout(controls)
         controls_layout.setContentsMargins(0, 5, 0, 0)
         controls_layout.setSpacing(20)
-    
+
         # Solo agregar el panel de botones de expresión si allow_expression es True
         if self.allow_expression:
             expression_buttons = ExpressionButtonsPanel(self.expression_input)
@@ -89,7 +71,43 @@ class ExpressionOpWidget(MathOperationWidget):
         self.layout.addWidget(controls)
         self.layout.addStretch() # Fuerza que todo lo demás se mantenga arriba
         self.setLayout(self.layout)
+
+    def _create_result_container(self):
+        """Crea el contenedor de resultado que puede ser reusado por clases derivadas"""
+        result_section = QWidget()
+        result_section.setObjectName("resultSection")
+        result_section.setMaximumHeight(150)
+        result_layout = QHBoxLayout(result_section)
+        result_layout.setContentsMargins(4, 4, 4, 4)
+        result_layout.setSpacing(8)
         
+        self.result_display = QTextEdit()
+        self.result_display.setObjectName("resultDisplay")
+        self.result_display.setReadOnly(True)
+        self.result_display.setFrameStyle(QTextEdit.NoFrame)
+        self.result_display.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.result_display.document().setDocumentMargin(5)
+        self.result_display.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+
+        self.result_display.setText("⭐ Aquí se mostrará la solución")
+        result_layout.addWidget(self.result_display)
+
+        if self.image_path:
+            self.preview_image = create_image_label(self.image_path, height=80)
+            self.preview_image.setObjectName("previewImage")
+            result_layout.addWidget(self.preview_image, alignment=Qt.AlignRight)
+            
+        return result_section
+
+    def detach_result_container(self):
+        """Desprende el contenedor de resultado de su posición actual y lo devuelve"""
+        if hasattr(self, 'result_container') and self.result_container:
+            parent_layout = self.result_container.parent().layout()
+            if parent_layout:
+                parent_layout.removeWidget(self.result_container)
+            return self.result_container
+        return None
+
     def get_input_expression(self):
         if hasattr(self, 'expression_input'):
             return self.expression_input.toPlainText().strip()

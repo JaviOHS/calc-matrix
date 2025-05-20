@@ -19,13 +19,36 @@ def is_valid_number(value):
         return False
     
 def exponents_validator(expression: str, max_exponent: int = 1000) -> tuple[bool, str]:
-    """Valida que los exponentes estén dentro del límite permitido.Devuelve una tupla (is_valid, error_message)."""
-    exponent = re.findall(r'x\^(\d+)|x\*\*(\d+)', expression) # Busca expresiones del tipo x^123456 o x**123456
-    exponent = [int(exp) for group in exponent for exp in group if exp]
-
-    for exp in exponent:
+    """Valida que los exponentes estén dentro del límite permitido. Devuelve una tupla (is_valid, error_message)."""
+    # Primero, normalizar operadores de multiplicación consecutivos
+    normalized_expr = re.sub(r'[\·\*]\s*[\·\*]', '·', expression)
+    
+    # Eliminar espacios para facilitar la detección
+    clean_expr = re.sub(r'\s+', '', normalized_expr)
+    
+    # Patrones mejorados para detectar exponentes:
+    # 1. x^123 o x**123 - formato básico
+    # 2. x^(123) o x**(123) - exponentes entre paréntesis
+    # 3. x·123, x*123, x·(123) - multiplicación que podría interpretarse como exponente
+    patterns = [
+        r'[a-zA-Z]\^(\d+)', r'[a-zA-Z]\*\*(\d+)',           # Formato básico
+        r'[a-zA-Z]\^\((\d+)\)', r'[a-zA-Z]\*\*\((\d+)\)',   # Exponentes entre paréntesis
+        r'[a-zA-Z][\·\*](\d{6,})', r'[a-zA-Z][\·\*]\((\d{6,})\)'   # Multiplicaciones grandes
+    ]
+    
+    exponents = []
+    for pattern in patterns:
+        try:
+            matches = re.findall(pattern, clean_expr)
+            exponents.extend([int(exp) for exp in matches if exp and exp.isdigit()])
+        except Exception as e:
+            # En caso de error en la expresión regular, devolver error explicativo
+            return False, f"Error al procesar la expresión: {e}. Revise la sintaxis."
+    
+    for exp in exponents:
         if exp > max_exponent:
-            return False, f"El exponente {exp} excede el límite máximo ({max_exponent})."
+            return False, f"El exponente excede el límite máximo ({max_exponent})."
+    
     return True, ""
 
 def validate_characters(expression: str, allowed_chars: set, special_chars_map: dict) -> tuple[bool, str]:
@@ -69,9 +92,6 @@ def validate_parentheses(expression: str) -> tuple[bool, str]:
 def validate_expression_syntax(expression: str) -> tuple[bool, str]:
     """Valida la sintaxis básica de una expresión matemática."""
     expression = re.sub(r'\s*([+\-*/^])\s*', r' \1 ', expression) # Normalizar espacios alrededor de operadores
-    
-    if re.search(r'[+\-*/^]{2,}', expression): # Verificar operadores consecutivos
-        return False, "Operadores consecutivos no permitidos."
     
     if re.search(r'\w+\(\s*\)', expression): # Verificar funciones matemáticas vacías
         return False, "Funciones matemáticas vacías no permitidas."

@@ -108,7 +108,7 @@ class ExpressionParser:
             raise ValueError(error_msg)
 
     @expression_error_handler
-    def parse_expression(self, raw_expr: str, use_3d=False, max_length: int = 500, is_differential=False):
+    def parse_expression(self, raw_expr: str, use_3d=False, max_length: int = 250, is_differential=False):
         """Analiza una expresión matemática (POLINOMIOS) y la convierte a formato sympy."""
         allowed_chars = self.allowed_differential_chars if is_differential else self.allowed_chars
         self.validate_expression(raw_expr, max_length, allowed_chars, is_differential, use_3d)
@@ -132,7 +132,7 @@ class ExpressionParser:
     @expression_error_handler
     def parse_equation(self, raw_expr: str):
         """Parsea una ecuación (EDOs) y la convierte en una expresión sympy Eq."""
-        self.validate_expression(raw_expr, max_length=500, allowed_chars=self.allowed_differential_chars, is_differential=True, use_3d=False)
+        self.validate_expression(raw_expr, max_length=250, allowed_chars=self.allowed_differential_chars, is_differential=True, use_3d=False)
         clean_expr = self.sanitize_expression(raw_expr)
 
         if clean_expr.startswith("Eq("):

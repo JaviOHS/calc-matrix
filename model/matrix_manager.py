@@ -104,6 +104,6 @@ class MatrixManager:
 
     def validate_single_matrix(self, matrix, operation):
         """Valida una única matriz para operaciones como determinante/inversa"""
-        if operation in ['determinant', 'inverse', 'eigenvalues', 'eigenvectors']:
+        if operation in ['determinant', 'inverse', 'eigenvalues']:
             if matrix.rows != matrix.cols:
                 raise ValueError(f"La matriz debe ser cuadrada para calcular {operation}.")

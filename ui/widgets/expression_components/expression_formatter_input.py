@@ -1,23 +1,36 @@
 from PySide6.QtGui import QTextCharFormat
 from PySide6.QtWidgets import QTextEdit
-from utils.formating.input_formating import (
-    create_base_format, 
-    create_superscript_format,
-    add_spacing_around_operators
-)
+from PySide6.QtCore import QTimer
+from utils.formating.input_formating import create_base_format, create_superscript_format, add_spacing_around_operators, enforce_character_limit
 from utils.patterns import BRACKET_COLORS
+from functools import partial
 
 class ExpressionFormatterInput:
     """Clase para formatear expresiones matemáticas en un QTextEdit"""
     
-    def __init__(self, text_edit: QTextEdit):
+    def __init__(self, text_edit: QTextEdit, char_limit: int = 260):
         self.text_edit = text_edit
+        self.char_limit = char_limit
         self.bracket_colors = BRACKET_COLORS
         self.setup_formatting()
     
     def setup_formatting(self):
-        """Configura el formateo automático de expresiones"""
-        self.text_edit.textChanged.connect(self.format_expression)
+        """Configura el formateo automático de expresiones con retraso"""
+        limit_callback = partial(enforce_character_limit, self.text_edit, self.char_limit)
+        self.text_edit.textChanged.connect(limit_callback)
+        
+        # Crear temporizador para retrasar el formateo
+        self.format_timer = QTimer()
+        self.format_timer.setSingleShot(True)
+        self.format_timer.setInterval(500)  # 500ms de retraso
+        self.format_timer.timeout.connect(self.format_expression)
+        
+        # Conectar cambios de texto al temporizador en lugar de directamente al formateo
+        self.text_edit.textChanged.connect(self.reset_format_timer)
+    
+    def reset_format_timer(self):
+        """Reinicia el temporizador de formateo"""
+        self.format_timer.start()
     
     def format_expression(self):
         """Formatea la expresión matemática en tiempo real"""

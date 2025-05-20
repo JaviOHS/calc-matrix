@@ -80,7 +80,7 @@ class DialogFactory:
         # Para resultados de solo HTML
         html_content = result if isinstance(result, str) else None
         if html_content:
-            dialog = MessageDialog(title=f"🟢 RESULTADO HTML", title_color="#7cb342", message=html_content, image_name=None, parent=parent)
+            dialog = MessageDialog(title=f"🟢 RESULTADO DE {operation_type.replace('_', ' ').upper()}",  title_color="#7cb342",  message=html_content,  image_name=None,  parent=parent)
             dialog.exec()
             return
             

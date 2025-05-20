@@ -2,6 +2,7 @@ from PySide6.QtWidgets import QWidget, QLabel, QComboBox, QHBoxLayout
 from ..distribution_base import DistributionBaseOpWidget
 from ..method_config import METHOD_CONFIG, MARKOV_CONFIG
 from utils.formating.formatting import format_math_expression
+from utils.components.two_column import TwoColumnWidget
 
 class MarkovOperation(DistributionBaseOpWidget):
     """Clase para las operaciones de simulación epidémica de Markov"""
@@ -11,6 +12,10 @@ class MarkovOperation(DistributionBaseOpWidget):
         
     def setup_ui(self):
         """Configura la interfaz para simulación de epidemias usando la configuración"""
+        self.parent.title_label.hide()
+        two_column_widget = TwoColumnWidget(column1_label="Configuración de población", column2_label="Parámetros de simulación")
+        
+        # Configurar el selector de método
         markov_method_container = QWidget()
         markov_method_layout = QHBoxLayout(markov_method_container)
         markov_method_layout.setContentsMargins(0, 0, 0, 0)
@@ -20,19 +25,23 @@ class MarkovOperation(DistributionBaseOpWidget):
         for key, config in METHOD_CONFIG.items():
             self.markov_method_combo.addItem(config["display_name"], key)
         markov_method_layout.addWidget(self.markov_method_combo)
-        
         markov_method_layout.addStretch()
-        self.parent.input_layout.addWidget(markov_method_container)
 
-        # Parámetros de población
-        self.parent.input_layout.addWidget(self.create_parameter_container(MARKOV_CONFIG["population_params"]))
-        
-        # Parámetros de tasas
-        self.parent.input_layout.addWidget(self.create_parameter_container(MARKOV_CONFIG["rate_params"]))
-        
-        # Parámetros de simulación
-        self.parent.input_layout.addWidget(self.create_parameter_container(MARKOV_CONFIG["simulation_params"]))
-    
+        # Crear contenedores para cada columna
+        population_container = self.create_parameter_container(MARKOV_CONFIG["population_params"])
+        rates_container = self.create_parameter_container(MARKOV_CONFIG["rate_params"])
+        simulation_container = self.create_parameter_container(MARKOV_CONFIG["simulation_params"])
+
+        # Añadir widgets a las columnas
+        two_column_widget.add_to_column1(markov_method_container)
+        two_column_widget.add_to_column1(population_container)
+        two_column_widget.add_to_column1(rates_container)
+        two_column_widget.add_to_column2(simulation_container)
+
+        # Añadir el widget de dos columnas al layout principal
+        self.parent.input_layout.addWidget(two_column_widget)
+        self.parent.input_layout.setContentsMargins(0, 0, 0, 0)
+
     def perform_operation(self, controller):
         """Ejecuta la simulación del modelo de Markov para epidemias"""
         try:

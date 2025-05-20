@@ -1,15 +1,5 @@
-/* --- OPERACIONES --- */
-#operationTitle {
-    font-size: 28px;
-    font-weight: bold;
-    color: white;
-    border-left: 6px solid #ff8103;
-    padding-left: 2px;
-    margin-left: 14px;
-}
-
 /* --- INPUTS (SPINBOXES) --- */
-QAbstractSpinBox, QDoubleSpinBox {
+QAbstractSpinBox, QDoubleSpinBox, QSpinBox {
     background: transparent;
     border: none;
     border-bottom: 2px solid #1C2C42;
@@ -18,7 +8,7 @@ QAbstractSpinBox, QDoubleSpinBox {
     padding: 4px 8px;
 }
 
-QAbstractSpinBox:focus, QDoubleSpinBox:focus {
+QAbstractSpinBox:focus, QDoubleSpinBox:focus, QSpinBox:focus {
     border-bottom: 2px solid #ff8103;
 }
 
@@ -31,19 +21,6 @@ QSpinBox::down-button {
     border: none;
 }
 
-QSpinBox {
-    background: transparent;
-    border: none;
-    border-bottom: 2px solid #1C2C42;
-    font-weight: 500;
-    color: #DADADA;
-    padding: 4px 8px;
-}
-
-QSpinBox:focus {
-    border-bottom: 2px solid #ff8103;
-}
-
 /* --- PARA TEXTAREA (EXPRESIONES, ECUACIONES) --- */
 #expressionLabel {
     color: #DADADA;
@@ -51,8 +28,8 @@ QSpinBox:focus {
     margin-bottom: 4px;
 }
 
-#expressionInput {
-    background-color: rgba(28, 44, 66, 0.2);
+#expressionInput, #resultSection {
+    background-color: #131a24;
     border: 2px solid #1C2C42;
     border-radius: 6px;
     color: #DADADA;
@@ -63,12 +40,6 @@ QSpinBox:focus {
 #expressionInput:focus {
     border-color: #ff8103;
     background-color: rgba(28, 44, 66, 0.3);
-}
-
-#resultSection {
-    margin-top: 4px;
-    background-color: rgba(28, 44, 66, 0.15);
-    border-radius: 6px;
 }
 
 #resultDisplay {
@@ -161,4 +132,17 @@ QComboBox QAbstractItemView {
     padding: 4px;
     border: 2px solid #1C2C42;
     background-color: #0F161F;
+}
+
+QGroupBox {
+    border: 1px solid #1C2C42;
+    border-radius: 6px;
+    margin-top: 10px;
+    padding: 16px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    padding: 0 3px;
 }

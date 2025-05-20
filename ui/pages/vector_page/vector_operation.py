@@ -3,25 +3,34 @@ from model.vector_manager import VectorManager
 from controller.vector_controller import VectorController
 import re
 from utils.formating.formatting import format_math_expression
+from utils.components.two_column import TwoColumnWidget
 
 ALLOWED_VECTOR_CHARS = re.compile(r'^[\[\]\d,\s+\-*/.\·]*$')
 class VectorOpWidget(ExpressionOpWidget):
     def __init__(self, manager=VectorManager, controller=VectorController, operation_type=None):
-        if operation_type == "operaciones_basicas":
-            input_label = "Ingrese varios vectores para realizar cálculo de operaciones combinadas:"
+        if operation_type == "basic_operations":
+            input_label = "Ingrese varios vectores"
             placeholder = "Ejemplo: [2, 3, 4] + [1, 0, 2]"
-        elif operation_type == "magnitud":
-            input_label = "Ingrese un vector para calcular su magnitud:"
+        elif operation_type == "magnitude":
+            input_label = "Ingrese un único vector"
             placeholder = "Ejemplo: [2, 3, 4]"
         else:
-            input_label = f"Ingrese dos vectores para realizar cálculo de {operation_type.replace('_', ' ')}:"
-            placeholder = "Ejemplo: [2, 3, 4][1, 0, 2]"
+            input_label = "Ingrese dos vectores"
+            placeholder = "Ejemplo: [2, 3, 4] [1, 0, 2]"
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label)
         self.input_mode = "text"
         self.last_valid_text = ""
         self.custom_setup()
 
     def custom_setup(self):
+        self.title_label.hide()
+        result_container = self.detach_result_container()
+
+        two_column_widget = TwoColumnWidget(column1_label=self.input_label_text, column2_label="Resultado",)
+        two_column_widget.add_to_column1(self.expression_input)
+        two_column_widget.add_to_column2(result_container)
+        
+        self.layout.insertWidget(1, two_column_widget)
         self.expression_input.textChanged.connect(self.filter_vector_input)
 
     def validate_operation(self):

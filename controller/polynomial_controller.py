@@ -1,20 +1,21 @@
 from utils.parsers.expression_parser import ExpressionParser
 
+
 class PolynomialController:
     def __init__(self, manager):
         self.manager = manager
         self.parser = ExpressionParser()
 
     def execute_operation(self, operation_name: str, *args):
-        if operation_name == "operaciones_combinadas":
+        if operation_name == "combined_operations":
             if len(args) != 1:
                 raise ValueError("Se necesita una expresión para evaluar.")
             return self.evaluate_combined_expression(args[0])
-        elif operation_name == "raices":
+        elif operation_name == "roots":
             return self.get_roots()
-        elif operation_name == "derivacion":
+        elif operation_name == "derivative":
             return self.get_derivatives()
-        elif operation_name == "integracion":
+        elif operation_name == "integral":
             if len(args) != 1:
                 constant = 0  # Si no se pasa la constante, se establece a 0 por defecto
             else:

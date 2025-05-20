@@ -3,6 +3,7 @@ from ui.widgets.expression_op_widget import ExpressionOpWidget
 from controller.graph_controller import GraphController
 from utils.components.spinbox_utils import create_float_spinbox
 from utils.layout.create_range_row import create_range_row as create_range_layout
+from utils.components.two_column import TwoColumnWidget
 
 class BaseGraphWidget(ExpressionOpWidget):
     """Widget base para visualización de gráficas"""
@@ -14,7 +15,7 @@ class BaseGraphWidget(ExpressionOpWidget):
     def create_range_row(self, label_text, min_control, max_control, default_min=-10.0, default_max=10.0):
         """Crea una fila de controles para un rango (min/max) unidos"""
         layout, _, _ = create_range_layout(
-            label_text=f"📌 {label_text}", 
+            label_text=f"📍 {label_text}", 
             min_label="", 
             max_label="", 
             default_min=default_min, 
@@ -49,22 +50,34 @@ class BaseGraphWidget(ExpressionOpWidget):
 
 class Graph2DWidget(BaseGraphWidget):
     def __init__(self, manager=GraphController, controller=GraphController, operation_type="2d_graph"):
-        input_label = "Ingrese los rangos y la función a graficar en 2D."
-        placeholder = "Puede ingresar varias funciones separadas por comas. Ejemplo: x^2, x^3, x^4"
+        input_label = "Ingrese las funciones a graficar en 2D"
+        placeholder = "Puede ingresar funciones separadas por comas\n(Ej: x^2, sin(x), cos(x))"
         super().__init__(manager, controller, operation_type, input_label, placeholder)
         self.add_inputs()
 
     def add_inputs(self):
-        self.range_widget = QWidget()
-        range_layout = QVBoxLayout(self.range_widget)
-        range_layout.setContentsMargins(20, 0, 0, 0)
+        # Crear widget de dos columnas
+        self.title_label.hide()
+        two_column_widget = TwoColumnWidget(column1_label=self.input_label_text, column2_label="Rangos")
+
+        # Columna 1: Usar directamente el expression_input heredado
+        two_column_widget.add_to_column1(self.expression_input)
+
+        # Columna 2: Rangos
+        range_container = QWidget()
+        range_layout = QVBoxLayout(range_container)
+        range_layout.setContentsMargins(0, 0, 0, 0)
         
         self.x_min = create_float_spinbox(default_val=-10.0)
         self.x_max = create_float_spinbox(default_val=10.0)
-        
         x_row = self.create_range_row("Rango x", self.x_min, self.x_max)
-        self.input_layout.insertLayout(2, x_row)
-        self.layout.insertWidget(2, self.range_widget)
+        range_layout.addLayout(x_row)
+
+        # Añadir widget de rangos a la segunda columna
+        two_column_widget.add_to_column2(range_container)
+
+        # Añadir el widget de dos columnas al layout principal
+        self.layout.insertWidget(1, two_column_widget)
 
     def get_inputs(self):
         return {"expression": self.expression_input.toPlainText(),"x_range": (self.x_min.value(), self.x_max.value())}
@@ -100,29 +113,43 @@ class Graph2DWidget(BaseGraphWidget):
 
 class Graph3DWidget(BaseGraphWidget):
     def __init__(self, manager=GraphController, controller=GraphController, operation_type="3d_graph"):
-        input_label = "Ingrese los rangos y la función a graficar en 3D."
+        input_label = "Ingrese función a graficar en 3D"
         placeholder = "Ejemplo: x^2 + y^2"
         super().__init__(manager, controller, operation_type, input_label, placeholder)
         self.add_inputs()
 
     def add_inputs(self):
-        self.range_widget = QWidget()
-        main_layout = QVBoxLayout(self.range_widget)
-        main_layout.setContentsMargins(20, 0, 0, 0)
-        main_layout.setSpacing(4)
+        # Crear widget de dos columnas
+        self.title_label.hide()
+        two_column_widget = TwoColumnWidget(column1_label=self.input_label_text, column2_label="Rangos")
 
+        # Columna 1: Usar directamente el expression_input heredado
+        two_column_widget.add_to_column1(self.expression_input)
+
+        # Columna 2: Rangos
+        range_container = QWidget()
+        range_layout = QVBoxLayout(range_container)
+        range_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Configurar rangos X e Y
         self.x_min = create_float_spinbox(default_val=-10.0)
         self.x_max = create_float_spinbox(default_val=10.0)
         self.y_min = create_float_spinbox(default_val=-10.0)
         self.y_max = create_float_spinbox(default_val=10.0)
         
+        # Crear filas de rangos
         x_row = self.create_range_row("Rango x", self.x_min, self.x_max)
-        self.input_layout.insertLayout(2, x_row)
-        
         y_row = self.create_range_row("Rango y", self.y_min, self.y_max)
-        self.input_layout.insertLayout(2, y_row)
         
-        self.layout.insertWidget(2, self.range_widget)
+        # Añadir filas al layout de rangos
+        range_layout.addLayout(x_row)
+        range_layout.addLayout(y_row)
+
+        # Añadir widget de rangos a la segunda columna
+        two_column_widget.add_to_column2(range_container)
+
+        # Añadir el widget de dos columnas al layout principal
+        self.layout.insertWidget(1, two_column_widget)
 
     def get_inputs(self):
         return {"expression": self.expression_input.toPlainText(),"x_range": (self.x_min.value(), self.x_max.value()),"y_range": (self.y_min.value(), self.y_max.value())}

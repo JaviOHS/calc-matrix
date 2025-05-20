@@ -1,7 +1,9 @@
 from ui.widgets.base_page import BasePage
 from model.sym_cal_manager import SymCalManager
 from controller.sym_cal_controller import SymCalController
-from ui.pages.sym_cal_page.sym_cal_op import SymCalOpWidget
+from ui.pages.sym_cal_page.operations.integral_op import IntegralOperation
+from ui.pages.sym_cal_page.operations.derivative_op import DerivativeOperation
+from ui.pages.sym_cal_page.operations.edo_op import DifferentialEqOperation
 
 class SymCalPage(BasePage):
     def __init__(self, navigate_callback=None, manager=SymCalManager()):
@@ -9,11 +11,10 @@ class SymCalPage(BasePage):
         
         super().__init__(navigate_callback, page_key="sym_cal", controller=self.controller, manager=manager)
 
-
         self.operations = {
-            "Derivación": ("derivative", SymCalOpWidget),
-            "Integración": ("integral", SymCalOpWidget),
-            "Ecuaciones Diferenciales": ("differential_equation", SymCalOpWidget),
+            "Derivación": ("derivative", DerivativeOperation),
+            "Integración": ("integral", IntegralOperation),
+            "Ecuaciones Diferenciales": ("differential_equation", DifferentialEqOperation),
         }
 
     def execute_current_operation(self):
