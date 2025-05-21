@@ -61,13 +61,17 @@ class CanvasDialog(BaseDialog):
             html_display.setMinimumWidth(250)
             html_display.setOpenExternalLinks(True)
             layout.addWidget(html_display)
-        
-        # Imagen decorativa
+    
+        # Añadir stretch antes de la imagen para centrar verticalmente
         if self.image_path:
+            # Añadir stretch antes para empujar la imagen hacia abajo
+            layout.addStretch()
+            
+            # Imagen decorativa
             image_label = create_image_label(self.image_path, width=128, height=128)
             image_label.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             
-            # Centrar la imagen
+            # Centrar la imagen horizontalmente
             image_container = QWidget()
             image_layout = QHBoxLayout(image_container)
             image_layout.addStretch()
@@ -75,6 +79,8 @@ class CanvasDialog(BaseDialog):
             image_layout.addStretch()
             
             layout.addWidget(image_container)
+            
+            # Añadir stretch después para empujar la imagen hacia arriba
             layout.addStretch()
             
         return container

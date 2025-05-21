@@ -23,7 +23,7 @@ class DifferentialEqOperation(BaseSymCalOperation):
         # Selector de método
         method_row = QWidget()
         method_row_layout = QHBoxLayout(method_row)
-        method_row_layout.setContentsMargins(0, 0, 0, 0)
+        method_row_layout.setContentsMargins(10, 0, 10, 0)
         method_row_layout.addWidget(QLabel("🟠 Método:"))
         
         self.de_method_selector = QComboBox()
@@ -39,16 +39,11 @@ class DifferentialEqOperation(BaseSymCalOperation):
         # Condición inicial
         initial_condition_row = QWidget()
         initial_condition_layout = QHBoxLayout(initial_condition_row)
-        initial_condition_layout.setContentsMargins(0, 0, 0, 0)
-        initial_condition_layout.addWidget(QLabel("🔍 y ("))
-        self.numerical_x0 = create_float_spinbox(default_val=0)
-        self.numerical_x0.setFixedWidth(60)
+        initial_condition_row.setContentsMargins(0, 0, 0, 0)
+        self.numerical_x0 = create_float_spinbox(default_val=0, label_text="📍 Condición inicial: y(", width=72)
         initial_condition_layout.addWidget(self.numerical_x0)
-        initial_condition_layout.addWidget(QLabel(") ="))
-        self.numerical_y0 = create_float_spinbox(default_val=1)
-        self.numerical_y0.setFixedWidth(60)
+        self.numerical_y0 = create_float_spinbox(default_val=1, label_text=") =", width=72)
         initial_condition_layout.addWidget(self.numerical_y0)
-        initial_condition_layout.addStretch()
 
         # Añadir filas al contenedor de método
         method_layout.addWidget(method_row)
@@ -64,13 +59,9 @@ class DifferentialEqOperation(BaseSymCalOperation):
         range_row = QWidget()
         range_layout = QHBoxLayout(range_row)
         range_layout.setContentsMargins(0, 0, 0, 0)
-        range_layout.addWidget(QLabel("📏 Rango x:"))
-        self.numerical_x_start = create_float_spinbox(default_val=0)
-        self.numerical_x_start.setFixedWidth(60)
+        self.numerical_x_start = create_float_spinbox(default_val=0, label_text="📏 Rango x:", width=72)
         range_layout.addWidget(self.numerical_x_start)
-        range_layout.addWidget(QLabel("→"))
-        self.numerical_x_end = create_float_spinbox(default_val=10)
-        self.numerical_x_end.setFixedWidth(60)
+        self.numerical_x_end = create_float_spinbox(default_val=10, label_text="→", width=72)
         range_layout.addWidget(self.numerical_x_end)
         range_layout.addStretch()
 
@@ -78,12 +69,8 @@ class DifferentialEqOperation(BaseSymCalOperation):
         step_row = QWidget()
         step_layout = QHBoxLayout(step_row)
         step_layout.setContentsMargins(0, 0, 0, 0)
-        self.step_label = QLabel("👣​ Paso h =")
-        step_layout.addWidget(self.step_label)
-        self.numerical_h = create_float_spinbox(min_val=0.001, max_val=5, default_val=1, step=0.1)
-        self.numerical_h.setFixedWidth(60)
+        self.numerical_h = create_float_spinbox(min_val=0.001, max_val=5, default_val=1, step=0.1, label_text="👣​ Paso h =", width=72)
         step_layout.addWidget(self.numerical_h)
-        step_layout.addStretch()
 
         # Añadir filas al contenedor de parámetros
         params_layout.addWidget(range_row)
@@ -95,35 +82,29 @@ class DifferentialEqOperation(BaseSymCalOperation):
 
         # Insertar el widget de dos columnas en el layout principal
         self.layout.insertWidget(1, two_column_widget)
-
-        # Conectar señal para mostrar/ocultar parámetros específicos
         self.de_method_selector.currentTextChanged.connect(self.toggle_step)
-        
-        # Mostrar/ocultar parámetros según el método inicial
         self.toggle_step(self.de_method_selector.currentText())
 
     def toggle_step(self, method):
         """Muestra u oculta el parámetro de paso según la selección"""
         show_step = method in ["Euler", "Heun", "RK4", "Taylor 2° orden"]
-        self.step_label.setVisible(show_step)
         self.numerical_h.setVisible(show_step)
         self.layout.update()
 
     def execute_operation(self):
         expression = self.get_input_expression().strip()
-        x_range = (self.numerical_x_start.value(), self.numerical_x_end.value())
-        initial_condition = (self.numerical_x0.value(), self.numerical_y0.value())
+        
+        # Corregir acceso a los valores de los spinboxes
+        x_range = (self.numerical_x_start.spinbox.value(), self.numerical_x_end.spinbox.value())
+        initial_condition = (self.numerical_x0.spinbox.value(), self.numerical_y0.spinbox.value())
         
         method = self.de_method_selector.currentData()
         if method == "analytical":
-            return self.controller.solve_differential_equation(
-                expression, 
-                initial_condition=initial_condition, 
-                x_range=x_range
-            )
+            return self.controller.solve_differential_equation(expression, initial_condition=initial_condition, x_range=x_range)
         
-        h = self.numerical_h.value()
+        h = self.numerical_h.spinbox.value()
         method_func = getattr(self.controller, f"solve_ode_{method}", None)
         if method_func:
             return method_func(expression, initial_condition, x_range, h)
         raise ValueError(f"Método numérico no implementado: {method}")
+    

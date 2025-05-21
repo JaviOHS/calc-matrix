@@ -1,4 +1,4 @@
-from PySide6.QtWidgets import QSizePolicy, QScrollArea, QWidget, QVBoxLayout
+from PySide6.QtWidgets import QSizePolicy, QScrollArea, QWidget, QVBoxLayout, QGridLayout
 from PySide6.QtCore import Qt
 
 class UIUtils:
@@ -26,3 +26,30 @@ class UIUtils:
         
         return max_columns, rows_needed
     
+    @staticmethod
+    def create_matrix_grid_area(dimension, matrix_count, cell_size=60):
+        """
+        Crea un área de scroll con una cuadrícula optimizada para matrices
+        
+        Args:
+            dimension (int): Dimensión de las matrices
+            matrix_count (int): Número de matrices
+            cell_size (int): Tamaño base de cada celda
+        
+        Returns:
+            tuple: (scroll_area, matrices_grid, tables_list)
+        """
+        # Crear área scrollable base
+        scroll_area, scroll_content, scroll_layout = UIUtils.create_scrollable_area()
+        
+        # Configurar grid para matrices
+        matrices_grid = QGridLayout()
+        matrices_grid.setVerticalSpacing(30)
+        matrices_grid.setHorizontalSpacing(50)
+        scroll_layout.addLayout(matrices_grid)
+        
+        # Configurar márgenes y espaciado
+        scroll_layout.setContentsMargins(10, 10, 10, 10)
+        matrices_grid.setSpacing(15)
+        
+        return scroll_area, matrices_grid

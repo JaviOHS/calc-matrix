@@ -105,6 +105,23 @@ class SymCalModel:
             # Asegurarse de que la ecuación esté en términos de y(x)
             if not isinstance(equation, sp.Eq):
                 equation = sp.Eq(equation, 0)
+        
+            # PRIMERO: Generar equation_display
+            if isinstance(equation, sp.Eq) and equation.lhs == y.diff(x):
+                # Si es de la forma y'(x) = f(x,y), extraer f(x,y)
+                equation_display = f"y' = {equation.rhs}"
+            else:
+                # En otros casos, puede ser necesario reordenar
+                try:
+                    # Intentar mover todo al lado derecho excepto la derivada
+                    if y.diff(x) in equation.lhs.atoms():
+                        rhs_part = sp.solve(equation, y.diff(x))[0]
+                        equation_display = f"y' = {rhs_part}"
+                    else:
+                        # Formato genérico si no se puede extraer y'
+                        equation_display = str(equation)
+                except:
+                    equation_display = str(equation)
                 
             # Resolver la ecuación diferencial
             solution = sp.dsolve(equation, y)
@@ -114,14 +131,14 @@ class SymCalModel:
                 solution_func = self._prepare_solution_function(solution, x0, y0)
                 
                 if solution_func:
-                    # Generar puntos para graficar
+                    # DESPUÉS: Generar puntos para graficar
                     x_vals = np.linspace(x_range[0], x_range[1], 20)
                     y_vals = [solution_func(xi) for xi in x_vals]
                     solution_points = list(zip(x_vals, y_vals))
                     
-                    # Generar canvas
+                    # Generar canvas con la ecuación ya formateada
                     canvas = self.graph_controller.generate_ode_solution_canvas(
-                        equation=str(equation),
+                        equation=equation_display,  # Usar equation_display que ya está formateado
                         solution_points=solution_points,
                         initial_condition=initial_condition,
                         x_range=x_range,

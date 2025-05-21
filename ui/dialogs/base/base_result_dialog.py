@@ -24,8 +24,8 @@ class BaseResultDialog(BaseDialog):
         # Crear widget contenedor para la tabla (con o sin scroll)
         widget = QWidget()
         layout = QVBoxLayout(widget)
-        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(5)
+        layout.setContentsMargins(0, 0, 0, 0)  # Eliminar márgenes del contenedor principal
         
         if needs_scroll and rows > 6:
             # Crear un área de desplazamiento (solo vertical)
@@ -33,19 +33,29 @@ class BaseResultDialog(BaseDialog):
             scroll_area.setWidgetResizable(True)
             scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
             scroll_area.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+            scroll_area.setFrameShape(QScrollArea.NoFrame)  # Quitar el borde del área de scroll
             
-            # Tamaño máximo para el área de scroll
-            max_height = min(rows, 5) * cell_size + 30
+            # Tamaño más dinámico para el área de scroll
+            visible_rows = min(max(rows // 2, 5), 10)
+            max_height = visible_rows * cell_size + 40
             max_width = cols * cell_size + 30
-            scroll_area.setMaximumSize(max_width, max_height)
+            
+            # Asegurar que el ancho sea suficiente incluso con la barra de desplazamiento
+            if rows > visible_rows:
+                max_width += 20  # Espacio para la barra de desplazamiento
+                
+            scroll_area.setMinimumSize(max_width, max_height)
             
             # Contenedor para la tabla dentro del área de scroll
             scroll_content = QWidget()
             scroll_layout = QVBoxLayout(scroll_content)
-            scroll_layout.setContentsMargins(0, 0, 0, 0)
+            scroll_layout.setContentsMargins(0, 0, 0, 0)  # Eliminar márgenes del contenido
+            scroll_layout.setSpacing(0)  # Sin espaciado entre elementos
             
             table = self._setup_table(rows, cols, cell_size)
-            scroll_layout.addWidget(table)
+            scroll_layout.addWidget(table, 0, Qt.AlignCenter)  # Centrar la tabla
+            
+            scroll_content.setLayout(scroll_layout)
             scroll_area.setWidget(scroll_content)
             layout.addWidget(scroll_area, 0, Qt.AlignCenter)
         else:
@@ -131,4 +141,3 @@ class BaseResultDialog(BaseDialog):
         section_layout.addWidget(widget, 0, Qt.AlignHCenter)
         section_layout.addStretch()
         self.result_layout.addWidget(section_widget, 0, Qt.AlignVCenter)
-        

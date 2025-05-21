@@ -3,7 +3,7 @@ from model.sym_cal_manager import SymCalManager
 from controller.sym_cal_controller import SymCalController
 from ui.pages.sym_cal_page.operations.integral_op import IntegralOperation
 from ui.pages.sym_cal_page.operations.derivative_op import DerivativeOperation
-from ui.pages.sym_cal_page.operations.edo_op import DifferentialEqOperation
+from ui.pages.sym_cal_page.operations.ode_op import DifferentialEqOperation
 
 class SymCalPage(BasePage):
     def __init__(self, navigate_callback=None, manager=SymCalManager()):

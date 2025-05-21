@@ -1,10 +1,14 @@
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSizePolicy, QFrame, QScrollArea, QStackedWidget, QMenu, QWidgetAction
-from PySide6.QtCore import Qt, QPoint
-from PySide6.QtGui import QAction
+from PySide6.QtCore import Qt
 from utils.components.image_utils import create_image_label
 from utils.core.content_manager import ContentManager
 from utils.components.action_buttons import ActionButton
 from ui.dialogs.simple.message_dialog import MessageDialog
+from utils.formating.format_title import format_title, highlight_last_word
+from utils.core.component_factory import create_info_item
+from utils.core.educational_content import EducationalContentManager
+from PySide6.QtGui import QAction
+from PySide6.QtCore import QPoint
 
 class BasePage(QWidget):
     def __init__(self, navigate_callback=None, page_key=None, controller=None, manager=None):
@@ -93,7 +97,6 @@ class BasePage(QWidget):
         image_panel = QFrame()
         image_panel.setObjectName("imagePanel")
         image_panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-        # Anchura mínima para el panel de imagen
         image_panel.setMinimumWidth(250)
 
         image_layout = QVBoxLayout(image_panel)
@@ -122,7 +125,6 @@ class BasePage(QWidget):
     def setup_text_content(self):
         """
         Configura el contenido de texto para la página basado en el contenido JSON.
-        Las clases derivadas pueden sobrescribir este método si necesitan un comportamiento personalizado.
         """
         # Título de la página
         header = QFrame()
@@ -131,7 +133,7 @@ class BasePage(QWidget):
         header_layout.setContentsMargins(0, 0, 0, 0)
         
         # Usar el método format_title para procesar el título
-        formatted_title = self.format_title(self.page_content.get("title", "Título de la Página"))
+        formatted_title = format_title(self.page_content.get("title", "Título de la Página"))
         title = QLabel(formatted_title)
         title.setObjectName("heroTitle")
         title.setTextFormat(Qt.RichText) # Permite interpretar el HTML
@@ -165,105 +167,38 @@ class BasePage(QWidget):
         features_layout = QVBoxLayout(features)
         features_layout.setSpacing(16)
         
-        # Añadir características desde JSON
+        # Usar component_factory para crear elementos de característica
         for feature_data in self.page_content.get("features", []):
-            feature = self.create_info_item(
+            feature = create_info_item(
                 feature_data.get("icon", "⭐"), 
                 feature_data.get("title", "Característica"), 
                 feature_data.get("description", None)
             )
             features_layout.addWidget(feature)
-        
+    
         self.text_layout.addWidget(features)
         self.text_layout.addStretch()
 
     def setup_educational_content(self, layout, button_callback=None, external_url=None, button_icon=None):
         """
-        Método para configurar contenido educativo adicional
-        
-        Args:
-            layout: El layout donde se añadirá el contenido
-            button_callback: Función opcional a llamar cuando se presione el botón.
-                            Si es None, se usa start_first_operation
-            external_url: URL externa para abrir cuando se presione el botón
-            button_icon: Nombre del archivo de icono personalizado para el botón
+        Método para configurar contenido educativo adicional usando EducationalContentManager
         """
-        cta_container = QFrame()
-        cta_container.setObjectName("ctaContainer")
-        cta_layout = QVBoxLayout(cta_container)
-        # Reducir el espaciado superior
-        cta_layout.setContentsMargins(15, 0, 15, 15)
-        
-        # Activar wordWrap en el texto del CTA
-        cta_text = QLabel(self.page_content.get("cta", {}).get("text", "¿Listo para empezar?"))
-        cta_text.setObjectName("ctaText")
-        cta_text.setWordWrap(True)  # Habilitar ajuste de texto
-        cta_layout.addWidget(cta_text)
-        
-        button_row = QFrame()
-        button_layout = QHBoxLayout(button_row)
-        button_layout.setContentsMargins(0, 12, 0, 0)
-        
-        # Crear botón con icono personalizado si se especifica
-        if button_icon:
-            start_button = ActionButton.custom_icon(
-                self.page_content.get("cta", {}).get("button", "Comenzar"),
-                button_icon
-            )
-        else:
-            start_button = ActionButton.primary(self.page_content.get("cta", {}).get("button", "Comenzar"))
-        
-        # Usar la URL externa, la función de callback personalizada o la predeterminada
-        if external_url:
-            from PySide6.QtCore import QUrl
-            from PySide6.QtGui import QDesktopServices
-            start_button.clicked.connect(lambda: QDesktopServices.openUrl(QUrl(external_url)))
-        elif button_callback:
-            start_button.clicked.connect(button_callback)
-        else:
-            start_button.clicked.connect(self.start_first_operation)
-        
-        button_layout.addWidget(start_button)
-        button_layout.addStretch()
-        cta_layout.addWidget(button_row)
-        
-        # Activar wordWrap en el texto del footer
-        footer_text = QLabel(self.page_content.get("cta", {}).get("footer", ""))
-        footer_text.setObjectName("footerText")
-        footer_text.setWordWrap(True)  # Habilitar ajuste de texto
-        cta_layout.addWidget(footer_text)
-        
-        layout.addWidget(cta_container)
-        
-        # Añadir tarjeta educativa si existe en el contenido JSON
-        if self.page_content and "educational" in self.page_content:
-            # Educational card desde JSON
-            edu_card = QFrame()
-            edu_card.setObjectName("educationalCard")
-            edu_layout = QVBoxLayout(edu_card)
+        # Si no hay callback específico, usar el método predeterminado
+        if not button_callback:
+            button_callback = self.start_first_operation
             
-            # Activar wordWrap en el título educativo
-            edu_title = QLabel(self.page_content.get("educational", {}).get("title", "¿Sabías que...?"))
-            edu_title.setObjectName("eduTitle")
-            edu_title.setWordWrap(True)  # Habilitar ajuste de texto
-            edu_layout.addWidget(edu_title)
-            
-            edu_fact = QLabel(self.page_content.get("educational", {}).get("fact", ""))
-            edu_fact.setObjectName("eduFact")
-            edu_fact.setWordWrap(True)  # Ya estaba habilitado
-            edu_layout.addWidget(edu_fact)
-
-            # Agregar imagen educativa
-            edu_image_path = "assets/images/educational.png"
-            edu_image = create_image_label(edu_image_path, width=180, height=120)
-            edu_image.setAlignment(Qt.AlignCenter)
-            edu_image.setObjectName("eduImage")
-            edu_layout.addWidget(edu_image, 0, Qt.AlignCenter)
-            
-            # Añadir espacio después de la imagen
-            edu_layout.addSpacing(10)
-            
-            layout.addWidget(edu_card)
+        # Usar EducationalContentManager para crear todo el contenido
+        start_button = EducationalContentManager.setup_educational_content(
+            self,
+            self.page_content,
+            layout,
+            button_callback,
+            external_url,
+            button_icon
+        )
+        
+        # Si necesitas acceder al botón después, puedes guardarlo como atributo
+        self.start_button = start_button
 
     def get_image_path(self):
         """Obtiene la ruta de la imagen del contenido JSON si existe"""
@@ -288,43 +223,6 @@ class BasePage(QWidget):
         if self.page_content and "image" in self.page_content:
             return self.page_content.get("image", {}).get("caption", None)
         return None
-    
-    def create_info_item(self, icon, text, description=None):
-        """Crea un elemento de información con icono y descripción"""
-        feature_item = QFrame()
-        feature_item.setObjectName("featureItem")
-        feature_layout = QVBoxLayout(feature_item)
-        feature_layout.setSpacing(8)
-        feature_layout.setContentsMargins(12, 12, 12, description is not None and 12 or 6)
-        
-        header_layout = QHBoxLayout()
-        header_layout.setSpacing(12)
-        
-        icon_label = QLabel(icon)
-        icon_label.setObjectName("featureIcon")
-        icon_label.setAlignment(Qt.AlignCenter)
-        icon_label.setFixedWidth(40)
-        icon_label.setFixedHeight(40)
-        icon_label.setAutoFillBackground(True) 
-
-        text_label = QLabel(text)
-        text_label.setObjectName("featureText")
-        text_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-
-        header_layout.addWidget(icon_label)
-        header_layout.addWidget(text_label)
-        
-        feature_layout.addLayout(header_layout)
-        
-        # Agregar descripción educativa bajo el texto si existe
-        if description:
-            desc_label = QLabel(description)
-            desc_label.setObjectName("featureDescription")
-            desc_label.setWordWrap(True)
-            desc_label.setContentsMargins(12, 0, 0, 0)
-            feature_layout.addWidget(desc_label)
-
-        return feature_item
 
     # Métodos para la funcionalidad de operaciones matemáticas
     def show_dropdown_menu(self):
@@ -361,7 +259,7 @@ class BasePage(QWidget):
             # Reducir el título si es muy largo
             if len(operation_key) > 45:
                 operation_key = operation_key[:37] + "..."
-            operation_title = self.highlight_last_word(operation_key)
+            operation_title = highlight_last_word(operation_key)
         else:
             # Acortar el nombre del objeto si es muy largo
             if len(object_name) > 20:
@@ -401,22 +299,7 @@ class BasePage(QWidget):
         if "{" in page_title and "}" in page_title:
             return page_title.split("{")[1].replace("}", "")
         return None
-    
-    def format_title(self, title_text):
-        """
-        Formatea el título reemplazando el texto entre llaves con formato HTML de color.
-        Si no hay llaves, resalta la última palabra en naranja.
-        """
-        if "{" in title_text and "}" in title_text:
-            parts = title_text.split("{")
-            before_brace = parts[0]
-            after_brace = parts[1].split("}")
-            highlighted_text = after_brace[0]
-            end_text = after_brace[1] if len(after_brace) > 1 else ""
-            return f"{before_brace}<span style='color:#ff8103;'>{highlighted_text}</span>{end_text}"
-        else:
-            return self.highlight_last_word(title_text)
-    
+
     def reset_interface(self):
         """Restablece la interfaz a su estado inicial"""
         self.toggle_button.hide()
@@ -457,12 +340,3 @@ class BasePage(QWidget):
     def show_result(self, result, message):
         """Método para ser implementado por las subclases"""
         pass
-
-    def highlight_last_word(self, text):
-        """Resalta la última palabra de un texto en color naranja."""
-        words = text.split()
-        if len(words) >= 1:
-            main_text = " ".join(words[:-1])  # Todas las palabras excepto la última
-            highlighted_word = f"<span style='color:#ff8103;'>{words[-1]}</span>"  # Última palabra en naranja
-            return f"{main_text} {highlighted_word}"
-        return text

@@ -22,6 +22,14 @@ class PlotODEController:
         
         self.style_helper.apply_dark_style(canvas, ax)
         
+        # Extraer la expresión formateada
+        display_equation = equation
+        if isinstance(equation, tuple) and len(equation) >= 2:
+            display_equation = f"y' = {equation[1]}"
+        elif isinstance(equation, str):
+            if not equation.startswith("y'"):
+                display_equation = f"y' = {equation}"
+        
         if is_numerical:
             # Para soluciones numéricas: mostrar todos los puntos
             ax.plot(x_vals, y_vals, 
@@ -30,13 +38,13 @@ class PlotODEController:
                    markersize=4,
                    linestyle='-',
                    linewidth=1,
-                   label=f'Solución numérica: {equation}')
+                   label=f'Solución numérica: {display_equation}')
         else:
             # Para soluciones analíticas: solo línea continua con puntos inicial y final
             ax.plot(x_vals, y_vals, 
                    color=self.style_helper.get_plot_color(0),
                    linewidth=1.5,
-                   label=f'Solución analítica: {equation}')
+                   label=f'Solución analítica: {display_equation}')
             
             # Agregar puntos inicial y final
             ax.plot([x_vals[0], x_vals[-1]], 

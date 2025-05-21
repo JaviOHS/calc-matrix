@@ -1,6 +1,5 @@
 from .base_operation import BaseSymCalOperation
 from PySide6.QtWidgets import QHBoxLayout, QLabel, QWidget, QComboBox, QVBoxLayout
-from PySide6.QtCore import Qt
 from utils.components.spinbox_utils import create_float_spinbox
 from utils.components.two_column import TwoColumnWidget
 
@@ -43,14 +42,10 @@ class IntegralOperation(BaseSymCalOperation):
         limits_layout.setContentsMargins(0, 0, 0, 0)
         limits_layout.setSpacing(5)
         
-        limits_layout.addWidget(QLabel("📌 Límites: x ="))
-        self.lower_limit = create_float_spinbox(default_val=0)
-        self.lower_limit.setFixedWidth(60)
+        self.lower_limit = create_float_spinbox(default_val=0, label_text="📍 Límites: x =", width=80)
         limits_layout.addWidget(self.lower_limit)
         
-        limits_layout.addWidget(QLabel("→"))
-        self.upper_limit = create_float_spinbox(default_val=1)
-        self.upper_limit.setFixedWidth(60)
+        self.upper_limit = create_float_spinbox(default_val=1, label_text="→", width=80)
         limits_layout.addWidget(self.upper_limit)
         limits_layout.addStretch()
         
@@ -58,17 +53,12 @@ class IntegralOperation(BaseSymCalOperation):
         config_layout.addWidget(type_row)
         config_layout.addWidget(self.limits_input_widget)
         
-        # Añadir el contenedor de configuración a la primera columna
+        # Columnas
         two_column_widget.add_to_column1(config_container)
-        
-        # Añadir el contenedor de resultado a la segunda columna
         two_column_widget.add_to_column2(result_container)
-        
-        # Insertar el widget de dos columnas en el layout principal
+
         self.layout.insertWidget(1, two_column_widget)
-        
-        # Ocultar límites inicialmente
-        self.limits_input_widget.setVisible(False)
+        self.limits_input_widget.setVisible(False) # Ocultar límites al inicio
     
     def toggle_limits_visibility(self, integral_type):
         """Muestra u oculta los límites de integración según el tipo seleccionado"""
@@ -78,6 +68,6 @@ class IntegralOperation(BaseSymCalOperation):
     def execute_operation(self):
         expression = self.get_input_expression().strip()
         if self.integral_type.currentData() == "definite":
-            limits = (self.lower_limit.value(), self.upper_limit.value())
+            limits = (self.lower_limit.spinbox.value(), self.upper_limit.spinbox.value())
             return self.controller.compute_integral(expression, limits)
         return self.controller.compute_integral(expression)

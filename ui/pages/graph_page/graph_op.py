@@ -1,31 +1,38 @@
 from PySide6.QtWidgets import QVBoxLayout, QVBoxLayout, QWidget
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from controller.graph_controller import GraphController
-from utils.components.spinbox_utils import create_float_spinbox
 from utils.layout.create_range_row import create_range_row as create_range_layout
 from utils.components.two_column import TwoColumnWidget
 
 class BaseGraphWidget(ExpressionOpWidget):
     """Widget base para visualización de gráficas"""
+    # Configuración de rangos como constantes de clase
+    RANGE_CONFIG = {
+        "label_prefix": "📍",
+        "label_width": 100,
+        "spacing": 2,
+        "default_min": -10.0,
+        "default_max": 10.0
+    }
+
     def __init__(self, manager, controller, operation_type, input_label, placeholder):
         super().__init__(manager, controller, operation_type, placeholder=placeholder, input_label=input_label, use_dialog_for_result=True)
         self.canvas = None
         self.calculate_button.setText("Graficar")
     
-    def create_range_row(self, label_text, min_control, max_control, default_min=-10.0, default_max=10.0):
+    def create_range_row(self, label_text):
         """Crea una fila de controles para un rango (min/max) unidos"""
-        layout, _, _ = create_range_layout(
-            label_text=f"📍 {label_text}", 
+        layout, min_control, max_control = create_range_layout(
+            label_text=f"{self.RANGE_CONFIG['label_prefix']} {label_text}", 
             min_label="", 
             max_label="", 
-            default_min=default_min, 
-            default_max=default_max,
-            min_control=min_control,
-            max_control=max_control,
-            label_width=100,
-            spacing=2
+            default_min=self.RANGE_CONFIG["default_min"],
+            default_max=self.RANGE_CONFIG["default_max"],
+            label_width=self.RANGE_CONFIG["label_width"],
+            spacing=self.RANGE_CONFIG["spacing"],
+            connector="→",  # Conector entre los controles
         )
-        return layout
+        return layout, min_control, max_control
     
     def display_result(self, result):
         """Procesa el resultado para mostrarlo en diálogo o directamente"""
@@ -68,9 +75,8 @@ class Graph2DWidget(BaseGraphWidget):
         range_layout = QVBoxLayout(range_container)
         range_layout.setContentsMargins(0, 0, 0, 0)
         
-        self.x_min = create_float_spinbox(default_val=-10.0)
-        self.x_max = create_float_spinbox(default_val=10.0)
-        x_row = self.create_range_row("Rango x", self.x_min, self.x_max)
+        # Crear fila de rango con los controles
+        x_row, self.x_min, self.x_max = self.create_range_row("Rango x:")
         range_layout.addLayout(x_row)
 
         # Añadir widget de rangos a la segunda columna
@@ -80,7 +86,9 @@ class Graph2DWidget(BaseGraphWidget):
         self.layout.insertWidget(1, two_column_widget)
 
     def get_inputs(self):
-        return {"expression": self.expression_input.toPlainText(),"x_range": (self.x_min.value(), self.x_max.value())}
+        return {
+            "expression": self.expression_input.toPlainText(),
+            "x_range": (self.x_min.spinbox.value(),self.x_max.spinbox.value())}
 
     def validate_operation(self):
         expressions = self.expression_input.toPlainText()
@@ -131,15 +139,9 @@ class Graph3DWidget(BaseGraphWidget):
         range_layout = QVBoxLayout(range_container)
         range_layout.setContentsMargins(0, 0, 0, 0)
         
-        # Configurar rangos X e Y
-        self.x_min = create_float_spinbox(default_val=-10.0)
-        self.x_max = create_float_spinbox(default_val=10.0)
-        self.y_min = create_float_spinbox(default_val=-10.0)
-        self.y_max = create_float_spinbox(default_val=10.0)
-        
-        # Crear filas de rangos
-        x_row = self.create_range_row("Rango x", self.x_min, self.x_max)
-        y_row = self.create_range_row("Rango y", self.y_min, self.y_max)
+        # Crear filas de rangos usando el método heredado
+        x_row, self.x_min, self.x_max = self.create_range_row("Rango x:")
+        y_row, self.y_min, self.y_max = self.create_range_row("Rango y:")
         
         # Añadir filas al layout de rangos
         range_layout.addLayout(x_row)
@@ -152,7 +154,11 @@ class Graph3DWidget(BaseGraphWidget):
         self.layout.insertWidget(1, two_column_widget)
 
     def get_inputs(self):
-        return {"expression": self.expression_input.toPlainText(),"x_range": (self.x_min.value(), self.x_max.value()),"y_range": (self.y_min.value(), self.y_max.value())}
+        return {
+            "expression": self.expression_input.toPlainText(),
+            "x_range": (self.x_min.spinbox.value(), self.x_max.spinbox.value()),
+            "y_range": (self.y_min.spinbox.value(), self.y_max.spinbox.value())
+        }
 
     def validate_operation(self):
         expr = self.expression_input.toPlainText()

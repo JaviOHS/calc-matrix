@@ -37,8 +37,10 @@ class ActionButton(QPushButton):
     
     @classmethod
     def options(cls, text="Opciones", parent=None):
-        """Botón de opciones"""
-        return cls(text, "options.svg", parent=parent)
+        """Botón de opciones con margen izquierdo y derecho"""
+        btn = cls(text, "options.svg", parent=parent)
+        btn.setStyleSheet("margin-right: 30px;")
+        return btn
     
     @classmethod
     def icon_only(cls, icon_name, icon_size=QSize(24, 24), parent=None, object_name="iconButton"):
@@ -57,4 +59,3 @@ class ActionButton(QPushButton):
     def custom_icon(cls, text, icon_name, parent=None):
         """Botón con icono personalizado"""
         return cls(text, icon_name, parent=parent)
-    

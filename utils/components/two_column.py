@@ -68,14 +68,20 @@ class TwoColumnWidget(QWidget):
 
     def add_to_column1(self, widget):
         """Añade un widget a la primera columna."""
+        # Quitar cualquier stretch que pudiera existir
+        while self.column1_layout.count() > 0 and self.column1_layout.itemAt(self.column1_layout.count()-1).spacerItem():
+            item = self.column1_layout.takeAt(self.column1_layout.count()-1)
+            
         self.column1_layout.addWidget(widget)
-        # Asegurarse que solo haya un stretch al final
-        if self.column1_layout.count() == 1:  # Si es el primer widget
-            self.column1_layout.addStretch(1)
+        # Añadir el stretch al final de todos los widgets
+        self.column1_layout.addStretch(1)
 
     def add_to_column2(self, widget):
         """Añade un widget a la segunda columna."""
+        # Quitar cualquier stretch que pudiera existir
+        while self.column2_layout.count() > 0 and self.column2_layout.itemAt(self.column2_layout.count()-1).spacerItem():
+            item = self.column2_layout.takeAt(self.column2_layout.count()-1)
+            
         self.column2_layout.addWidget(widget)
-        # Asegurarse que solo haya un stretch al final
-        if self.column2_layout.count() == 1:  # Si es el primer widget
-            self.column2_layout.addStretch(1)
+        # Añadir el stretch al final de todos los widgets
+        self.column2_layout.addStretch(1)

@@ -1,7 +1,6 @@
 from ui.widgets.expression_op_widget import ExpressionOpWidget
 from model.polynomial_manager import PolynomialManager
 from controller.polynomial_controller import PolynomialController
-from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout
 from utils.formating.formatting import format_math_expression
 from utils.components.spinbox_utils import create_float_spinbox
 from utils.components.two_column import TwoColumnWidget
@@ -31,28 +30,14 @@ class PolynomialOpWidget(ExpressionOpWidget):
             column2_label="Resultado",
         )
         two_column_widget.add_to_column1(self.expression_input)
-
-        # Añadir el contenedor de resultado a la segunda columna
         two_column_widget.add_to_column2(result_container)
-
-        # Insertar el widget de dos columnas en el layout principal
         self.layout.insertWidget(1, two_column_widget)
 
         # Configurar el spinbox si es necesario
         if self.operation_type == "evaluation":
-            self.x_input = create_float_spinbox(min_val=-1000, max_val=1000, step=0.1)
-
-            x_label = QLabel("📍 Valor de x:")
-
-            layout = QHBoxLayout()
-            layout.addWidget(x_label)
-            layout.addWidget(self.x_input)
-            layout.addStretch()
-
-            # Añadir el spinbox al diseño de la primera columna
-            container_widget = QWidget()
-            container_widget.setLayout(layout)
-            two_column_widget.add_to_column1(container_widget)
+            x_input_container = create_float_spinbox(min_val=-1000, max_val=1000, step=0.1, label_text="📍 Valor de x:")
+            self.x_input = x_input_container.spinbox
+            two_column_widget.add_to_column1(x_input_container)
 
     def validate_operation(self):
         expr = self.expression_input.toPlainText().strip()

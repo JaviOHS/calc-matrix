@@ -1,7 +1,7 @@
 from model.matrix_manager import MatrixManager
 from controller.matrix_controller import MatrixController
 from ui.widgets.base_page import BasePage
-from ui.pages.matrix_page.operations.base_operation import MatrixOperationWidget, OneMatrixOperationWidget
+from ui.pages.matrix_page.operations.matrix_base_operation import MatrixBaseOp, OneMatrixOpWidget
 from ui.pages.matrix_page.operations.matrix_multiplication import MatrixMultiplicationWidget
 from ui.pages.matrix_page.operations.matrix_system_solver import MatrixSystemSolverWidget
 
@@ -13,15 +13,15 @@ class MatrixPage(BasePage):
 
         # Definir las operaciones disponibles
         self.operations = {
-            "Suma": ("plus", MatrixOperationWidget),
-            "Resta": ("substract", MatrixOperationWidget),
+            "Suma": ("plus", MatrixBaseOp),
+            "Resta": ("substract", MatrixBaseOp),
             "Multiplicación": ("multiplication", MatrixMultiplicationWidget),
-            "División": ("division", MatrixOperationWidget),
-            "Determinante": ("determinant", OneMatrixOperationWidget),
-            "Inversa": ("reverse", OneMatrixOperationWidget),
-            "Transpuesta": ("transposed", OneMatrixOperationWidget),
+            "División": ("division", MatrixBaseOp),
+            "Determinante": ("determinant", OneMatrixOpWidget),
+            "Inversa": ("reverse", OneMatrixOpWidget),
+            "Transpuesta": ("transposed", OneMatrixOpWidget),
             "Sistema de Ecuaciones": ("system_solver", MatrixSystemSolverWidget),
-            "Vectores y Valores Propios": ("eigenvalues", OneMatrixOperationWidget),
+            "Vectores y Valores Propios": ("eigenvalues", OneMatrixOpWidget),
         }
 
     def execute_current_operation(self):

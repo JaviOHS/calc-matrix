@@ -19,15 +19,29 @@ class RandomOperation(DistributionBaseOpWidget):
         """Configura la interfaz para generación de números aleatorios y transformación"""
         # Crear el componente de dos columnas
         self.parent.title_label.hide()  # Acceder a través del parent
-        self.two_column_widget = TwoColumnWidget(column1_label=self.parent.input_label_text, column2_label="Transformación de distribución")
-
+        self.two_column_widget = TwoColumnWidget(
+            column1_label=self.parent.input_label_text, 
+            column2_label="Transformación de distribución"
+        )
+        
+        # Reducir los márgenes del layout principal
+        self.parent.input_layout.setContentsMargins(0, 0, 0, 0)
+        
+        # Configurar contenedores con márgenes mínimos
+        self.generation_fields_container = QWidget()
+        self.generation_fields_layout = QVBoxLayout(self.generation_fields_container)
+        self.generation_fields_layout.setContentsMargins(0, 0, 0, 0)
+        self.generation_fields_layout.setSpacing(5)  # Reducir espaciado entre elementos
+        
+        self.transform_fields_container = QWidget()
+        self.transform_fields_layout = QVBoxLayout(self.transform_fields_container)
+        self.transform_fields_layout.setContentsMargins(0, 0, 0, 0)
+        self.transform_fields_layout.setSpacing(5)  # Reducir espaciado entre elementos
+        
         # Añadir inputs a la primera columna
         method_container, self.method_combo = self.create_method_selector(METHOD_CONFIG, label_text="🎲 Método:")
         self.two_column_widget.add_to_column1(method_container)
 
-        self.generation_fields_container = QWidget()
-        self.generation_fields_layout = QVBoxLayout(self.generation_fields_container)
-        self.generation_fields_layout.setContentsMargins(0, 0, 0, 0)
         self.two_column_widget.add_to_column1(self.generation_fields_container)
 
         # Añadir inputs a la segunda columna
@@ -38,9 +52,6 @@ class RandomOperation(DistributionBaseOpWidget):
         )
         self.two_column_widget.add_to_column2(transform_method_container)
         
-        self.transform_fields_container = QWidget()
-        self.transform_fields_layout = QVBoxLayout(self.transform_fields_container)
-        self.transform_fields_layout.setContentsMargins(0, 0, 0, 0)
         self.two_column_widget.add_to_column2(self.transform_fields_container)
 
         # Añadir el componente al layout principal

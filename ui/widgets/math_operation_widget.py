@@ -14,8 +14,8 @@ class MathOperationWidget(QWidget):
     def create_buttons(self, cancel_text="Cancelar", action_text="Calcular"):
         buttons_widget = QWidget()
         buttons_layout = QHBoxLayout(buttons_widget)
-        buttons_layout.setContentsMargins(0, 0, 0, 0)
-        buttons_layout.setSpacing(16)
+        buttons_layout.setContentsMargins(20, 0, 20, 0)
+        buttons_layout.setSpacing(10)
 
         # Usar los botones predefinidos
         self.cancel_button = ActionButton.cancel(cancel_text)

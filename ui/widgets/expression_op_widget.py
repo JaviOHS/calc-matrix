@@ -153,10 +153,10 @@ class ExpressionOpWidget(MathOperationWidget):
             if all(hasattr(self, attr) for attr in ['numerical_x_start', 'numerical_x_end', 'numerical_x0', 'numerical_y0', 'de_method_selector']):
                 params.update({
                     "equation": self.get_input_expression().strip(),
-                    "x_range": (self.numerical_x_start.value(), self.numerical_x_end.value()),
-                    "initial_condition": (self.numerical_x0.value(), self.numerical_y0.value()),
+                    "x_range": (self.numerical_x_start.spinbox.value(), self.numerical_x_end.spinbox.value()),
+                    "initial_condition": (self.numerical_x0.spinbox.value(), self.numerical_y0.spinbox.value()),
                     "method": self.de_method_selector.currentData(),
-                    "h": self.numerical_h.value() if hasattr(self, 'numerical_h') else 0.1,
+                    "h": self.numerical_h.spinbox.value() if hasattr(self, 'numerical_h') else 0.1,
                     "sym_model": self.controller.manager.model if hasattr(self.controller, 'manager') else None
                 })
         

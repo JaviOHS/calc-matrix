@@ -58,7 +58,8 @@ class DistributionBaseOpWidget:
                     default_val=field["default"],
                     step=field.get("step", 0.1),
                     decimals=field.get("decimals", 2),
-                    width=field["width"]
+                    width=field["width"],
+                    label_text=field["label"]
                 )
                 upper_spinbox = create_float_spinbox(
                     min_val=fields[i + 1]["min"],
@@ -66,24 +67,21 @@ class DistributionBaseOpWidget:
                     default_val=fields[i + 1]["default"],
                     step=fields[i + 1].get("step", 0.1),
                     decimals=fields[i + 1].get("decimals", 2),
-                    width=fields[i + 1]["width"]
+                    width=fields[i + 1]["width"],
+                    label_text=fields[i + 1]["label"] 
                 )
                 
                 # Guardar referencias a los spinboxes
-                setattr(self, "lower_limit_spinbox", lower_spinbox)
-                setattr(self, "upper_limit_spinbox", upper_spinbox)
-                
-                # Añadir widgets en una sola fila
-                row_layout.addWidget(QLabel("🔢 Límites:"))
+                setattr(self, "lower_limit_spinbox", lower_spinbox.spinbox)
+                setattr(self, "upper_limit_spinbox", upper_spinbox.spinbox)
                 row_layout.addWidget(lower_spinbox)
-                row_layout.addWidget(QLabel("→"))
                 row_layout.addWidget(upper_spinbox)
+                
                 row_layout.addStretch()
                 
                 i += 2  # Avanzar dos campos
             else:
                 # Caso normal para otros campos
-                label = QLabel(field["label"])
                 if field["type"] == "float":
                     spinbox = create_float_spinbox(
                         min_val=field["min"],
@@ -91,7 +89,8 @@ class DistributionBaseOpWidget:
                         default_val=field["default"],
                         step=field.get("step", 0.1),
                         decimals=field.get("decimals", 2),
-                        width=field["width"]
+                        width=field["width"],
+                        label_text=field["label"]  # Usar el label directamente
                     )
                 else:  # int
                     spinbox = create_int_spinbox(
@@ -99,11 +98,11 @@ class DistributionBaseOpWidget:
                         max_val=field["max"],
                         default_val=field["default"],
                         step=field.get("step", 1),
-                        width=field["width"]
+                        width=field["width"],
+                        label_text=field["label"]  # Usar el label directamente
                     )
                 
-                setattr(self, f"{field['name']}_spinbox", spinbox)
-                row_layout.addWidget(label)
+                setattr(self, f"{field['name']}_spinbox", spinbox.spinbox)
                 row_layout.addWidget(spinbox)
                 row_layout.addStretch()
                 

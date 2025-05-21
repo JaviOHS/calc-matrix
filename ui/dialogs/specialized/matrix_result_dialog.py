@@ -12,7 +12,7 @@ class MatrixResultDialog(BaseResultDialog):
                 rows=result_matrix.rows, 
                 cols=result_matrix.cols,
                 data_accessor=lambda r, c: result_matrix.data[r, c],
-                needs_scroll=result_matrix.rows > 6
+                needs_scroll=result_matrix.rows > 5
             )
             self.result_layout.addWidget(matrix_widget, 0, Qt.AlignCenter)
         

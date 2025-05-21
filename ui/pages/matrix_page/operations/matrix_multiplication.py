@@ -1,89 +1,80 @@
-from ui.pages.matrix_page.operations.base_operation import MatrixOperationWidget
+from ui.pages.matrix_page.operations.matrix_base_operation import MatrixBaseOp
 from utils.layout.matrix_table import MatrixTableComponent
 from utils.components.ui_utils import UIUtils
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QLabel, QWidget, QHBoxLayout, QGridLayout, QVBoxLayout
-from utils.components.spinbox_utils import create_int_spinbox
+from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+from utils.components.two_row import TwoRowWidget
+from utils.components.dimension_config_utils import DimensionConfigUtils
 
-class MatrixMultiplicationWidget(MatrixOperationWidget):
+class MatrixMultiplicationWidget(MatrixBaseOp):
     def __init__(self, manager, controller):
-        # Configuración inicial antes de llamar al constructor padre
-        self.a_rows = None
-        self.a_cols = None
-        self.b_cols = None
+        self.a_rows_spinbox = None
+        self.a_cols_spinbox = None
+        self.b_cols_spinbox = None
         self.tables = []
-        self.skip_initial_matrices = True  # Evita crear matrices iniciales en el constructor padre
+        self.skip_initial_matrices = True
         super().__init__(manager, controller, allow_multiple_matrices=False)
 
     def setup_ui(self):
-        # Configuración básica del layout
-        self.layout = QVBoxLayout()
-        self.layout.setSpacing(15)
-        self.layout.setContentsMargins(20, 10, 10, 10)
+        main_layout = QVBoxLayout(self)
+        main_layout.setContentsMargins(0, 0, 0, 0)
         
-        self._setup_custom_dimensions() # Creamos control de dimensiones personalizado
+        self.two_row_widget = TwoRowWidget(row1_label="Dimensiones de Matrices", row2_label="Matrices para Multiplicación")
+        self.two_row_widget.setContentsMargins(20, 0, 20, 0)
+        
+        main_layout.addWidget(self.two_row_widget)
 
-        # Configurar área de scroll usando UIUtils
-        self.scroll_area, self.scroll_content, self.scroll_layout = UIUtils.create_scrollable_area()
-        
-        # Añadir grid layout para matrices
-        self.matrices_grid = QGridLayout()
-        self.matrices_grid.setVerticalSpacing(30)
-        self.matrices_grid.setHorizontalSpacing(50)
-        self.scroll_layout.addLayout(self.matrices_grid)
-        
-        self.layout.addWidget(self.scroll_area)
+        self._setup_custom_dimensions()
+        self._setup_matrices_area()
 
-        # Crear botones
+        # Añadir botones
         buttons_widget = self.create_buttons()
-        self.layout.addWidget(buttons_widget)
-        self.setLayout(self.layout)
+        buttons_widget.setContentsMargins(20, 10, 20, 10)
+        main_layout.addWidget(buttons_widget)
 
-        # Conectar señales para actualizar cuando cambian las dimensiones
-        self.a_rows.valueChanged.connect(self.update_matrix_tables)
-        self.a_cols.valueChanged.connect(self.update_matrix_tables)
-        self.b_cols.valueChanged.connect(self.update_matrix_tables)
-        self.scroll_area.viewport().installEventFilter(self)
-
-        # Actualizar tablas por primera vez
+        # Conectar señales
+        self._connect_signals()
+        
+        # Actualizar matrices iniciales
         self.update_matrix_tables()
 
     def _setup_custom_dimensions(self):
         """Configurar controles de dimensión específicos para multiplicación"""
-        config_widget = QWidget()
-        config_layout = QHBoxLayout(config_widget)
-        config_layout.setContentsMargins(20, 0, 0, 0)
+        config_widget, self.a_rows_spinbox, self.a_cols_spinbox, self.b_cols_spinbox = \
+            DimensionConfigUtils.create_multiplication_dimension_config()
+        
+        # Añadir a la primera fila del TwoRowWidget
+        self.two_row_widget.add_to_row1(config_widget)
 
-        # Spinboxes para dimensiones específicas de multiplicación
-        self.a_rows = create_int_spinbox(min_val=1, max_val=10, default_val=4)
-        self.a_cols = create_int_spinbox(min_val=1, max_val=10, default_val=3)
-        self.b_cols = create_int_spinbox(min_val=1, max_val=10, default_val=4)
+    def _setup_matrices_area(self):
+        """Configurar el área de matrices para la multiplicación"""
+        # Crear área de scroll y grid para matrices
+        self.scroll_area, self.scroll_content, self.scroll_layout = UIUtils.create_scrollable_area()
+        self.matrices_grid = QHBoxLayout()
+        self.matrices_grid.setSpacing(30) # Espacio entre matrices
+        self.scroll_layout.addLayout(self.matrices_grid)
+        
+        # Añadir a la segunda fila del TwoRowWidget
+        self.two_row_widget.add_to_row2(self.scroll_area)
 
-        # Añadir elementos al layout
-        config_layout.addWidget(QLabel("Filas de A:"))
-        config_layout.addWidget(self.a_rows)
-        config_layout.addSpacing(20)
-        config_layout.addWidget(QLabel("Columnas de A (y filas de B):"))
-        config_layout.addWidget(self.a_cols)
-        config_layout.addSpacing(20)
-        config_layout.addWidget(QLabel("Columnas de B:"))
-        config_layout.addWidget(self.b_cols)
-        config_layout.addStretch()
-
-        self.layout.addWidget(config_widget)
+    def _connect_signals(self):
+        """Conectar señales para actualizar cuando cambian las dimensiones"""
+        self.a_rows_spinbox.valueChanged.connect(self.update_matrix_tables)
+        self.a_cols_spinbox.valueChanged.connect(self.update_matrix_tables)
+        self.b_cols_spinbox.valueChanged.connect(self.update_matrix_tables)
+        self.scroll_area.viewport().installEventFilter(self)
 
     def update_matrix_tables(self):
         """Actualiza las tablas de matrices según las dimensiones especificadas"""
         # Limpiar matrices previas
         for i in reversed(range(self.matrices_grid.count())):
-            widget = self.matrices_grid.itemAt(i).widget()
-            if widget:
-                widget.deleteLater()
+            item = self.matrices_grid.itemAt(i)
+            if item.widget():
+                item.widget().deleteLater()
 
         # Obtener dimensiones
-        ar = self.a_rows.value()
-        ac = self.a_cols.value()
-        bc = self.b_cols.value()
+        ar = self.a_rows_spinbox.value()
+        ac = self.a_cols_spinbox.value()
+        bc = self.b_cols_spinbox.value()
 
         # Crear tablas usando MatrixTableComponent
         self.tables = []
@@ -91,14 +82,12 @@ class MatrixMultiplicationWidget(MatrixOperationWidget):
         # Crear tabla A
         table_a = MatrixTableComponent.create_table(ar, ac, "Matriz A", cell_size=50)
         self.tables.append(table_a)
-        
+        self.matrices_grid.addWidget(table_a["widget"])
+
         # Crear tabla B
         table_b = MatrixTableComponent.create_table(ac, bc, "Matriz B", cell_size=50)
         self.tables.append(table_b)
-
-        # Añadir tablas al grid layout
-        self.matrices_grid.addWidget(table_a["widget"], 0, 0, Qt.AlignCenter)
-        self.matrices_grid.addWidget(table_b["widget"], 0, 1, Qt.AlignCenter)
+        self.matrices_grid.addWidget(table_b["widget"])
 
         # Actualizar la vista
         self.scroll_content.updateGeometry()
