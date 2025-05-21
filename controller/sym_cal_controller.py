@@ -46,9 +46,25 @@ class SymCalController:
             raise ValueError("La ecuación diferencial no puede estar vacía.")
         
         try:
-            parsed_expr = self.parser.parse_equation(expression)
-            result = self.manager.solve_differential_equation(parsed_expr, initial_condition, x_range)
-            return result
+            # Procesar la entrada para que tenga formato similar al numérico
+            if isinstance(expression, str):
+                # Obtener función y texto para formato numérico
+                f, expr_text = self.parser.parse_ode_for_numerical(expression)
+                # También mantener la ecuación simbólica para resolución analítica
+                symbolic_eq = self.parser.parse_equation(expression)
+                
+                # Pasar todo al manager en formato (func, texto, eq_simbólica)
+                result = self.manager.solve_differential_equation(
+                    (f, expr_text, symbolic_eq),
+                    initial_condition, 
+                    x_range
+                )
+                return result
+            else:
+                # Si ya es un objeto procesado
+                parsed_expr = expression
+                result = self.manager.solve_differential_equation(parsed_expr, initial_condition, x_range)
+                return result
         except ValueError as e:
             raise ValueError(str(e))
         except Exception as e:
@@ -59,7 +75,7 @@ class SymCalController:
                 raise ValueError("Error matemático: división por cero.")
             else:
                 raise ValueError(f"Error al resolver la ecuación diferencial: {error_msg}")
-        
+                    
     def _validate_ode_params(self, equation, initial_condition, x_range, h):
         """Método auxiliar para validar los parámetros comunes a todos los métodos numéricos"""
         if not equation:
@@ -111,8 +127,8 @@ class SymCalController:
         """Resuelve una EDO con el método de Taylor"""
         return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="taylor")
     
-    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None):
-        """Compara diferentes métodos numéricos para resolver una EDO"""
+    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None, include_analytical=False):
+        """Compara diferentes métodos numéricos y opcionalmente la solución analítica para resolver una EDO"""
         try:
             self._validate_ode_params(equation, initial_condition, x_range, h)
             
@@ -125,6 +141,6 @@ class SymCalController:
                 parsed_expr = equation
                 
             # Llamar al método de comparación en el manager
-            return self.manager.compare_ode_methods(parsed_expr, initial_condition, x_range, h, methods)
+            return self.manager.compare_ode_methods(parsed_expr, initial_condition, x_range, h, methods, include_analytical)
         except Exception as e:
             raise ValueError(f"No se pudo realizar la comparación:\n{str(e)}")

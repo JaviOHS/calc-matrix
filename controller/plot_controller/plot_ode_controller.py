@@ -4,12 +4,12 @@ class PlotODEController:
         self.figure_manager = figure_manager
         self.style_helper = style_helper
 
-    def generate_solution_canvas(self, equation, solution_points, initial_condition=None, x_range=None):
+    def generate_solution_canvas(self, equation, solution_points, initial_condition=None, x_range=None, is_numerical=True):
         try:
             x_vals, y_vals, eq, ic = self.manager.prepare_ode_solution(
                 equation, solution_points, initial_condition, x_range
             )
-            return self._create_plot(x_vals, y_vals, eq, ic, x_range)
+            return self._create_plot(x_vals, y_vals, eq, ic, x_range, is_numerical)
         except Exception as e:
             raise ValueError(f"Error al generar gráfica ODE:\n{str(e)}")
 
@@ -22,14 +22,6 @@ class PlotODEController:
         
         self.style_helper.apply_dark_style(canvas, ax)
         
-        # Extraer la expresión formateada
-        display_equation = equation
-        if isinstance(equation, tuple) and len(equation) >= 2:
-            display_equation = f"y' = {equation[1]}"
-        elif isinstance(equation, str):
-            if not equation.startswith("y'"):
-                display_equation = f"y' = {equation}"
-        
         if is_numerical:
             # Para soluciones numéricas: mostrar todos los puntos
             ax.plot(x_vals, y_vals, 
@@ -38,13 +30,13 @@ class PlotODEController:
                    markersize=4,
                    linestyle='-',
                    linewidth=1,
-                   label=f'Solución numérica: {display_equation}')
+                   label=f'Solución numérica')
         else:
             # Para soluciones analíticas: solo línea continua con puntos inicial y final
             ax.plot(x_vals, y_vals, 
                    color=self.style_helper.get_plot_color(0),
                    linewidth=1.5,
-                   label=f'Solución analítica: {display_equation}')
+                   label=f'Solución analítica')
             
             # Agregar puntos inicial y final
             ax.plot([x_vals[0], x_vals[-1]], 
@@ -72,21 +64,30 @@ class PlotODEController:
         
         for idx, (method, points) in enumerate(solutions.items()):
             x_vals, y_vals = zip(*points)
-            ax.plot(x_vals, y_vals,
-                   color=self.style_helper.get_plot_color(idx),
-                   marker='.',  # punto pequeño para cada paso
-                   markersize=4,
-                   linestyle='-',
-                   linewidth=1,
-                   label=f'{method}')
+            
+            # Usar un estilo especial para la solución analítica
+            if method == "analytical":
+                ax.plot(x_vals, y_vals,
+                    color='white',  # Color diferente para la solución analítica
+                    linestyle='-',
+                    linewidth=1,
+                    label='Solución Analítica')
+            else:
+                ax.plot(x_vals, y_vals,
+                    color=self.style_helper.get_plot_color(idx),
+                    marker='.',     # Punto pequeño para cada paso
+                    markersize=4,
+                    linestyle='-',
+                    linewidth=1,
+                    label=f'{method}')
         
         # Mostrar condición inicial si existe
         if initial_condition:
             x0, y0 = initial_condition
             ax.plot(x0, y0, '*', 
-                   color='white',  # color diferente para destacar
-                   markersize=10,
-                   label=f'CI: ({x0}, {y0})')
+                color='yellow',  # Color diferente para destacar
+                markersize=10,
+                label=f'CI: ({x0}, {y0})')
         
         self.style_helper.configure_legend(ax)
         return canvas

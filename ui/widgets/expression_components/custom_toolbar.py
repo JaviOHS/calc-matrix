@@ -3,7 +3,7 @@ from utils.components.action_buttons import ActionButton
 
 class CustomNavigationToolbar(NavigationToolbar2QT):
     """Barra de herramientas personalizada de Matplotlib"""
-    toolitems = [t for t in NavigationToolbar2QT.toolitems if t[0] in ('Home', 'Pan', 'Save')]
+    toolitems = [t for t in NavigationToolbar2QT.toolitems if t[0] in ('Home', 'Pan', 'Zoom', 'Save')]
 
     def __init__(self, canvas, parent=None, coordinates=True):
         super().__init__(canvas, parent, coordinates)
@@ -12,6 +12,7 @@ class CustomNavigationToolbar(NavigationToolbar2QT):
         tooltips = {
             'home': ("Restablecer vista original", "Vuelve a la vista inicial del gráfico"),
             'pan': ("Desplazar vista", "Permite arrastrar el gráfico para ver diferentes áreas"),
+            'zoom': ("Zoom de selección", "Permite seleccionar un área para hacer zoom"),
             'save_figure': ("Guardar gráfico", "Guarda la gráfica como imagen PNG, JPG, SVG o PDF")
         }
         
@@ -31,6 +32,14 @@ class CustomNavigationToolbar(NavigationToolbar2QT):
             pan_button.clicked.connect(self.pan)
             self.addWidget(pan_button)
             self._remove_action('pan')
+            
+        if 'zoom' in self._actions:
+            zoom_button = ActionButton.icon_only("zoom.svg", parent=self)
+            zoom_button.setToolTip(tooltips['zoom'][0])
+            zoom_button.setStatusTip(tooltips['zoom'][1])
+            zoom_button.clicked.connect(self.zoom)
+            self.addWidget(zoom_button)
+            self._remove_action('zoom')
         
         if 'save_figure' in self._actions:
             save_button = ActionButton.icon_only("save.svg", parent=self)

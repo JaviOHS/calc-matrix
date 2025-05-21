@@ -3,6 +3,7 @@ from model.graph_manager import GraphManager
 from sympy import symbols, diff, integrate, sympify, Function
 import sympy as sp
 import numpy as np
+from utils.formating.diff_equations import standardize_ode_equation
 
 class SymCalModel:
     def __init__(self):
@@ -102,53 +103,70 @@ class SymCalModel:
         y = Function('y')(x)
         
         try:
-            # Asegurarse de que la ecuación esté en términos de y(x)
-            if not isinstance(equation, sp.Eq):
-                equation = sp.Eq(equation, 0)
-        
-            # PRIMERO: Generar equation_display
-            if isinstance(equation, sp.Eq) and equation.lhs == y.diff(x):
-                # Si es de la forma y'(x) = f(x,y), extraer f(x,y)
-                equation_display = f"y' = {equation.rhs}"
-            else:
-                # En otros casos, puede ser necesario reordenar
+            # Manejar diferentes formatos de entrada de ecuación
+            if isinstance(equation, tuple) and len(equation) == 3:
+                # Nueva estructura: (func, texto, ecuación_simbólica)
+                f, rhs_text, sym_equation = equation
+                equation_to_solve = sym_equation
+                equation_display = (f, rhs_text)  # Para mostrar
+            elif isinstance(equation, tuple) and len(equation) == 2 and callable(equation[0]):
+                # Estructura de método numérico: (func, texto)
+                f, rhs_text = equation
+                # Convertir a ecuación simbólica para resolución
+                x_sym, y_sym = sp.symbols('x y')
                 try:
-                    # Intentar mover todo al lado derecho excepto la derivada
-                    if y.diff(x) in equation.lhs.atoms():
-                        rhs_part = sp.solve(equation, y.diff(x))[0]
-                        equation_display = f"y' = {rhs_part}"
-                    else:
-                        # Formato genérico si no se puede extraer y'
-                        equation_display = str(equation)
+                    rhs_sym = sp.sympify(rhs_text)
+                    lhs_sym = sp.Derivative(y, x)
+                    equation_to_solve = sp.Eq(lhs_sym, rhs_sym)
                 except:
-                    equation_display = str(equation)
-                
+                    # Si falla la conversión, crear una ecuación genérica
+                    equation_to_solve = sp.Eq(sp.Derivative(y, x), sp.sympify(rhs_text))
+                equation_display = equation  # Para mostrar
+            elif hasattr(equation, 'rhs') and hasattr(equation, 'lhs'):
+                # Ecuación simbólica directa
+                equation_to_solve = equation
+                # Crear una representación tupla similar a la numérica
+                rhs_text = str(equation.rhs)
+                # Intentar crear una función lambda a partir de la expresión simbólica
+                try:
+                    f = sp.lambdify((x, sp.Symbol('y')), equation.rhs)
+                    equation_display = (f, rhs_text)
+                except:
+                    # Si no se puede crear la función, usar solo el texto
+                    equation_display = rhs_text
+            else:
+                # Cualquier otro caso, intentar crear una ecuación
+                equation_to_solve = sp.Eq(sp.Derivative(y, x), equation)
+                equation_display = str(equation)
+        
             # Resolver la ecuación diferencial
-            solution = sp.dsolve(equation, y)
+            solution = sp.dsolve(equation_to_solve, y)
             
             if initial_condition and x_range:
                 x0, y0 = initial_condition
                 solution_func = self._prepare_solution_function(solution, x0, y0)
                 
-                if solution_func:
-                    # DESPUÉS: Generar puntos para graficar
-                    x_vals = np.linspace(x_range[0], x_range[1], 20)
-                    y_vals = [solution_func(xi) for xi in x_vals]
-                    solution_points = list(zip(x_vals, y_vals))
-                    
-                    # Generar canvas con la ecuación ya formateada
-                    canvas = self.graph_controller.generate_ode_solution_canvas(
-                        equation=equation_display,  # Usar equation_display que ya está formateado
-                        solution_points=solution_points,
-                        initial_condition=initial_condition,
-                        x_range=x_range,
-                        title=f"Solución Analítica"
-                    )
-                    
-                    return {
-                        "solution": solution,
-                        "canvas": canvas
-                    }
+                # Usar el formato numérico para estandarizar
+                equation_info = standardize_ode_equation(equation_display)
+
+                # Generar puntos para graficar
+                x_vals = np.linspace(x_range[0], x_range[1], 20)
+                y_vals = [solution_func(xi) for xi in x_vals]
+                solution_points = list(zip(x_vals, y_vals))
+
+                # Generar canvas con la ecuación ya formateada
+                canvas = self.graph_controller.generate_ode_solution_canvas(
+                    equation=equation_info["display"],  # Usar la versión formateada
+                    solution_points=solution_points,
+                    initial_condition=initial_condition,
+                    x_range=x_range,
+                    is_numerical=False  # Especificar que es analítica
+                )
+                
+                return {
+                    "solution": solution,
+                    "canvas": canvas
+                }
             
             return solution
         except Exception as e:
@@ -185,7 +203,6 @@ class SymCalModel:
                                 return solution_func
                     except Exception as e:
                         # Si falla con esta solución, intentar con la siguiente
-                        print(f"Error con una solución: {e}")
                         continue
                 
             # Si llegamos aquí, ninguna solución funcionó correctamente: Como alternativa, tomar la primera solución disponible
@@ -203,7 +220,6 @@ class SymCalModel:
                 
             return None
         except Exception as e:
-            print(f"Error preparando función de solución:\n{e}")
             return None
 
     def solve_ode_numerical(self, parsed_equation, initial_condition, x_range, h=0.1, method="euler"):
@@ -291,14 +307,10 @@ class SymCalModel:
             solution_points=solution_points,
             initial_condition=initial_condition,
             x_range=x_range,
-            title=f"{method_title} - {len(solution_points)} puntos"
         )
         
         # Devolver tanto la solución como el canvas
-        return {
-            "solution": solution_points,
-            "canvas": canvas
-        }
+        return {"solution": solution_points, "canvas": canvas}
 
     def solve_ode_euler(self, equation, initial_condition, x_range, h=0.1):
         """Resuelve una ecuación diferencial usando el método de Euler"""
@@ -316,17 +328,22 @@ class SymCalModel:
         """Resuelve una ecuación diferencial usando el método de Taylor de orden 2"""
         return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="taylor")
         
-    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None):
+    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None, include_analytical=False):
         available_methods = {
             "euler": "Método de Euler",
             "heun": "Método de Heun",
             "rk4": "Método de Runge-Kutta (4º orden)",
-            "taylor": "Método de Taylor (2º orden)"
+            "taylor": "Método de Taylor (2º orden)",
+            "analytical": "Solución Analítica"
         }
         
-        # Si no se especifica, incluir todos los métodos disponibles
+        # Si no se especifica, incluir todos los métodos numéricos disponibles (sin analítico)
         if methods is None:
-            methods = list(available_methods.keys())
+            methods = [m for m in available_methods.keys() if m != "analytical"]
+        
+        # Si se solicita, añadir el método analítico
+        if include_analytical and "analytical" not in methods:
+            methods.append("analytical")
         
         # Validar los métodos solicitados
         for method in methods:
@@ -334,19 +351,82 @@ class SymCalModel:
                 raise ValueError(f"Método '{method}' no disponible.")
         
         # El parsed_equation debe ser una tupla (f, rhs_text)
-        if not (isinstance(equation, tuple) and len(equation) == 2 and callable(equation[0])):
+        if not (isinstance(equation, tuple) and len(equation) >= 2 and callable(equation[0])):
             raise ValueError("La ecuación debe estar parseada como (función, texto)")
         
         # Almacenar resultados de cada método
         solutions = {}
+        errors = {}
         
-        # Calcular soluciones numéricas para cada método
+        # Calcular soluciones para cada método
         for method in methods:
-            result = self.solve_ode_numerical(equation, initial_condition, x_range, h, method=method)
-            solutions[method] = result["solution"]
+            if method == "analytical":
+                try:
+                    # Extraer los datos de la ecuación
+                    f, rhs_text = equation[:2]
+                    
+                    # Usar el método solve_differential_equation directamente en lugar de reinventar la lógica
+                    analytical_result = self.solve_differential_equation(equation, initial_condition, x_range)
+                    
+                    if isinstance(analytical_result, dict) and "canvas" in analytical_result:
+                        # Si tenemos una solución y canvas, extraer la solución
+                        sym_solution = analytical_result["solution"]
+                        
+                        # Generar puntos más densos para la gráfica comparativa
+                        x_start, x_end = x_range
+                        x_vals = np.linspace(x_start, x_end, 100)
+                        
+                        # Usar la misma función de solución preparada por solve_differential_equation
+                        solution_func = self._prepare_solution_function(sym_solution, initial_condition[0], initial_condition[1])
+                        
+                        if solution_func:
+                            y_vals = [solution_func(xi) for xi in x_vals]
+                            solutions["analytical"] = list(zip(x_vals, y_vals))
+                        else:
+                            raise ValueError("No se pudo preparar la función de solución analítica")
+                    else:
+                        raise ValueError("No se pudo obtener la solución analítica de forma válida")
+                        
+                except Exception as e:
+                    error_msg = f"Error al calcular solución analítica: {str(e)}"
+                    errors["analytical"] = error_msg
+                    raise ValueError(error_msg)
+        
+            else:
+                try:
+                    # Calcular solución numérica
+                    result = self.solve_ode_numerical(equation, initial_condition, x_range, h, method=method)
+                    solutions[method] = result["solution"]
+                except Exception as e:
+                    errors[method] = f"Error en método {method}: {str(e)}"
+                    ValueError(f"Error en método {method}: {str(e)}")
         
         # Extraer el texto de la ecuación para mostrar
         _, equation_text = equation
+        
+        # Si hay errores pero también hay soluciones, mostrar advertencia en la interfaz
+        if errors and solutions:
+            error_messages = "\n".join([f"⚠️ {available_methods[m]}: {msg}" for m, msg in errors.items()])
+            
+            # Crear canvas con mensaje de advertencia
+            canvas = self.graph_controller.generate_ode_comparison_canvas(
+                equation=f"y' = {equation_text}",
+                solutions=solutions,
+                initial_condition=initial_condition,
+                x_range=x_range,
+                h=h,
+                method_names=available_methods
+            )
+            
+            # Añadir mensaje de advertencia
+            if hasattr(canvas, 'fig'):
+                canvas.fig.suptitle(f"⚠️ Algunos métodos tuvieron errores", fontsize=10, color='orange')
+            
+            return {"canvas": canvas, "errors": errors}
+        
+        # Si no hay soluciones, mostrar error
+        if not solutions:
+            raise ValueError(f"No se pudo calcular ninguna solución. Errores: {errors}")
         
         # Delegar la generación del canvas al controlador de gráficos
         canvas = self.graph_controller.generate_ode_comparison_canvas(
@@ -357,6 +437,10 @@ class SymCalModel:
             h=h,
             method_names=available_methods
         )
+        
+        # Si hay errores, devolverlos también
+        if errors:
+            return {"canvas": canvas, "errors": errors}
         
         return canvas
 

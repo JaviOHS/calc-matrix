@@ -4,6 +4,26 @@ from .base import create_section
 from .polynomials import format_polynomial
 from utils.patterns import DISPLAY_PATTERNS, COLORS, ICONS
 
+def standardize_ode_equation(equation, is_symbolic=True, preserve_original=True, is_numerical=False):
+    """
+    Estandariza la representación de una ecuación diferencial para mostrarlas
+    de forma consistente tanto en métodos analíticos como numéricos.
+    """
+    # Extraer información original y texto de la ecuación según el tipo
+    original_text = ""
+    rhs_text = ""
+    symbolic_repr = None # Para manejo de ecuación en gráficas
+    
+    # Caso 1: Entrada es una tupla del tipo (función, texto_rhs) de métodos numéricos - EXPANDIR SI ES NECESARIO
+    if isinstance(equation, tuple) and len(equation) == 2 and callable(equation[0]):
+        _, rhs_text = equation
+        original_text = rhs_text
+        
+    if preserve_original:
+        return {"display": equation, "original": original_text, "symbolic": symbolic_repr}
+    else:
+        return equation
+    
 def format_diff_eq(equation, solution):
     """Formateador especializado para ecuaciones diferenciales"""
     html_result = []
