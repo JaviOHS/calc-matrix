@@ -7,11 +7,11 @@ class VectorController:
         self.parser = VectorParser()
 
     def execute_operation(self, operation, expression):
-        if operation == "magnitud":
+        if operation == "magnitude":
             return self.calculate_magnitude(expression)
-        elif operation == "producto_punto":
+        elif operation == "dot_product":
             return self.dot_product(expression)
-        elif operation == "producto_cruzado":
+        elif operation == "cross_product":
             return self.cross_product(expression)
         else:
             return self.evaluate_basic_expression(expression)

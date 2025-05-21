@@ -328,7 +328,8 @@ class SymCalModel:
         """Resuelve una ecuación diferencial usando el método de Taylor de orden 2"""
         return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="taylor")
         
-    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None, include_analytical=False):
+    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None):
+        """Compara diferentes métodos numéricos para resolver EDOs"""
         available_methods = {
             "euler": "Método de Euler",
             "heun": "Método de Heun",
@@ -337,111 +338,47 @@ class SymCalModel:
             "analytical": "Solución Analítica"
         }
         
-        # Si no se especifica, incluir todos los métodos numéricos disponibles (sin analítico)
-        if methods is None:
-            methods = [m for m in available_methods.keys() if m != "analytical"]
-        
-        # Si se solicita, añadir el método analítico
-        if include_analytical and "analytical" not in methods:
-            methods.append("analytical")
-        
-        # Validar los métodos solicitados
-        for method in methods:
-            if method not in available_methods:
-                raise ValueError(f"Método '{method}' no disponible.")
-        
+        methods = [m for m in available_methods.keys()]
+
         # El parsed_equation debe ser una tupla (f, rhs_text)
         if not (isinstance(equation, tuple) and len(equation) >= 2 and callable(equation[0])):
             raise ValueError("La ecuación debe estar parseada como (función, texto)")
         
-        # Almacenar resultados de cada método
+        # Desempaquetar la tupla
+        if len(equation) == 3:
+            f, rhs_text, sym_eq = equation
+        else:
+            raise ValueError("Para comparativa analítica necesitas la ecuación simbólica.")
+
+        x0, y0 = initial_condition
+        x_start, x_end = x_range
+        N = int((x_end - x_start) / h) + 1 # Número de puntos
+        x_vals = np.linspace(x_start, x_end, N)
+
         solutions = {}
-        errors = {}
-        
-        # Calcular soluciones para cada método
-        for method in methods:
-            if method == "analytical":
+        errors    = {}
+
+        for m in methods:
+            if m == "analytical":
                 try:
-                    # Extraer los datos de la ecuación
-                    f, rhs_text = equation[:2]
-                    
-                    # Usar el método solve_differential_equation directamente en lugar de reinventar la lógica
-                    analytical_result = self.solve_differential_equation(equation, initial_condition, x_range)
-                    
-                    if isinstance(analytical_result, dict) and "canvas" in analytical_result:
-                        # Si tenemos una solución y canvas, extraer la solución
-                        sym_solution = analytical_result["solution"]
-                        
-                        # Generar puntos más densos para la gráfica comparativa
-                        x_start, x_end = x_range
-                        x_vals = np.linspace(x_start, x_end, 100)
-                        
-                        # Usar la misma función de solución preparada por solve_differential_equation
-                        solution_func = self._prepare_solution_function(sym_solution, initial_condition[0], initial_condition[1])
-                        
-                        if solution_func:
-                            y_vals = [solution_func(xi) for xi in x_vals]
-                            solutions["analytical"] = list(zip(x_vals, y_vals))
-                        else:
-                            raise ValueError("No se pudo preparar la función de solución analítica")
-                    else:
-                        raise ValueError("No se pudo obtener la solución analítica de forma válida")
-                        
+                    sol = sp.dsolve(sym_eq, Function('y')(self.x))
+                    sol_func = self._prepare_solution_function(sol, x0, y0)
+                    y_vals = [sol_func(xi) for xi in x_vals]
+                    solutions["analytical"] = list(zip(x_vals, y_vals))
                 except Exception as e:
-                    error_msg = f"Error al calcular solución analítica: {str(e)}"
-                    errors["analytical"] = error_msg
-                    raise ValueError(error_msg)
-        
+                    errors["analytical"] = str(e)
             else:
                 try:
-                    # Calcular solución numérica
-                    result = self.solve_ode_numerical(equation, initial_condition, x_range, h, method=method)
-                    solutions[method] = result["solution"]
+                    num = self.solve_ode_numerical((f, rhs_text), initial_condition, x_range, h, method=m)
+                    solutions[m] = num["solution"] # num["solution"] es [(x0,y0), …]
                 except Exception as e:
-                    errors[method] = f"Error en método {method}: {str(e)}"
-                    ValueError(f"Error en método {method}: {str(e)}")
-        
-        # Extraer el texto de la ecuación para mostrar
-        _, equation_text = equation
-        
-        # Si hay errores pero también hay soluciones, mostrar advertencia en la interfaz
-        if errors and solutions:
-            error_messages = "\n".join([f"⚠️ {available_methods[m]}: {msg}" for m, msg in errors.items()])
-            
-            # Crear canvas con mensaje de advertencia
-            canvas = self.graph_controller.generate_ode_comparison_canvas(
-                equation=f"y' = {equation_text}",
-                solutions=solutions,
-                initial_condition=initial_condition,
-                x_range=x_range,
-                h=h,
-                method_names=available_methods
-            )
-            
-            # Añadir mensaje de advertencia
-            if hasattr(canvas, 'fig'):
-                canvas.fig.suptitle(f"⚠️ Algunos métodos tuvieron errores", fontsize=10, color='orange')
-            
-            return {"canvas": canvas, "errors": errors}
-        
-        # Si no hay soluciones, mostrar error
-        if not solutions:
-            raise ValueError(f"No se pudo calcular ninguna solución. Errores: {errors}")
-        
-        # Delegar la generación del canvas al controlador de gráficos
-        canvas = self.graph_controller.generate_ode_comparison_canvas(
-            equation=f"y' = {equation_text}",
-            solutions=solutions,
-            initial_condition=initial_condition,
-            x_range=x_range,
-            h=h,
-            method_names=available_methods
-        )
-        
-        # Si hay errores, devolverlos también
+                    errors[m] = str(e)
+
+        # crear el canvas comparativo una sola vez con puntos 100% float
+        canvas = self.graph_controller.generate_ode_comparison_canvas(equation=f"y' = {rhs_text}", solutions=solutions, initial_condition=initial_condition, x_range=x_range, h=h)
+
         if errors:
             return {"canvas": canvas, "errors": errors}
-        
         return canvas
 
     def clear(self):

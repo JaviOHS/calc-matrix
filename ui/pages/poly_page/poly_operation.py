@@ -4,6 +4,7 @@ from controller.polynomial_controller import PolynomialController
 from utils.formating.formatting import format_math_expression
 from utils.components.spinbox_utils import create_float_spinbox
 from utils.components.two_column import TwoColumnWidget
+from utils.formating.messages import format_warning, format_error
 
 class PolynomialOpWidget(ExpressionOpWidget):
     def __init__(self, manager=PolynomialManager, controller=PolynomialController, operation_type=None):
@@ -64,29 +65,41 @@ class PolynomialOpWidget(ExpressionOpWidget):
             return [expr]  # Para operaciones combinadas, se pasa la expresión en string
 
     def execute_operation(self):
-        expr = self.expression_input.toPlainText().strip()
-        valid, error_message = self.validate_operation()
+        try:
+            expr = self.expression_input.toPlainText().strip()
+            valid, error_message = self.validate_operation()
 
-        if not valid:
-            raise ValueError(error_message)
+            if not valid:
+                self.display_result(format_warning(error_message))
+                return
 
-        # Reusar self._parsed_expr en lugar de parsear de nuevo
-        if self.operation_type == "evaluation":
-            x_value = self.x_input.value()
-            poly = self.controller.parser.to_polynomial(self._parsed_expr)
-            self.controller.manager.add_polynomial(poly)
-            result = self.controller.execute_operation("evaluation", float(x_value))
-            return [("P1", result[0])]
-        else:
-            if self.operation_type in {"derivative", "integral", "roots"}:
+            # Lógica específica según el tipo de operación
+            if self.operation_type == "evaluation":
+                x_value = self.x_input.value()
                 poly = self.controller.parser.to_polynomial(self._parsed_expr)
                 self.controller.manager.add_polynomial(poly)
-                result = self.controller.execute_operation(self.operation_type)
-                return result
+                result = self.controller.execute_operation("evaluation", float(x_value))
+                formatted_result = self.prepare_result_display([("P1", result[0])])
             else:
-                result = self.controller.execute_operation(self.operation_type, expr)
-                return result
+                if self.operation_type in {"derivative", "integral", "roots"}:
+                    poly = self.controller.parser.to_polynomial(self._parsed_expr)
+                    self.controller.manager.add_polynomial(poly)
+                    result = self.controller.execute_operation(self.operation_type)
+                else:
+                    result = self.controller.execute_operation(self.operation_type, expr)
+                
+                formatted_result = self.prepare_result_display(result)
             
+            self.display_result(formatted_result)
+            return result  # Opcional: devolver el resultado por si es necesario
+
+        except ValueError as e:
+            self.display_result(format_error(str(e)))
+        except Exception as e:
+            self.display_result(format_error(str(e)))
+            import traceback
+            print(traceback.format_exc())
+
     def get_evaluation_value(self):
         return str(self.x_input.value())
 

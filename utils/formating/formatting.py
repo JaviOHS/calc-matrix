@@ -18,8 +18,8 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         formatted_result = format_vector(result)
         
         return (
-            create_section('Operación con Vectores/Matrices: ', formatted_expr, COLORS['secondary'], ICONS['matrix']) +
-            create_section('Resultado: ', formatted_result, COLORS['primary'], ICONS['result'])
+            create_section('Operación con Vectores/Matrices:<br>', formatted_expr, COLORS['secondary'], ICONS['matrix']) +
+            create_section('Resultado:<br>', formatted_result, COLORS['primary'], ICONS['result'])
         )
     
     if operation_type == "roots":
@@ -34,8 +34,8 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         formatted_result = format_polynomial(result)
         
         return (
-            create_section('Expresión Original: ', formatted_expr, COLORS['secondary'], ICONS['operation']) +
-            create_section('Resultado Simplificado: ', formatted_result, COLORS['primary'], ICONS['result'])
+            create_section('Expresión Original:<br>', formatted_expr, COLORS['secondary'], ICONS['operation']) +
+            create_section('Resultado Simplificado:<br>', formatted_result, COLORS['primary'], ICONS['result'])
         )
     
     if operation_type == "differential_equation":

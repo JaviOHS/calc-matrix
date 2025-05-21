@@ -1,5 +1,6 @@
 from ui.dialogs.simple.message_dialog import MessageDialog
 from ui.dialogs.specialized.canvas_dialog import CanvasDialog
+from utils.parsers.expression_parser import ExpressionParser
 
 class DialogFactory:
     """Fábrica para crear y mostrar diálogos especializados según el tipo de resultado"""
@@ -36,14 +37,7 @@ class DialogFactory:
                     method_names = {"analytical": "Solución Analítica", "euler": "Método de Euler", "heun": "Método de Heun", "rk4": "Método de Runge-Kutta (4º orden)", "taylor": "Método de Taylor (2º orden)"}
                     method_title = method_names.get(method, method.upper())
                     
-                    dialog = CanvasDialog(
-                        title=f"🟢 SOLUCIÓN DE EDO - {method_title}",
-                        title_color="#4caf50",
-                        html_content=html_content,
-                        canvas=canvas,
-                        image_path="assets/images/dialogs/edo.png",
-                        parent=parent
-                    )
+                    dialog = CanvasDialog(title=f"🟢 SOLUCIÓN DE EDO - {method_title}", title_color="#4caf50", html_content=html_content, canvas=canvas, image_path="assets/images/dialogs/edo.png", parent=parent)
                     
                     # Añadir botón de comparación si hay modelo simbólico
                     if kwargs.get("sym_model"):
@@ -92,8 +86,6 @@ class DialogFactory:
     def _show_ode_comparison(params):
         """Muestra un diálogo de comparación de métodos ODE"""
         try:
-            from utils.parsers.expression_parser import ExpressionParser
-
             # Obtener parámetros
             sym_model = params.get("sym_model")
             equation_text = params.get("equation")
@@ -108,55 +100,29 @@ class DialogFactory:
             # Parsear la ecuación
             parser = ExpressionParser()
             f, expr_text = parser.parse_ode_for_numerical(equation_text)
-            parsed_equation = (f, expr_text)
-            
+            sym_eq = parser.parse_equation(equation_text)
+            parsed_equation = (f, expr_text, sym_eq)
+
             # Generar comparación
-            result = sym_model.compare_ode_methods(
-                equation=parsed_equation, 
-                initial_condition=initial_condition, 
-                x_range=x_range, 
-                h=h, 
-                include_analytical=True
-            )
+            result = sym_model.compare_ode_methods(equation=parsed_equation, initial_condition=initial_condition, x_range=x_range, h=h,)
             
             # Detectar si hay errores
             has_errors = isinstance(result, dict) and "errors" in result
             canvas = result["canvas"] if has_errors else result
             
             # Mostrar resultado
-            dialog = CanvasDialog(
-                title="🔍 COMPARACIÓN DE MÉTODOS NUMÉRICOS", 
-                title_color="#3f51b5", 
-                canvas=canvas, 
-                image_path="assets/images/dialogs/comparative.png", 
-                parent=parent
-            )
+            dialog = CanvasDialog(title="🔍 COMPARACIÓN DE MÉTODOS NUMÉRICOS", title_color="#fc7e00", canvas=canvas, image_path="assets/images/dialogs/comparative.png", parent=parent)
             
             # Si hay errores, mostrar un mensaje adicional
             if has_errors:
                 error_msg = "Algunos métodos no pudieron calcularse:\n"
                 for method, err in result["errors"].items():
-                    method_name = {"euler": "Euler", "heun": "Heun", "rk4": "RK4", 
-                                "taylor": "Taylor", "analytical": "Solución Analítica"}.get(method, method)
+                    method_name = {"euler": "Euler", "heun": "Heun", "rk4": "RK4", "taylor": "Taylor", "analytical": "Solución Analítica"}.get(method, method)
                     error_msg += f"• {method_name}: {err}\n"
                     
-                # Añadir un mensaje en el diálogo
-                DialogFactory.show_message_dialog(
-                    title="⚠️ ADVERTENCIA", 
-                    message=error_msg, 
-                    title_color="#ff9800", 
-                    image_name="error.png", 
-                    parent=parent
-                )
+                DialogFactory.show_message_dialog(title="⚠️ ADVERTENCIA", message=error_msg, title_color="#ff9800", image_name="error.png", parent=parent)
             
             dialog.exec()
             
         except Exception as e:
-            DialogFactory.show_message_dialog(
-                title="❌ ERROR", 
-                message=f"No se pudo realizar la comparación:\n{str(e)}", 
-                title_color="#d32f2f", 
-                image_name="error.png", 
-                parent=params.get("parent")
-            )
-            
+            DialogFactory.show_message_dialog(title="❌ ERROR", message=f"No se pudo realizar la comparación:\n{str(e)}", title_color="#d32f2f", image_name="error.png", parent=params.get("parent"))

@@ -4,6 +4,7 @@ from controller.vector_controller import VectorController
 import re
 from utils.formating.formatting import format_math_expression
 from utils.components.two_column import TwoColumnWidget
+from utils.formating.messages import format_warning, format_error
 
 ALLOWED_VECTOR_CHARS = re.compile(r'^[\[\]\d,\s+\-*/.\·]*$')
 class VectorOpWidget(ExpressionOpWidget):
@@ -49,27 +50,35 @@ class VectorOpWidget(ExpressionOpWidget):
             vector = self.controller.parser.to_vector(sym_expr)
             return [vector]
         except Exception as e:
-            raise ValueError(f"Error al convertir la expresión a vector: {str(e)}")
+            raise ValueError(f"❌ Error al convertir la expresión a vector: {str(e)}")
 
     def execute_operation(self):
         try:
             expr = self.get_input_expression()
+            if not expr:
+                self.display_result(format_warning("Ingrese una expresión válida."))
+                return
+
             valid, error = self.validate_operation()
             if not valid:
-                self.display_result(f"<span style='color:red'>Error: {error}</span>")
+                self.display_result(format_error(error))
                 return
 
             result = self.controller.execute_operation(self.operation_type, expr)
             if result is None:
-                self.display_result("<span style='color:red'>Error en el cálculo</span>")
+                self.display_result(format_error("Error en el cálculo."))
                 return
 
             # Usar el formateador unificado para vectores
             formatted_output = format_math_expression(expr, result, "vector")
             self.display_result(formatted_output)
 
+        except ValueError as e:
+            self.display_result(format_error(str(e)[:100]))
         except Exception as e:
-            self.display_result(f"<span style='color:red'>Error: {str(e)[:100]}</span>")
+            self.display_result(format_error(f"Error inesperado: {str(e)[:100]}"))
+            import traceback
+            print(traceback.format_exc())  # Para depuración
             
     def filter_vector_input(self):
         current_text = self.expression_input.toPlainText()

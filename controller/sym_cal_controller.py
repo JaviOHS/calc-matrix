@@ -127,20 +127,20 @@ class SymCalController:
         """Resuelve una EDO con el método de Taylor"""
         return self.solve_ode_numerical(equation, initial_condition, x_range, h, method="taylor")
     
-    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None, include_analytical=False):
+    def compare_ode_methods(self, equation, initial_condition, x_range, h=0.1, methods=None):
         """Compara diferentes métodos numéricos y opcionalmente la solución analítica para resolver una EDO"""
         try:
             self._validate_ode_params(equation, initial_condition, x_range, h)
             
-            # Parsear la ecuación usando ExpressionParser si es una cadena
             if isinstance(equation, str):
-                # Usar el método especial para EDOs numéricas
+                # obtenemos también la ecuación simbólica
                 f, expr_text = self.parser.parse_ode_for_numerical(equation)
-                parsed_expr = (f, expr_text)  # Tupla con función y texto
+                sym_eq = self.parser.parse_equation(equation)
+                parsed_expr = (f, expr_text, sym_eq)
             else:
                 parsed_expr = equation
                 
             # Llamar al método de comparación en el manager
-            return self.manager.compare_ode_methods(parsed_expr, initial_condition, x_range, h, methods, include_analytical)
+            return self.manager.compare_ode_methods(parsed_expr,initial_condition, x_range, h, methods)
         except Exception as e:
             raise ValueError(f"No se pudo realizar la comparación:\n{str(e)}")
