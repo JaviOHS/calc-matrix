@@ -22,4 +22,3 @@ styles/_.css
 build/
 dist/
 __pycache__/
-*.spec

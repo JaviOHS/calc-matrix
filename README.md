@@ -30,9 +30,15 @@ Desarrollada en **Python** con interfaz gráfica **PySide/PyQt**. Esta app integ
 ## 🧩 Módulos Disponibles
 
 ### 🔷 Matrices
-- ➕ Suma, ➖ Resta, ✖️ Escalar/Cuadrática
+- ➕ Suma, ➖ Resta, ✖️ Cuadrática
 - 🔄 Inversa y Determinante (hasta 10x10)
 - 🧩 Resolución de sistemas lineales `Ax = b`
+
+### 📊 Polinomios
+- 🧠 Operaciones combinadas con paréntesis
+- ❌ Raíces
+- 📉 Derivada | 📈 Integral
+- 🧮 Evaluación de `x`
 
 ### 📐 Vectores
 - ➕➖✖️➗ Operaciones básicas (misma dimensión)
@@ -44,15 +50,10 @@ Desarrollada en **Python** con interfaz gráfica **PySide/PyQt**. Esta app integ
 - 🟦 2D: función + intervalo X  
 - 🟥 3D: función + rangos X/Y
 
-### 📊 Polinomios
-- 🧠 Operaciones combinadas con paréntesis
-- ❌ Raíces
-- 📉 Derivada | 📈 Integral
-- 🧮 Evaluación de `x`
-
 ### 🔬 Cálculo Simbólico
 - 📉 Derivadas simbólicas
 - 📈 Integrales definidas
+- 🔄 Ecuaciones diferenciales ordinarias
 
 ---
 
@@ -90,9 +91,29 @@ python main.py
 
 ---
 
+## 🧪 Crear Ejecutable `.exe`
+
+Puedes empaquetar la aplicación como un ejecutable para su distribución. Sigue estos pasos:
+
+```bash
+# 1. Activa el entorno virtual
+# (debe tener todas las dependencias ya instaladas)
+.venv\Scripts\activate
+
+# 2. Instala PyInstaller dentro del entorno virtual
+pip install pyinstaller
+
+# 3. Ejecuta el empaquetado con el archivo .spec
+pyinstaller main.spec
+```
+
+Esto generará una carpeta `dist/CalcMatrix v1.2/` que contiene el ejecutable `CalcMatrix v1.2.exe` con todos los recursos y dependencias incluidos (no requiere instalación de Python en el equipo destino).
+
+---
+
 ## 🛠️ Estado del Proyecto
 
-🔹 Versión inicial — en constante desarrollo.  
+🔹 Versión 1.2 — en constante desarrollo.  
 🔹 Mejoras visuales y de rendimiento en camino.  
 
 ---

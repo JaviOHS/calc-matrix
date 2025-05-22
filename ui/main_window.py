@@ -20,6 +20,8 @@ from model.distribution_manager import DistributionManager
 
 from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon
+from utils.core.resources import resource_path
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -55,6 +57,7 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(456, 637) 
         self.setWindowFlags(Qt.FramelessWindowHint)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.setWindowIcon(QIcon(resource_path("assets/icons/_ico.ico")))
 
     def setup_ui(self):
         """Configurar la interfaz de usuario"""
