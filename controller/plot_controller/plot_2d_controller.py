@@ -15,6 +15,8 @@ class Plot2DController:
             if not raw_expression or not x_range:
                 raise ValueError("Expresión o rango no proporcionado")
             
+            if x_range[0] == x_range[1]:
+                raise ValueError("El rango de x no puede ser igual.")
             
             expressions = [expr.strip() for expr in raw_expression.split(",") if expr.strip()]
             if len(expressions) > 5:

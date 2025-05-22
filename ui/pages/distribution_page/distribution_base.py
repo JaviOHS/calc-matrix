@@ -3,7 +3,7 @@ from utils.components.spinbox_utils import create_int_spinbox, create_float_spin
 
 class DistributionBaseOpWidget:
     """Clase base para operaciones de distribución"""
-    def create_method_selector(self, config_dict, default_key="mersenne", label_text="🟠 Método:"):
+    def create_method_selector(self, config_dict, default_key="mersenne", label_text="🔸 Método:"):
         method_container = QWidget()
         method_layout = QHBoxLayout(method_container)
         method_layout.setContentsMargins(0, 0, 0, 0)

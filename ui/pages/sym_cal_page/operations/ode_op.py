@@ -24,7 +24,7 @@ class DifferentialEqOperation(BaseSymCalOperation):
         method_row = QWidget()
         method_row_layout = QHBoxLayout(method_row)
         method_row_layout.setContentsMargins(10, 0, 10, 0)
-        method_row_layout.addWidget(QLabel("🟠 Método:"))
+        method_row_layout.addWidget(QLabel("🔸 Método:"))
         
         self.de_method_selector = QComboBox()
         self.de_method_selector.addItem("Analítico", "analytical")

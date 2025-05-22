@@ -15,14 +15,12 @@ class TwoRowWidget(QWidget):
 
         # Primera fila (inputs y labels)
         self.row1_group = QGroupBox(f"📌 {self.row1_label}" if self.row1_label else "Configuración")
-        self.row1_group.setStyleSheet("QGroupBox { font-weight: bold; }")
         self.row1_layout = QGridLayout(self.row1_group)
         self.row1_layout.setContentsMargins(5, 5, 5, 5)
         self.row1_layout.setSpacing(5)
 
         # Segunda fila (matrices)
         self.row2_group = QGroupBox(f"📌 {self.row2_label}" if self.row2_label else "Matrices")
-        self.row2_group.setStyleSheet("QGroupBox { font-weight: bold; }")
         self.row2_layout = QGridLayout(self.row2_group)
         self.row2_layout.setContentsMargins(5, 0, 5, 0)
         self.row2_layout.setSpacing(10)

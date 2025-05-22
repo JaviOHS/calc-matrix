@@ -7,21 +7,18 @@
 }
 
 #eduTitle {
-    font-size: 18px;
-    font-weight: bold;
+    font-size: {{LARGE_FONT_SIZE}};
     color: #ff9d40;
     margin-bottom: 8px;
 }
 
 #eduFact {
-    font-size: 14px;
-    color: #D8DEE9;
+    font-size: {{SMALL_FONT_SIZE}};
     line-height: 1.5;
 }
 
 #ctaText {
-    font-size: 20px;
-    font-weight: bold;
+    font-size: {{TITLE_FONT_SIZE}};
     color: #ECEFF4;
     margin-bottom: 2px;
 }
@@ -54,11 +51,9 @@
 #featureText {
     color: white;
     font-size: 18px;
-    font-weight: bold;
 }
 
 #featureDescription {
-    color: #ADBAC7;
     font-size: 14px;
     line-height: 1.5;
     margin-top: 4px;

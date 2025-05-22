@@ -3,7 +3,6 @@ QPushButton {
     background-color: #1C2C42;
     border-radius: 8px;
     padding: 10px 20px;
-    font-weight: 600;
 }
 
 QPushButton[class="sidebar-button"] {

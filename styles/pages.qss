@@ -4,18 +4,12 @@
 }
 
 #heroTitle {
-    font-size: 36px;
-    font-weight: bold;
     color: white;
-    margin-left: 10px;
-    margin-right: 10px;
-    margin-bottom: 4px;
+    margin: 0 10px 4px 10px;
     letter-spacing: -0.5px;
 }
 
 #heroHighlight {
-    font-size: 28px;
-    font-weight: bold;
     color: #ff8103;
     padding-left: 14px;
     letter-spacing: -0.5px;
@@ -23,20 +17,16 @@
 
 #heroDescription {
     color: #D8DEE9;
-    font-size: 16px;
     line-height: 1.6;
 }
 
 #footerText {
-    color: #ADBAC7; 
-    font-size: 14px;
     margin-top: 10px;
 }
 
+
 /* --- OPERACIONES --- */
 #operationTitle {
-    font-size: 28px;
-    font-weight: bold;
     color: white;
     border-left: 6px solid #ff8103;
     line-height: 1.2;

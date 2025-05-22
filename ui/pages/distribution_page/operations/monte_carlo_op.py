@@ -25,7 +25,7 @@ class MonteCarloOp(DistributionBaseOpWidget):
         mc_method_layout = QHBoxLayout(mc_method_container)
         mc_method_layout.setContentsMargins(0, 0, 0, 0)
         
-        mc_method_layout.addWidget(QLabel("🟠 Algoritmo aleatorio:"))
+        mc_method_layout.addWidget(QLabel("🔸 Algoritmo aleatorio:"))
         self.mc_method_combo = QComboBox()
         for key, config in METHOD_CONFIG.items():
             self.mc_method_combo.addItem(config["display_name"], key)

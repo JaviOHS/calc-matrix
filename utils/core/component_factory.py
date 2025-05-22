@@ -1,6 +1,5 @@
 from PySide6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel, QSizePolicy
 from PySide6.QtCore import Qt
-from utils.components.image_utils import create_image_label
 
 def create_info_item(icon, text, description=None):
     """Crea un elemento de información con icono y descripción"""

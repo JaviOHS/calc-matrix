@@ -1,5 +1,4 @@
 from ui.dialogs.specialized.canvas_dialog import CanvasDialog
-from PySide6.QtCore import QSize
 
 class DistributionDialog(CanvasDialog):
     """Diálogo especializado para mostrar resultados de distribuciones"""

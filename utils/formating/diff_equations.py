@@ -74,6 +74,8 @@ def format_diff_eq(equation, solution):
     
 def format_numerical_method(result, method_name):
     """Formato unificado para resultados de métodos numéricos con diseño oscuro y centrado"""
+    from utils.core.font_weight_manager import FontWeightManager
+    bold = FontWeightManager.get_weight("strong")
     table_html = (
         "<div style='margin: 15px 0; padding: 15px; border-radius: 8px; "
         "display: flex; justify-content: center; align-items: center;'>"
@@ -81,9 +83,9 @@ def format_numerical_method(result, method_name):
         "<thead>"
         "<tr>"
         "<th style='padding: 12px; border-bottom: 2px solid #ff8103; "
-        "color: #D8DEE9; font-weight: bold; width: 50%;'>x</th>"
+        f"color: #D8DEE9; font-weight: {bold}; width: 50%;'>x</th>"
         "<th style='padding: 12px; border-bottom: 2px solid #ff8103; "
-        "color: #D8DEE9; font-weight: bold; width: 50%;'>y</th>"
+        f"color: #D8DEE9; font-weight: {bold}; width: 50%;'>y</th>"
         "</tr>"
         "</thead>"
         "<tbody>"

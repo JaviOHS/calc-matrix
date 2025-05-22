@@ -1,60 +1,51 @@
 from utils.core.resources import resource_path
 from PySide6.QtWidgets import QApplication
-from ui.main_window import MainWindow
-from PySide6.QtGui import QFontDatabase
 from utils.core.shortcuts import ShortcutManager
+from utils.core.style_manager import StyleManager
+from utils.core.font_manager import FontFamily, FontVariant
 import sys
 
 def setup_fonts():
     """Configurar las fuentes de la aplicación."""
-    font_path = resource_path("assets/fonts/FiraSans-Regular.ttf")
-    font_id = QFontDatabase.addApplicationFont(font_path)
-    families = QFontDatabase.applicationFontFamilies(font_id)
-    font_family = families[0] if families else "Arial"
+    main_font = FontFamily("Fira Sans", [
+        FontVariant("300", "FiraSans-Light.ttf", "light"),
+        FontVariant("400", "FiraSans-Regular.ttf", "regular"),
+        FontVariant("500", "FiraSans-Medium.ttf", "medium"),
+        FontVariant("600", "FiraSans-SemiBold.ttf", "semibold"),
+        FontVariant("700", "FiraSans-Bold.ttf", "bold"),
+        FontVariant("800", "FiraSans-ExtraBold.ttf", "extrabold"),
+    ])
     
-    cambria_math_path = resource_path("assets/fonts/Cambria-Math.ttf")
-    cambria_math_id = QFontDatabase.addApplicationFont(cambria_math_path)
-    cambria_families = QFontDatabase.applicationFontFamilies(cambria_math_id)
-    cambria_family = cambria_families[0] if cambria_families else "Cambria Math"
+    math_font = FontFamily("Cambria Math", [
+        FontVariant("400", "Cambria-Math.ttf", "math")
+    ])
     
-    return font_family, cambria_family
-
-def load_styles(app, font_family):
-    """Cargar hojas de estilo modulares."""
-    style_files = [
-        "base.qss",
-        "layout.qss", 
-        "pages.qss",
-        "components.qss",
-        "buttons.qss",
-        "inputs.qss",
-        "scrollbars.qss",
-        "dialogs.qss"
-    ]
-    
-    combined_styles = ""
-    
-    # Combinar todos los archivos en el orden especificado
-    for style_file in style_files:
-        file_path = resource_path(f"styles/{style_file}")
-        try:
-            with open(file_path, "r", encoding="utf-8") as file:
-                combined_styles += file.read() + "\n\n"
-        except FileNotFoundError:
-            print(f"Advertencia: Archivo de estilo no encontrado: {style_file}")
-    
-    combined_styles = combined_styles.replace("{{FONT_FAMILY}}", font_family)
-    app.setStyleSheet(combined_styles)
+    return (
+        main_font.load(resource_path) and 
+        math_font.load(resource_path)
+    )
 
 def main():
     """Función principal que inicia la aplicación."""
     app = QApplication(sys.argv)
     
     # Configuración inicial
-    font_family, cambria_family = setup_fonts()
-    load_styles(app, font_family)
+    if not setup_fonts():
+        print("Warning: Some fonts failed to load")
+    
+    style_manager = StyleManager(resource_path)
+    # Obtener todas las variables de estilo
+    style_variables = style_manager.get_font_variables()
+    # Cargar los estilos con las variables
+    styles = style_manager.load_styles(style_variables)
+    
+    # Debug: Imprimir algunas variables para verificar
+    print(f"\nVARIABLES DE ESTILO:\nBASE_FONT_SIZE: {style_variables['BASE_FONT_SIZE']}\nDEFAULT_WEIGHT: {style_variables['DEFAULT_WEIGHT']}")
+    
+    app.setStyleSheet(styles)
     
     # Crear y mostrar la ventana principal
+    from ui.main_window import MainWindow
     window = MainWindow()
     
     # Configurar los atajos de teclado

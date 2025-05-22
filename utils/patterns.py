@@ -87,11 +87,11 @@ BRACKET_COLORS = [
 # Iconos para diferentes tipos de secciones
 ICONS = {
     'input': '🔍',
-    'operation': '🟠',
-    'result': '🔵',
+    'operation': '🔸',
+    'result': '🔹',
     'pin': '📌',
     'error': '❌',
     'matrix': '📊',
-    'green': '🟢',
-    'red': '🔴',
+    'green': '✔️',
+    'red': '♦️',
 }

@@ -14,7 +14,6 @@ class MatrixTableComponent:
         # Etiqueta de título
         label = QLabel(label_text)
         label.setAlignment(Qt.AlignCenter)
-        label.setStyleSheet("font-weight: bold;")
 
         # Crear tabla
         table = QTableWidget()

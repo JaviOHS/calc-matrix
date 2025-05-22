@@ -3,8 +3,12 @@ import sympy as sp
 from .base import clean_number, create_section
 from utils.patterns import COLORS, ICONS
 
+from utils.core.font_weight_manager import FontWeightManager
+bold = FontWeightManager.get_weight("strong")
+
 def format_polynomial(text):
     """Formatea expresiones polinomiales con superíndices HTML"""
+
     text = str(text).strip()
     
     # Eliminar el envoltorio Eq(lhs, rhs) si está presente
@@ -57,7 +61,7 @@ def format_roots_result(expression, roots):
             
             roots_html += (
                 f"<div style='margin: 6px 0;'>"
-                f"<span style='color: {COLORS['error']}; font-weight: bold;'>x<sub>{idx + 1}</sub></span> "
+                f"<span style='color: {COLORS['error']}; font-weight: {bold};'>x<sub>{idx + 1}</sub></span> "
                 f"≈ <span style='color: {COLORS['success']};'>{approx_str}</span>"
                 f"<span style='color: {COLORS['neutral']}; margin-left: 10px;'>(forma exacta: {root_expr})</span>"
                 f"</div>"
@@ -89,7 +93,7 @@ def format_evaluation_result(expr, results):
     for poly_name, value in results:
         table_html += (
             f"<tr>"
-            f"<td style='padding: 5px 10px; color: {COLORS['secondary']}; font-weight: bold;'>{ICONS['pin']} {poly_name}:</td>"
+            f"<td style='padding: 5px 10px; color: {COLORS['secondary']}; font-weight: {bold};'>{ICONS['pin']} {poly_name}:</td>"
             f"<td style='padding: 5px 10px;'>{clean_number(value)}</td>"
             f"</tr>"
         )

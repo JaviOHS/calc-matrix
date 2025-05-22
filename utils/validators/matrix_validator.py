@@ -39,7 +39,7 @@ class MatrixValidator:
         if not is_valid_number(value):
             position = f" en fila {row+1}, columna {col+1}" if row is not None and col is not None else ""
             prefix = f"{matrix_name}" if matrix_name else "Matriz"
-            raise ValueError(f"{prefix}{position}: Valor inválido '{value}'. Debe ser un número.")
+            raise ValueError(f"{prefix}{position}: Valor inválido. Asegúrese de ingresar un número válido.")
         return float(value)
     
     @staticmethod

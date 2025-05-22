@@ -15,11 +15,14 @@ class Plot3DController:
             y_range = inputs["y_range"]
 
             if not raw_expression or not x_range or not y_range:
-                raise ValueError("Expresión o rangos no proporcionados")
+                raise ValueError("Expresión o rangos no proporcionados.")
 
             expressions = [expr.strip() for expr in raw_expression.split(",")]
             if len(expressions) > 1:
-                raise ValueError("Solo se puede graficar una expresión 3D a la vez")
+                raise ValueError("Solo se puede graficar una expresión 3D a la vez.")
+            
+            if x_range[0] == x_range[1] or y_range[0] == y_range[1]:
+                raise ValueError("Los rangos de x y y no pueden ser iguales.")
 
             X, Y, Z, expression = self.manager.prepare_3d_data(expressions[0], x_range, y_range, self.parser)
             return self._create_plot(X, Y, Z, expression)
@@ -44,9 +47,9 @@ class Plot3DController:
                           f"X: {X.shape}, Y: {Y.shape}, Z: {Z.shape}")
         
         surf = ax.plot_surface(X, Y, Z, 
-                             cmap='plasma',
-                             linewidth=0.2,
-                             antialiased=True)
+                        cmap='plasma',
+                        linewidth=0.2,
+                        antialiased=True)
         
         ax.set_title(f'f(x,y) = {expression}', 
                     color=self.style_helper.TEXT_COLOR)

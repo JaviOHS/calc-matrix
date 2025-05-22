@@ -1,10 +1,13 @@
+from utils.core.font_weight_manager import FontWeightManager
+bold = FontWeightManager.get_weight("strong")
+
 def format_warning(message):
     """Formatea un mensaje de advertencia con el estilo estándar."""
-    return f"<span style='color: orange; font-weight: bold;'>{message}</span>"
+    return f"<span style='color: orange; font-weight: {bold};'>{message}</span>"
 
 def format_error(message):
     """Formatea un mensaje de error con el estilo estándar."""
-    return f"<span style='color: red; font-weight: bold;'>{message}</span>"
+    return f"<span style='color: red; font-weight: {bold};'>{message}</span>"
 
 class DialogFormat:
     WARNING = ("🟡 VALIDACIÓN", "#ffcc32")

@@ -1,7 +1,7 @@
 {
   "home": {
     "title": "Domina las Matemáticas<br> con {CalcMatrix} 👨‍💻​",
-    "description": "<p>👋 ¡<b>Bienvenido a CalcMatrix</b>! Tu asistente inteligente para el aprendizaje y resolución de problemas matemáticos avanzados.</p><p>✨ Explora conceptos desde lo básico hasta lo avanzado, visualiza soluciones paso a paso y desarrolla una comprensión profunda de:</p>",
+    "description": "<p>👋 ¡Bienvenido a CalcMatrix! Tu asistente inteligente para el aprendizaje y resolución de problemas matemáticos avanzados.</p><p>✨ Explora conceptos desde lo básico hasta lo avanzado, visualiza soluciones paso a paso y desarrolla una comprensión profunda de:</p>",
     "features": [
       {
         "icon": "🔢",
@@ -72,7 +72,7 @@
       "height": 240
     },
     "cta": {
-      "text": "<b>¿Listo para explorar el álgebra matricial?</b>",
+      "text": "¿Listo para explorar el álgebra matricial?",
       "button": "Comenzar operación",
       "footer": "📚 Practica las operaciones para dominar el álgebra lineal."
     },
@@ -112,7 +112,7 @@
       "height": 240
     },
     "cta": {
-      "text": "<b>¿Listo para comprender polinomios?</b>",
+      "text": "¿Listo para comprender polinomios?",
       "button": "Comenzar análisis",
       "footer": "Comprende la importancia de los polinomios en el cálculo y la física."
     },
@@ -147,7 +147,7 @@
       "height": 240
     },
     "cta": {
-      "text": "<b>¿Listo para explorar el álgebra vectorial?</b>",
+      "text": "¿Listo para explorar el álgebra vectorial?",
       "button": "Comenzar operación",
       "footer": "📚 Practica las operaciones para dominar el álgebra vectorial."
     },
@@ -177,7 +177,7 @@
       "height": 240
     },
     "cta": {
-      "text": "<b>¿Listo para explorar gráficas?</b>",
+      "text": "¿Listo para explorar gráficas?",
       "button": "Comenzar análisis",
       "footer": "📚 Comprende la importancia de las gráficas en el análisis de datos y funciones."
     },
@@ -212,7 +212,7 @@
       "height": 240
     },
     "cta": {
-      "text": "<b>¿Listo para explorar el cálculo simbólico?</b>",
+      "text": "¿Listo para explorar el cálculo simbólico?",
       "button": "Comenzar operación",
       "footer": "📚 Practica el cálculo simbólico para dominar el análisis matemático."
     },
@@ -247,7 +247,7 @@
       "height": 240
     },
     "cta": {
-      "text": "<b>¿Listo para explorar distribuciones?</b>",
+      "text": "¿Listo para explorar distribuciones?",
       "button": "Comenzar análisis",
       "footer": "📚 Comprende la importancia de las distribuciones en el análisis de datos."
     },
@@ -282,7 +282,7 @@
       "height": 240
     },
     "cta": {
-      "text": "<b>¿Te gustaría apoyar este proyecto en GitHub?</b>",
+      "text": "¿Te gustaría apoyar este proyecto en GitHub?",
       "button": "Visitar GitHub",
       "footer": "📚 Tus opiniones sobre CalcMatrix seran agradecidas."
     },

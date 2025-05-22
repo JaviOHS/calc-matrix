@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QSizePolicy
 from utils.layout.matrix_table import MatrixTableComponent
+from utils.components.matrix_item_delegate import MatrixItemDelegate
 
 class MatrixGridUtils:
     @staticmethod
@@ -32,6 +33,10 @@ class MatrixGridUtils:
         label_text = f"Matriz {chr(65 + index)}"
         table_data = MatrixTableComponent.create_table(dimension, dimension, label_text, cell_size)
         widget = table_data["widget"]
+        
+        # Configurar el delegado personalizado para la tabla
+        delegate = MatrixItemDelegate()
+        table_data["table"].setItemDelegate(delegate)
         
         widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         widget.setMinimumWidth(dimension * 30)

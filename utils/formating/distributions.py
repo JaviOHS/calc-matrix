@@ -2,6 +2,9 @@ from .base import create_section, clean_number
 from .polynomials import format_polynomial
 from ..patterns import COLORS, ICONS
 
+from utils.core.font_weight_manager import FontWeightManager
+bold = FontWeightManager.get_weight("strong")
+
 def format_transform_distribution_result(original_data, transformed_data, method, transform_method, transform_params):
     """Formatea el resultado de la transformación de distribuciones"""
     # Límite de datos a mostrar
@@ -34,9 +37,9 @@ def format_transform_distribution_result(original_data, transformed_data, method
         "<thead>"
         "<tr>"
         "<th style='padding: 12px; border-bottom: 2px solid #ff8103; "
-        "color: #2196F3; font-weight: bold; width: 50%; text-align: center;'>Uniforme [0,1]</th>"
+        f"color: #2196F3; font-weight: {bold}; width: 50%; text-align: center;'>Uniforme [0,1]</th>"
         "<th style='padding: 12px; border-bottom: 2px solid #ff8103; "
-        "color: #9C27B0; font-weight: bold; width: 50%; text-align: center;'>" + transform_display + "</th>"
+        f"color: #9C27B0; font-weight: {bold}; width: 50%; text-align: center;'>" + transform_display + "</th>"
         "</tr>"
         "</thead>"
         "<tbody>"
@@ -91,13 +94,13 @@ def format_markov_epidemic_result(params, epidemic_data):
         params_html = (
             f"<div style='padding: 15px;'>"
             f"<ul style='list-style-type: '📌'; padding: 0; margin: 0;'>"
-            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Población total:</span> {params['population']}</li>"
-            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Infectados iniciales:</span> {params['initial_infected']}</li>"
-            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Recuperados iniciales:</span> {params['initial_recovered']}</li>"
-            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Susceptibles iniciales:</span> {params['population'] - params['initial_infected'] - params['initial_recovered']}</li>"
-            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Tasa de infección (β):</span> {params['beta']:.3f}</li>"
-            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Tasa de recuperación (γ):</span> {params['gamma']:.3f}</li>"
-            f"<li style='margin: 5px 0;'><span style='font-weight: bold;'>Número reproductivo (R₀):</span> {r0:.2f}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Población total:</span> {params['population']}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Infectados iniciales:</span> {params['initial_infected']}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Recuperados iniciales:</span> {params['initial_recovered']}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Susceptibles iniciales:</span> {params['population'] - params['initial_infected'] - params['initial_recovered']}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Tasa de infección (β):</span> {params['beta']:.3f}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Tasa de recuperación (γ):</span> {params['gamma']:.3f}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Número reproductivo (R₀):</span> {r0:.2f}</li>"
             f"</ul>"
             f"</div>"
         )
@@ -115,7 +118,7 @@ def format_markov_epidemic_result(params, epidemic_data):
             max_infected_day = times[infected.index(max_infected)]
             analysis_html += (
                 f"<div style='margin: 8px 0; padding: 8px; border-left: 3px solid #CE723B;'>"
-                f"<p style='margin: 0;'><span style='color: #f44336; font-weight: bold;'>🔴 Pico de infección:</span> "
+                f"<p style='margin: 0;'><span style='color: #f44336; font-weight: {bold};'>🤒 Pico de infección:</span> "
                 f"{int(max_infected)} personas (Día {max_infected_day:.0f})</p>"
                 f"</div>"
             )
@@ -123,7 +126,7 @@ def format_markov_epidemic_result(params, epidemic_data):
         # Análisis del R₀
         analysis_html += (
             f"<div style='margin: 8px 0; padding: 8px;'>"
-            f"<p style='margin: 0;'><span style='font-weight: bold;'>📊 Análisis del R₀:</span><br>"
+            f"<p style='margin: 0;'><span style='font-weight: {bold};'>📊 Análisis del R₀:</span><br>"
             f"<span style='color: {'#ff8103' if r0 > 1 else '#4FC1FF'};'>"
             f"{'La epidemia está en fase de crecimiento' if r0 > 1 else 'La epidemia está en fase de retroceso'}"
             f"</span> (R₀ = {r0:.2f})</p>"
@@ -134,7 +137,7 @@ def format_markov_epidemic_result(params, epidemic_data):
         duration = next((t for t, i in zip(times, infected) if i < 1), params['days'])
         analysis_html += (
             f"<div style='margin: 8px 0; padding: 8px;'>"
-            f"<p style='margin: 0;'><span style='font-weight: bold;'>⏳ Duración estimada:</span> {duration:.0f} días</p>"
+            f"<p style='margin: 0;'><span style='font-weight: {bold};'>⏳ Duración estimada:</span> {duration:.0f} días</p>"
             f"</div>"
         )
 
@@ -143,7 +146,7 @@ def format_markov_epidemic_result(params, epidemic_data):
         final_infected_percentage = (final_infected / params['population']) * 100
         analysis_html += (
             f"<div style='margin: 8px 0; padding: 8px;'>"
-            f"<p style='margin: 0;'><span style='font-weight: bold;'>📈 Población infectada total:</span> {final_infected_percentage:.2f}%</p>"
+            f"<p style='margin: 0;'><span style='font-weight: {bold};'>📈 Población infectada total:</span> {final_infected_percentage:.2f}%</p>"
             f"</div>"
             f"</div>"
         )

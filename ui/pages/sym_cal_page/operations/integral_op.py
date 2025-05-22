@@ -26,7 +26,7 @@ class IntegralOperation(BaseSymCalOperation):
         type_row = QWidget()
         type_layout = QHBoxLayout(type_row)
         type_layout.setContentsMargins(0, 0, 0, 0)
-        type_layout.addWidget(QLabel("🟠 Tipo de integral:"))
+        type_layout.addWidget(QLabel("🔸 Tipo de integral:"))
         
         self.integral_type = QComboBox()
         self.integral_type.addItem("Indefinida", "indefinite")

@@ -33,19 +33,28 @@ class MainWindow(QMainWindow):
         self.symbolic_calculation_manager = SymCalManager()
         self.distribution_manager = DistributionManager()
 
-        self.setup_window() # Configuración de la ventana
-        self.setup_ui() # Inicializar UI
+        self.setup_window()
         
         # Inicializar páginas
         self.pages = {}
         self.current_page = None
+        
+        # Primero mostrar la ventana
+        self.show()
+        
+        # Luego configurar UI y cargar la página inicial
+        self.setup_ui()
         self.show_page("home")
+        
+        # Finalmente maximizar
+        self.showMaximized()
 
     def setup_window(self):
         """Configurar propiedades básicas de la ventana"""
         self.resize(1000, 600)
+        self.setMinimumSize(456, 637) 
         self.setWindowFlags(Qt.FramelessWindowHint)
-        self.showMaximized() # Maximizar ventana al iniciar
+        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
     def setup_ui(self):
         """Configurar la interfaz de usuario"""
@@ -132,4 +141,3 @@ class MainWindow(QMainWindow):
             self.pages[name] = AboutPage()
         else:
             raise ValueError(f"Página '{name}' no reconocida.")
-        

@@ -6,17 +6,10 @@
 }
 
 #titleDialog {
-    font-weight: bold;
     color: #72e48c;
-    font-size: 20px;
-}
-
-#messageDialog {
-    font-size: 16px;
 }
 
 #sectionLabel{
-    font-weight: bold;
     color: #D8DEE9;
 }
 
@@ -27,4 +20,9 @@ QToolTip {
     padding: 5px;
     font-size: 14px;
     border: 2px solid #1C2C42;
+}
+
+QTextBrowser {
+    background-color: transparent;
+    border: none;
 }

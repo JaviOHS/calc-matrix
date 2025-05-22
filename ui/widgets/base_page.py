@@ -18,21 +18,32 @@ class BasePage(QWidget):
         self.controller = controller
         self.manager = manager
         
-        # Para contenido dinámico desde JSON
-        self.content_manager = ContentManager.get_instance()
-        self.page_content = self.content_manager.get_page_content(self.page_key) if self.page_key else {}
-        
-        # Para operaciones matemáticas
-        self.operations = {}  # Será configurado por las clases derivadas si es necesario
+        # Retrasar la carga de contenido
+        self.content_manager = None
+        self.page_content = {}
+        self.operations = {}
         self.current_operation = None
         self.operation_widgets = {}
         
-        self.setup_ui()
+        # Setup inicial mínimo
+        self._setup_basic_ui()
+
+    def _setup_basic_ui(self):
+        """Setup inicial mínimo"""
+        self.main_layout = QVBoxLayout(self)
+        self.main_layout.setSpacing(0)
+        self.main_layout.setContentsMargins(24, 24, 24, 24)
+
+    def showEvent(self, event):
+        """Cargar contenido solo cuando la página se muestra"""
+        if not self.content_manager:
+            self.content_manager = ContentManager.get_instance()
+            self.page_content = self.content_manager.get_page_content(self.page_key) if self.page_key else {}
+            self.setup_ui()
+        super().showEvent(event)
 
     def setup_ui(self):
-        main_layout = QVBoxLayout(self)
-        main_layout.setSpacing(0)
-        main_layout.setContentsMargins(24, 24, 24, 24)
+        main_layout = self.main_layout
 
         # Contenedor para el título de operación (visible solo durante operaciones)
         self.operation_title_container = QWidget()

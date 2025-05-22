@@ -20,7 +20,7 @@ class MarkovOperation(DistributionBaseOpWidget):
         markov_method_layout = QHBoxLayout(markov_method_container)
         markov_method_layout.setContentsMargins(0, 0, 0, 0)
         
-        markov_method_layout.addWidget(QLabel("🟠 Algoritmo aleatorio:"))
+        markov_method_layout.addWidget(QLabel("🔸 Algoritmo aleatorio:"))
         self.markov_method_combo = QComboBox()
         for key, config in METHOD_CONFIG.items():
             self.markov_method_combo.addItem(config["display_name"], key)

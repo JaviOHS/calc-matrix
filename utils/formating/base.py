@@ -1,11 +1,17 @@
 import numpy as np
+from utils.core.font_weight_manager import FontWeightManager
 
 def create_section(title, content, color, icon=None):
-    """Helper para crear secciones consistentes"""
+    """Helper para crear secciones consistentes con peso de fuente dinámico"""
     icon_html = f"{icon} " if icon else ""
+    font_weight = FontWeightManager.get_weight("strong")
+    
+    # Procesar etiquetas <b> con el peso de fuente del sistema
+    content = content.replace("<b>", f"<b style='font-weight: {font_weight}'>")
+    
     return (
-        f"<div style='margin-bottom: 15px; font-family: Cambria Math; font-size: 16px;'>"
-        f"<span style='font-weight: bold; color: {color}; margin-bottom: 5px;'>{icon_html} {title}</span>"
+        f"<div style='margin-bottom: 15px;'>"
+        f"<span style='font-weight: {font_weight}; color: {color}; margin-bottom: 5px;'>{icon_html} {title}</span>"
         f"<span style='margin-left: 15px;'>{content}</span>"
         f"</div>"
     )

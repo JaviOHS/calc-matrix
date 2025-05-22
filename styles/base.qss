@@ -1,19 +1,65 @@
 /* --- BASE GENERAL --- */
 QWidget {
-    background-color: #0F161F;
-    font-size: 16px;
-    color: #D8DEE9;
+    background: transparent;
+    font-size: {{BASE_FONT_SIZE}};
+    color: #ADBAC7;
     selection-background-color: #ff8103;
     selection-color: #1C2C42;
     font-family: {{FONT_FAMILY}};
+    font-weight: {{DEFAULT_WEIGHT}};
 }
 
-QLabel {
-    font-weight: 500;
-    color: #D8DEE9;
-    line-height: 140%;
+QMainWindow {
+    background-color: #0F161F;
 }
 
-QFrame {
-    background-color: transparent;
+/* Elementos matemáticos */
+#expressionInput, 
+#resultDisplay, 
+QTableWidget,
+.math-content {
+    font-family: {{MATH_FONT_FAMILY}};
+    font-weight: {{DEFAULT_WEIGHT}};
+}
+
+/* Títulos y elementos destacados */
+#heroTitle {
+    font-size: {{HERO_FONT_SIZE}};
+    font-weight: {{TITLE_WEIGHT}};
+}
+
+#heroHighlight {
+    font-size: {{TITLE_FONT_SIZE}};
+}
+
+#footerText {
+    font-size: {{SMALL_FONT_SIZE}};
+}
+
+#operationTitle,
+#titleDialog {
+    font-size: {{TITLE_FONT_SIZE}};
+    font-weight: {{STRONG_WEIGHT}};
+}
+
+#sectionLabel {
+    font-weight: {{STRONG_WEIGHT}};
+}
+
+/* Elementos de énfasis */
+#ctaText,
+#featureText,
+#eduTitle {
+    font-weight: {{EMPHASIS_WEIGHT}};
+}
+
+/* Elementos interactivos */
+QPushButton,
+QComboBox,
+QAbstractSpinBox {
+    font-weight: {{BUTTON_WEIGHT}};
+}
+
+QGroupBox {
+    font-weight: {{STRONG_WEIGHT}};
 }

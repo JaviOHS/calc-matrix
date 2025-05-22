@@ -25,7 +25,6 @@ class TwoColumnWidget(QWidget):
         # Si hay etiqueta de expresión, crear el grupo de expresión
         if expression_label:
             self.expression_group = QGroupBox(f"📌 {expression_label}")
-            self.expression_group.setStyleSheet("QGroupBox { font-weight: bold; }")
             self.expression_layout = QVBoxLayout(self.expression_group)
             self.expression_layout.setContentsMargins(5, 5, 5, 5)
             self.expression_layout.setSpacing(5)
@@ -39,13 +38,11 @@ class TwoColumnWidget(QWidget):
 
         # Crear las columnas
         self.column1_group = QGroupBox(f"📌 {self.column1_label}" if self.column1_label else "Columna 1")
-        self.column1_group.setStyleSheet("QGroupBox { font-weight: bold; }")
         self.column1_layout = QVBoxLayout(self.column1_group)
         self.column1_layout.setContentsMargins(5, 5, 5, 5)
         self.column1_layout.setSpacing(5)
 
         self.column2_group = QGroupBox(f"📌 {self.column2_label}" if self.column2_label else "Columna 2")
-        self.column2_group.setStyleSheet("QGroupBox { font-weight: bold; }")
         self.column2_layout = QVBoxLayout(self.column2_group)
         self.column2_layout.setContentsMargins(5, 5, 5, 5)
         self.column2_layout.setSpacing(5)
