@@ -1,5 +1,6 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout
 from utils.components.action_buttons import ActionButton
+from PySide6.QtCore import Qt
 
 class MathOperationWidget(QWidget):
     def __init__(self, manager, controller, operation_type=None):

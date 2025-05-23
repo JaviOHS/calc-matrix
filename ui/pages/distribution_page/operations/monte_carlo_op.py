@@ -14,10 +14,8 @@ class MonteCarloOp(DistributionBaseOpWidget):
     def setup_ui(self):
         """Configura la interfaz para integración Monte Carlo usando la configuración"""
         self.parent.title_label.hide()
-        # Crear el widget de dos columnas
-        two_column_widget = TwoColumnWidget(expression_label=self.parent.input_label_text, column1_label="Configuración básica", column2_label="Parámetros adicionales")
 
-        # Sección de expresión: añadir input de expresión existente
+        two_column_widget = TwoColumnWidget(expression_label=self.parent.input_label_text, column1_label="Configuración básica", column2_label="Parámetros adicionales")
         two_column_widget.add_to_expression(self.parent.expression_input)
         
         # Configurar el selector de método
@@ -25,7 +23,7 @@ class MonteCarloOp(DistributionBaseOpWidget):
         mc_method_layout = QHBoxLayout(mc_method_container)
         mc_method_layout.setContentsMargins(0, 0, 0, 0)
         
-        mc_method_layout.addWidget(QLabel("🔸 Algoritmo aleatorio:"))
+        mc_method_layout.addWidget(QLabel("🟠 Algoritmo aleatorio:"))
         self.mc_method_combo = QComboBox()
         for key, config in METHOD_CONFIG.items():
             self.mc_method_combo.addItem(config["display_name"], key)

@@ -1,7 +1,7 @@
 {
   "home": {
     "title": "Domina las Matemáticas<br> con {CalcMatrix} 👨‍💻​",
-    "description": "<p>👋 ¡Bienvenido a CalcMatrix! Tu asistente inteligente para el aprendizaje y resolución de problemas matemáticos avanzados.</p><p>✨ Explora conceptos desde lo básico hasta lo avanzado, visualiza soluciones paso a paso y desarrolla una comprensión profunda de:</p>",
+    "description": "<p><b>👋 ¡Bienvenido a CalcMatrix!</b> Tu asistente inteligente para el aprendizaje y resolución de problemas matemáticos avanzados.</p><p>✨ Explora conceptos desde lo básico hasta lo avanzado, visualiza soluciones paso a paso y desarrolla una comprensión profunda de:</p>",
     "features": [
       {
         "icon": "🔢",

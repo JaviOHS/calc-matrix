@@ -119,6 +119,7 @@ QMenu#operationsMenu::item:selected {
 
 QComboBox {
     background-color: transparent;
+    color: #DADADA;
     border: none;
     border-bottom: 2px solid #fc7e00;
     padding: 0 5px;

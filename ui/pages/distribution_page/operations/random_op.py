@@ -2,7 +2,7 @@ from PySide6.QtWidgets import QSpinBox, QDoubleSpinBox, QWidget, QLabel, QHBoxLa
 from ..distribution_base import DistributionBaseOpWidget
 from ..method_config import METHOD_CONFIG, TRANSFORM_CONFIG
 from utils.formating.formatting import format_math_expression
-from utils.components.spinbox_utils import create_int_spinbox
+from utils.components.spinbox_utils import create_int_spinbox, create_float_spinbox
 from utils.components.two_column import TwoColumnWidget
 
 class RandomOperation(DistributionBaseOpWidget):
@@ -19,10 +19,7 @@ class RandomOperation(DistributionBaseOpWidget):
         """Configura la interfaz para generación de números aleatorios y transformación"""
         # Crear el componente de dos columnas
         self.parent.title_label.hide()  # Acceder a través del parent
-        self.two_column_widget = TwoColumnWidget(
-            column1_label=self.parent.input_label_text, 
-            column2_label="Transformación de distribución"
-        )
+        self.two_column_widget = TwoColumnWidget(column1_label=self.parent.input_label_text, column2_label="Transformación de distribución")
         
         # Reducir los márgenes del layout principal
         self.parent.input_layout.setContentsMargins(0, 0, 0, 0)
@@ -41,7 +38,6 @@ class RandomOperation(DistributionBaseOpWidget):
         # Añadir inputs a la primera columna
         method_container, self.method_combo = self.create_method_selector(METHOD_CONFIG, label_text="🎲 Método:")
         self.two_column_widget.add_to_column1(method_container)
-
         self.two_column_widget.add_to_column1(self.generation_fields_container)
 
         # Añadir inputs a la segunda columna
@@ -51,7 +47,6 @@ class RandomOperation(DistributionBaseOpWidget):
             label_text="🔄 Transformar a:"
         )
         self.two_column_widget.add_to_column2(transform_method_container)
-        
         self.two_column_widget.add_to_column2(self.transform_fields_container)
 
         # Añadir el componente al layout principal
@@ -105,36 +100,33 @@ class RandomOperation(DistributionBaseOpWidget):
             layout = QHBoxLayout(container)
             layout.setContentsMargins(0, 0, 0, 0)
             
-            # Crear etiqueta
+            # Etiqueta
             label = QLabel(field["label"])
             layout.addWidget(label)
             
-            # Crear el spinbox (entero o flotante según el tipo)
+            # Crear el spinbox-container según el tipo
             if field["type"] == "float":
-                spinbox = QDoubleSpinBox()
-                spinbox.setDecimals(field.get("decimals", 2))
-                spinbox.setSingleStep(field.get("step", 0.1))
+                spinbox_container = create_float_spinbox(
+                    min_val=field["min"],
+                    max_val=field["max"],
+                    default_val=field["default"]
+                )
             else:
-                spinbox = create_int_spinbox(
+                spinbox_container = create_int_spinbox(
                     min_val=field["min"],
                     max_val=field["max"],
                     default_val=field["default"]
                 )
             
-            # Configurar propiedades comunes
-            spinbox.setMinimum(field["min"])
-            spinbox.setMaximum(field["max"])
-            spinbox.setValue(field["default"])
-            if "width" in field:
-                spinbox.setFixedWidth(field["width"])
-            
-            layout.addWidget(spinbox)
+            # Extraer el spinbox real y añadir el contenedor al layout
+            spinbox = spinbox_container.spinbox
+            layout.addWidget(spinbox_container)
             layout.addStretch()
             
-            # Almacenar el spinbox y añadirlo al layout
+            # Guardar el spinbox real (QSpinBox/QDoubleSpinBox)
             self.transform_fields[field["name"]] = spinbox
             self.transform_fields_layout.addWidget(container)
-    
+
     def clear_layout(self, layout):
         """Elimina todos los widgets de un layout"""
         if layout is None:
@@ -202,16 +194,8 @@ class RandomOperation(DistributionBaseOpWidget):
             }
             
             # Usar format_math_expression con una operación personalizada
-            result_html = format_math_expression(
-                expr=operation_info,
-                result=transform_result["transformed"],
-                operation_type="transform_distribution"
-            )
-
-            return True, {
-                "html": result_html,
-                "canvas": None
-            }
+            result_html = format_math_expression(expr=operation_info, result=transform_result["transformed"], operation_type="transform_distribution")
+            return True, {"html": result_html, "canvas": None}
 
         except Exception as e:
             return False, str(e)

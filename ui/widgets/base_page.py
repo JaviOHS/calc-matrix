@@ -1,5 +1,7 @@
-from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSizePolicy, QFrame, QScrollArea, QStackedWidget, QMenu, QWidgetAction
-from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QHBoxLayout, QSizePolicy, QFrame, QScrollArea, QStackedWidget, QMenu, QWidgetAction, QGraphicsOpacityEffect
+from PySide6.QtCore import Qt, QTimer
+from PySide6.QtGui import QAction
+from PySide6.QtCore import QPoint
 from utils.components.image_utils import create_image_label
 from utils.core.content_manager import ContentManager
 from utils.components.action_buttons import ActionButton
@@ -7,8 +9,7 @@ from ui.dialogs.simple.message_dialog import MessageDialog
 from utils.formating.format_title import format_title, highlight_last_word
 from utils.core.component_factory import create_info_item
 from utils.core.educational_content import EducationalContentManager
-from PySide6.QtGui import QAction
-from PySide6.QtCore import QPoint
+from utils.animations import PageAnimations
 
 class BasePage(QWidget):
     def __init__(self, navigate_callback=None, page_key=None, controller=None, manager=None):
@@ -25,8 +26,13 @@ class BasePage(QWidget):
         self.current_operation = None
         self.operation_widgets = {}
         
-        # Setup inicial mínimo
+        # Usar la constante definida para la dirección inicial
+        self.animation_direction = PageAnimations.LEFT_TO_RIGHT  # Animación inicial de izquierda a derecha
         self._setup_basic_ui()
+
+    def set_animation_direction(self, direction: QPoint):
+        """Establece la dirección de la animación"""
+        self.animation_direction = direction
 
     def _setup_basic_ui(self):
         """Setup inicial mínimo"""
@@ -40,11 +46,29 @@ class BasePage(QWidget):
             self.content_manager = ContentManager.get_instance()
             self.page_content = self.content_manager.get_page_content(self.page_key) if self.page_key else {}
             self.setup_ui()
+        # Animar siempre que la página se muestre
+        QTimer.singleShot(50, lambda: self._animate_entrance(self.animation_direction))
         super().showEvent(event)
+
+    def hideEvent(self, event):
+        """Resetear la opacidad cuando la página se oculta"""
+        self.setWindowOpacity(1.0)
+        super().hideEvent(event)
+
+    def _animate_entrance(self, direction: QPoint = None):
+        """Aplica lPageAnimationsa animación de entrada a la página"""
+        self.setWindowOpacity(0.0)
+        direction = self.animation_direction if direction is None else direction
+        self.entrance_animation = PageAnimations.fade_slide_in(
+            self,
+            duration=PageAnimations.DURATION_SLOW,
+            direction=direction
+        )
+        self.entrance_animation.start()
 
     def setup_ui(self):
         main_layout = self.main_layout
-
+        
         # Contenedor para el título de operación (visible solo durante operaciones)
         self.operation_title_container = QWidget()
         self.operation_title_container.hide()  # Oculto inicialmente
@@ -134,9 +158,7 @@ class BasePage(QWidget):
         return scroll_area
 
     def setup_text_content(self):
-        """
-        Configura el contenido de texto para la página basado en el contenido JSON.
-        """
+        """Configura el contenido de texto para la página basado en el contenido JSON."""
         # Título de la página
         header = QFrame()
         header.setObjectName("heroHeader")
@@ -191,49 +213,14 @@ class BasePage(QWidget):
         self.text_layout.addStretch()
 
     def setup_educational_content(self, layout, button_callback=None, external_url=None, button_icon=None):
-        """
-        Método para configurar contenido educativo adicional usando EducationalContentManager
-        """
+        """Método para configurar contenido educativo adicional usando EducationalContentManager"""
         # Si no hay callback específico, usar el método predeterminado
         if not button_callback:
             button_callback = self.start_first_operation
             
         # Usar EducationalContentManager para crear todo el contenido
-        start_button = EducationalContentManager.setup_educational_content(
-            self,
-            self.page_content,
-            layout,
-            button_callback,
-            external_url,
-            button_icon
-        )
-        
-        # Si necesitas acceder al botón después, puedes guardarlo como atributo
+        start_button = EducationalContentManager.setup_educational_content(self, self.page_content, layout, button_callback, external_url, button_icon)        
         self.start_button = start_button
-
-    def get_image_path(self):
-        """Obtiene la ruta de la imagen del contenido JSON si existe"""
-        if self.page_content and "image" in self.page_content:
-            return self.page_content.get("image", {}).get("path", "assets/images/intro/deco.png")
-        return "assets/images/intro/default.png"
-
-    def get_image_width(self):
-        """Obtiene el ancho de la imagen del contenido JSON si existe"""
-        if self.page_content and "image" in self.page_content:
-            return self.page_content.get("image", {}).get("width", 200)
-        return 200
-
-    def get_image_height(self):
-        """Obtiene la altura de la imagen del contenido JSON si existe"""
-        if self.page_content and "image" in self.page_content:
-            return self.page_content.get("image", {}).get("height", 200)
-        return 200
-
-    def get_image_caption(self):
-        """Obtiene la descripción de la imagen del contenido JSON si existe"""
-        if self.page_content and "image" in self.page_content:
-            return self.page_content.get("image", {}).get("caption", None)
-        return None
 
     # Métodos para la funcionalidad de operaciones matemáticas
     def show_dropdown_menu(self):
@@ -259,6 +246,7 @@ class BasePage(QWidget):
         menu.exec_(position)
 
     def prepare_operation(self, operation_key):
+        """Preparar y animar la transición a una operación"""
         self.toggle_button.show()
         
         op_key, widget_class = self.operations[operation_key]
@@ -304,6 +292,9 @@ class BasePage(QWidget):
         widget = self.operation_widgets[operation_key]
         self.stacked_widget.setCurrentWidget(widget)
 
+        direction = PageAnimations.TOP_TO_BOTTOM
+        QTimer.singleShot(50, lambda: self._animate_entrance(direction))
+
     def get_object_name(self):
         """Obtiene el nombre del objeto desde el título de la página"""
         page_title = self.page_content.get("title", "Objeto")
@@ -311,7 +302,7 @@ class BasePage(QWidget):
             return page_title.split("{")[1].replace("}", "")
         return None
 
-    def reset_interface(self):
+    def reset_interface(self, direction: QPoint = None):
         """Restablece la interfaz a su estado inicial"""
         self.toggle_button.hide()
 
@@ -326,18 +317,18 @@ class BasePage(QWidget):
         self.current_operation = None
         self.operation_title_container.hide()
         self.stacked_widget.setCurrentIndex(0)
-
+        
+        # Usar la constante definida para la animación de regreso
+        direction = PageAnimations.RIGHT_TO_LEFT  # Animación de regreso de derecha a izquierda
+        QTimer.singleShot(50, lambda: self._animate_entrance(direction))
+    
     def start_first_operation(self):
         """Inicia la primera operación disponible"""
         if self.operations:
             first_label = next(iter(self.operations))  # Obtiene la primera operación
             self.prepare_operation(first_label)  # Navega a la operación
         else:
-            self.show_message_dialog(
-                "🔴 ERROR", 
-                "#f44336", 
-                "No hay operaciones configuradas para esta página."
-            )
+            self.show_message_dialog("🔴 ERROR", "#f44336", "No hay operaciones configuradas para esta página.")
             
     def show_message_dialog(self, title: str, title_color: str, message: str, image_name: str = "error.png"):
         """Muestra un diálogo de mensaje"""
@@ -351,3 +342,27 @@ class BasePage(QWidget):
     def show_result(self, result, message):
         """Método para ser implementado por las subclases"""
         pass
+
+    def get_image_path(self):
+        """Obtiene la ruta de la imagen del contenido JSON si existe"""
+        if self.page_content and "image" in self.page_content:
+            return self.page_content.get("image", {}).get("path", "assets/images/intro/deco.png")
+        return "assets/images/intro/default.png"
+
+    def get_image_width(self):
+        """Obtiene el ancho de la imagen del contenido JSON si existe"""
+        if self.page_content and "image" in self.page_content:
+            return self.page_content.get("image", {}).get("width", 200)
+        return 200
+
+    def get_image_height(self):
+        """Obtiene la altura de la imagen del contenido JSON si existe"""
+        if self.page_content and "image" in self.page_content:
+            return self.page_content.get("image", {}).get("height", 200)
+        return 200
+
+    def get_image_caption(self):
+        """Obtiene la descripción de la imagen del contenido JSON si existe"""
+        if self.page_content and "image" in self.page_content:
+            return self.page_content.get("image", {}).get("caption", None)
+        return None

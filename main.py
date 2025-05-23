@@ -34,24 +34,16 @@ def main():
         print("Warning: Some fonts failed to load")
     
     style_manager = StyleManager(resource_path)
-    # Obtener todas las variables de estilo
     style_variables = style_manager.get_font_variables()
-    # Cargar los estilos con las variables
     styles = style_manager.load_styles(style_variables)
-    
-    # Debug: Imprimir algunas variables para verificar
-    print(f"\nVARIABLES DE ESTILO:\nBASE_FONT_SIZE: {style_variables['BASE_FONT_SIZE']}\nDEFAULT_WEIGHT: {style_variables['DEFAULT_WEIGHT']}")
-    
     app.setStyleSheet(styles)
     
-    # Crear y mostrar la ventana principal
+    # Crear la ventana principal
     from ui.main_window import MainWindow
     window = MainWindow()
     
     # Configurar los atajos de teclado
     shortcuts = ShortcutManager(window, app)
-    
-    window.show()
     
     # Iniciar el bucle de eventos
     return sys.exit(app.exec())

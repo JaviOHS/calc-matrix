@@ -18,7 +18,7 @@ from model.graph_manager import GraphManager
 from model.sym_cal_manager import SymCalManager
 from model.distribution_manager import DistributionManager
 
-from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy
+from PySide6.QtWidgets import QMainWindow, QWidget, QHBoxLayout, QVBoxLayout, QSizePolicy, QStackedWidget
 from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from utils.core.resources import resource_path
@@ -27,7 +27,6 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         
-        # Inicializar managers
         self.matrix_manager = MatrixManager()
         self.polynomial_manager = PolynomialManager()
         self.vector_manager = VectorManager()
@@ -37,18 +36,11 @@ class MainWindow(QMainWindow):
 
         self.setup_window()
         
-        # Inicializar páginas
         self.pages = {}
         self.current_page = None
         
-        # Primero mostrar la ventana
-        self.show()
-        
-        # Luego configurar UI y cargar la página inicial
         self.setup_ui()
         self.show_page("home")
-        
-        # Finalmente maximizar
         self.showMaximized()
 
     def setup_window(self):
@@ -94,12 +86,10 @@ class MainWindow(QMainWindow):
         self.navbar = TopNavbar(self, self.toggle_sidebar, username=username)
         self.page_container_layout.addWidget(self.navbar)
 
-        # Widget de contenido real (donde irán las páginas)
-        self.page_widget = QWidget()
-        self.page_layout = QVBoxLayout(self.page_widget)
-        self.page_layout.setContentsMargins(0, 0, 0, 0)
-
+        # Usar QStackedWidget para manejar las páginas
+        self.page_widget = QStackedWidget()
         self.page_container_layout.addWidget(self.page_widget)
+
         self.layout.addWidget(self.page_container)
 
     def toggle_sidebar(self):
@@ -109,19 +99,24 @@ class MainWindow(QMainWindow):
 
     def show_page(self, name):
         """Cambiar a la página especificada"""
-        # Limpiar la página actual
-        for i in reversed(range(self.page_layout.count())):
-            widget = self.page_layout.itemAt(i).widget()
-            if widget is not None:
-                widget.setParent(None)
-
-        # Crear la página si no existe
+        # Si la página no existe, crearla
         if name not in self.pages:
             self.create_page(name)
-        
-        # Mostrar la página
+
+        # Cambiar a la página en el QStackedWidget
         self.current_page = self.pages[name]
-        self.page_layout.addWidget(self.current_page)
+        index = self.page_widget.indexOf(self.current_page)
+        if index == -1:
+            self.page_widget.addWidget(self.current_page)
+            index = self.page_widget.indexOf(self.current_page)
+        
+        # Forzar un nuevo evento show para activar la animación
+        if self.current_page.isVisible():
+            self.current_page.hide()
+        self.page_widget.setCurrentIndex(index)
+        self.current_page.show()
+
+        # Actualizar el botón activo en la barra lateral
         self.sidebar.set_active_button(name)
     
     def create_page(self, name):
