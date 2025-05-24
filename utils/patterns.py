@@ -78,7 +78,7 @@ COLORS = {
 # Colores para paréntesis anidados
 BRACKET_COLORS = [
     QColor(255, 165, 0),  # Naranja
-    QColor(0, 0, 255),    # Azul
+    QColor(3, 125, 245),    # Azul
     QColor(0, 128, 0),    # Verde
     QColor(128, 0, 128),  # Púrpura
     QColor(255, 0, 0),    # Rojo

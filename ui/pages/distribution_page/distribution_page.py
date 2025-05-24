@@ -9,9 +9,9 @@ class DistributionPage(BasePage):
         
         super().__init__(navigate_callback, page_key="distribution", controller=self.controller, manager=manager)
 
-
         self.operations = {
             "Simulación de Números Aleatorios": ("random_numbers", DistributionOpWidget),
+            "Transformación de Distribuciones": ("transform_distribution", DistributionOpWidget),
             "Simulación de Monte Carlo": ("monte_carlo", DistributionOpWidget),
             "Propagación de Epidemias - Modelo de Markov": ("markov_epidemic", DistributionOpWidget),
         }

@@ -84,7 +84,7 @@ python main.py
 
 ## 📦 Dependencias Principales
 
-- `PySide6` o `PyQt6`
+- `PySide6`
 - `numpy >= 1.26`
 - `sympy >= 1.12`
 - `matplotlib >= 3.8`
@@ -104,10 +104,37 @@ Puedes empaquetar la aplicación como un ejecutable para su distribución. Sigue
 pip install pyinstaller
 
 # 3. Ejecuta el empaquetado con el archivo .spec
-pyinstaller main.spec --clean
+pyinstaller CalcMatrix.spec --clean
 ```
 
 Esto generará una carpeta `dist/CalcMatrix v1.2/` que contiene el ejecutable `CalcMatrix v1.2.exe` con todos los recursos y dependencias incluidos (no requiere instalación de Python en el equipo destino).
+
+---
+
+## 🛠️ Crear Instalador con Inno Setup
+
+Puedes generar un instalador `.exe` para distribuir la aplicación utilizando **Inno Setup**. Sigue estos pasos:
+
+### 1. Descarga e instala Inno Setup
+- Descarga Inno Setup desde su [sitio oficial](https://jrsoftware.org/isinfo.php).
+- Instálalo en tu equipo.
+
+### 2. Configura el archivo de script
+- Asegúrate de que el archivo `CalcMatrix.iss` esté correctamente configurado en la raíz del proyecto. Este archivo ya está incluido en el repositorio y contiene la configuración necesaria para empaquetar la aplicación.
+
+### 3. Genera el instalador
+- Abre Inno Setup y carga el archivo `CalcMatrix.iss`.
+- Haz clic en **Compile** (o presiona `F9`) para generar el instalador.
+
+Esto generará un archivo ejecutable instalador en la carpeta `installer/` con el nombre `CalcMatrixInstaller.exe`.
+
+### 4. Distribuye el instalador
+El archivo generado incluye todos los recursos necesarios para instalar y ejecutar la aplicación en cualquier equipo con Windows.
+
+```plaintext
+installer/
+└── CalcMatrixInstaller.exe
+```
 
 ---
 

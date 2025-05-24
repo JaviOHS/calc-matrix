@@ -53,7 +53,7 @@ def format_math_expression(expr, result, operation_type="generic", method=None):
         
     if operation_type == "transform_distribution":
         # Extraer información de la operación
-        generation_method = expr.get("generation_method", "")
+        generation_method = expr.get("generation_method", "manual")
         transform_method = expr.get("transform_method", "")
         transform_params = expr.get("transform_params", {})
         original_numbers = expr.get("original_numbers", [])

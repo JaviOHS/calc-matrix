@@ -35,7 +35,7 @@ class DistributionManager:
         distribution = self.create_distribution(algorithm, seed, **kwargs)
         return distribution.monte_carlo_integration(expr, a, b, n_points)
 
-    def simulate_markov_epidemic(self, params, algorithm="mersenne", seed=None, **kwargs):
+    def simulate_markov_epidemic(self, params):
         """Simula la propagación de una epidemia usando el modelo de Markov."""
         if not isinstance(params, dict):
             raise ValueError("Los parámetros deben proporcionarse como un diccionario")
@@ -46,7 +46,9 @@ class DistributionManager:
             'beta': 0.3,
             'gamma': 0.1,
             'days': 30,
-            'dt': 0.1
+            'dt': 0.1,
+            'algorithm': 'mersenne',  # Valor por defecto para algoritmo
+            'seed': None  # Valor por defecto para semilla
         }
         
         # Verificar parámetros requeridos
@@ -86,11 +88,17 @@ class DistributionManager:
             raise ValueError(f"Error en los parámetros: {str(e)}")
             
         try:
-            # Validar el algoritmo y crear la distribución
-            self.validate_algorithm_choice(algorithm, self.valid_algorithms)
-            distribution = self.create_distribution(algorithm, seed, **kwargs)
+            # Crear la distribución con el algoritmo y semilla especificados
+            algorithm = params.get('algorithm', 'mersenne')
+            seed = params.get('seed', None)
             
-            # Ejecutar la simulación y obtener resultados con el canvas
+            # Validar el algoritmo
+            self.validate_algorithm_choice(algorithm, self.valid_algorithms)
+            
+            # Crear la distribución con los parámetros especificados
+            distribution = self.create_distribution(algorithm, seed)
+            
+            # Ejecutar la simulación
             result = distribution.markov_epidemic_simulation(params)
             
             # Verificar que el resultado contiene todos los componentes necesarios
@@ -104,30 +112,33 @@ class DistributionManager:
         except Exception as e:
             raise ValueError(f"Error en la simulación: {str(e)}")
     
-    def transform_numbers(self, numbers, distribution_type, **params):
+    def transform_numbers(self, numbers, distribution_type, uniform_numbers=None, **params):
         """Transforma una lista de números a la distribución especificada."""
         try:
+            # Si se proporcionan uniform_numbers, usarlos; si no, usar numbers
+            numbers_to_use = uniform_numbers if uniform_numbers is not None else numbers
+            
             # Convertir string de números a lista
-            if isinstance(numbers, str):
-                numbers = [float(x.strip()) for x in numbers.split(',')]
+            if isinstance(numbers_to_use, str):
+                numbers_to_use = [float(x.strip()) for x in numbers_to_use.split(',')]
                 
             # Validar que los números estén en [0,1]
-            if not all(0 <= x <= 1 for x in numbers):
+            if not all(0 <= x <= 1 for x in numbers_to_use):
                 raise ValueError("Todos los números deben estar en el intervalo [0,1]")
 
             distribution = self.create_distribution("mersenne")
-            distribution.numbers = numbers
-            transformed = distribution.transform_distribution(distribution_type, params)
+            # Usar el parámetro uniform_numbers en lugar de asignar a numbers
+            transformed = distribution.transform_distribution(distribution_type, params, uniform_numbers=numbers_to_use)
             
             return {
-                "original": numbers,
+                "original": numbers_to_use,
                 "transformed": transformed,
                 "distribution": distribution_type,
                 "parameters": params
             }
             
         except Exception as e:
-            raise ValueError(f"Error en la transformación: {str(e)}")
+            raise ValueError(f"Error en la transformación de números: {str(e)}")
 
     def validate_algorithm_choice(self, choice, valid_choices):
         """Valida que la elección del algoritmo sea válida."""

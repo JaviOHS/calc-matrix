@@ -24,7 +24,14 @@ class DistributionDialog(CanvasDialog):
                 "image_path": None,
                 "min_width": 400,
                 "min_height": 492
-            }
+            },
+            "transform_distribution": {
+                "title": "🔄 TRANSFORMACIÓN DE DISTRIBUCIÓN",
+                "title_color": "#FF9800",
+                "image_path": None,
+                "min_width": 400,
+                # "min_height": 520
+            },	
         }
         
         # Obtener configuración
@@ -51,5 +58,13 @@ class DistributionDialog(CanvasDialog):
         )
         
         # Establecer tamaños mínimos según el tipo de operación
-        self.setMinimumSize(config["min_width"], config["min_height"])
+        min_width = config.get("min_width")
+        min_height = config.get("min_height")
         
+        # Aplicar solo los tamaños que estén definidos
+        if min_width and min_height:
+            self.setMinimumSize(min_width, min_height)
+        elif min_width:
+            self.setMinimumWidth(min_width)
+        elif min_height:
+            self.setMinimumHeight(min_height)

@@ -9,17 +9,17 @@ class MarkovOperation(DistributionBaseOpWidget):
     def __init__(self, parent_widget):
         self.parent = parent_widget
         self.setup_ui()
-        
+
     def setup_ui(self):
         """Configura la interfaz para simulación de epidemias usando la configuración"""
         self.parent.title_label.hide()
         two_column_widget = TwoColumnWidget(column1_label="Configuración de población", column2_label="Parámetros de simulación")
-        
+
         # Configurar el selector de método
         markov_method_container = QWidget()
         markov_method_layout = QHBoxLayout(markov_method_container)
         markov_method_layout.setContentsMargins(0, 0, 0, 0)
-        
+
         markov_method_layout.addWidget(QLabel("🔸 Algoritmo aleatorio:"))
         self.markov_method_combo = QComboBox()
         for key, config in METHOD_CONFIG.items():
@@ -45,7 +45,7 @@ class MarkovOperation(DistributionBaseOpWidget):
     def perform_operation(self, controller):
         """Ejecuta la simulación del modelo de Markov para epidemias"""
         try:
-            # Recopilar parámetros de la interfaz usando el sufijo _spinbox
+            # Recopilar parámetros de la interfaz usando los spinboxes
             params = {
                 "population": self.population_spinbox.value(),
                 "initial_infected": self.initial_infected_spinbox.value(),
@@ -57,16 +57,16 @@ class MarkovOperation(DistributionBaseOpWidget):
                 "algorithm": self.markov_method_combo.currentData(),
                 "seed": self.seed_spinbox.value()
             }
-            
+
             # Ejecutar simulación a través del controlador
             result = controller.execute_operation("markov_epidemic", **params)
-            
+
             if result.get("success", False):
                 epidemic_data = result.get("result", {})
                 formatted_output = format_math_expression(expr=params, result=epidemic_data, operation_type="markov_epidemic")
                 return True, {"html": formatted_output, "canvas": epidemic_data.get("canvas"), "image_path": None}
             else:
                 return False, result.get("error", "Error desconocido en la simulación")
-                
+
         except Exception as e:
             return False, str(e)

@@ -54,6 +54,10 @@ class ExpressionOpWidget(MathOperationWidget):
 
         self.layout.addWidget(input_section)
 
+        # Agregar un espacio flexible para empujar los controles hacia abajo
+        self.layout.addStretch()
+
+        # Controles (botones de expresión y acción)
         controls = QWidget()
         controls_layout = QHBoxLayout(controls)
         controls_layout.setContentsMargins(0, 5, 0, 0)
@@ -69,7 +73,8 @@ class ExpressionOpWidget(MathOperationWidget):
         controls_layout.addWidget(action_buttons, alignment=Qt.AlignRight)
 
         self.layout.addWidget(controls)
-        self.layout.addStretch() # Fuerza que todo lo demás se mantenga arriba
+
+        # Establecer el layout principal
         self.setLayout(self.layout)
 
     def _create_result_container(self):

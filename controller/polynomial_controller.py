@@ -32,8 +32,11 @@ class PolynomialController:
         """Evalúa una expresión combinada de polinomios"""
         try:
             sym_expr = self.parser.parse_expression(expression)  # Parsear la expresión
-            poly = self.parser.to_polynomial(sym_expr)  # Convertir la expresión a un polinomio (si es necesario)
-            return poly
+            if sym_expr.is_polynomial():
+                poly = self.parser.to_polynomial(sym_expr)  # Convertir la expresión a un polinomio (si es necesario)
+                return poly
+            else:
+                raise ValueError("La expresión no es un polinomio válido.")
         except Exception as e:
             raise ValueError(f"Error al evaluar la expresión:\n{str(e)}")
 

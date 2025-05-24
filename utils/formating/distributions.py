@@ -94,6 +94,8 @@ def format_markov_epidemic_result(params, epidemic_data):
         params_html = (
             f"<div style='padding: 15px;'>"
             f"<ul style='list-style-type: '📌'; padding: 0; margin: 0;'>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Método:</span> {params['algorithm'].replace('_', ' ').capitalize()}</li>"
+            f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Semilla:</span> {params['seed']}</li>"
             f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Población total:</span> {params['population']}</li>"
             f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Infectados iniciales:</span> {params['initial_infected']}</li>"
             f"<li style='margin: 5px 0;'><span style='font-weight: {bold};'>Recuperados iniciales:</span> {params['initial_recovered']}</li>"

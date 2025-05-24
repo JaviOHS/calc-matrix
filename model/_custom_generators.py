@@ -73,26 +73,43 @@ class LFSR:
         for t in self.taps:
             xor ^= (self.state >> t) & 1
         self.state = ((self.state << 1) | xor) & ((1 << self.state.bit_length()) - 1)
-        return self.state / (1 << self.state.bit_length())
+        
+        # Problema: self.state.bit_length() puede ser 0 si state = 0
+        if self.state == 0:
+            self.state = 1  # Evitar estado 0
+        
+        bit_length = max(1, self.state.bit_length())  # Evitar bit_length = 0
+        return self.state / (1 << bit_length)
 
     def generate(self, n):
         return [self.next() for _ in range(n)]
     
 class MiddleProduct:
     def __init__(self, seed):
-        self.current = seed
-        self.previous = seed + 1 if seed < 9999 else seed - 1
+        # Asegurar que la semilla tenga 4 dígitos
+        self.seed = max(1000, abs(seed))
+        self.current = self.seed
+        self.previous = self.seed + 1 if self.seed < 9999 else self.seed - 1
 
     def next(self):
-        # Multiplicamos los dos números actuales
         product = self.current * self.previous
-        product_str = str(product).zfill(8)  # Asegura al menos 8 dígitos
-        middle = len(product_str) // 2
+        # Asegurar que el producto tenga 8 dígitos
+        product_str = str(product).zfill(8)
         
+        # Si el producto es muy corto, ajustar
+        if len(product_str) < 8:
+            self.current = self.seed
+            self.previous = self.seed + 1
+            return self.current / 10000
+            
         # Extraer los dígitos medios (4 dígitos)
-        middle_digits = int(product_str[middle - 2:middle + 2]) 
+        middle = len(product_str) // 2
+        middle_digits = int(product_str[middle-2:middle+2])
         
-        # Actualizar valores
+        # Evitar degeneración
+        if middle_digits < 1000:
+            middle_digits += 1000
+            
         self.previous = self.current
         self.current = middle_digits
         
@@ -103,17 +120,28 @@ class MiddleProduct:
     
 class QuadraticProduct:
     def __init__(self, seed):
-        self.current = seed
+        # Asegurar que la semilla tenga 4 dígitos
+        self.seed = max(1000, abs(seed))
+        self.current = self.seed
 
     def next(self):
-        # Calculamos el cuadrado del número actual
         square = self.current ** 2
-        square_str = str(square).zfill(8)  # Asegura al menos 8 dígitos
-        middle = len(square_str) // 2
-
-        # Extraer los dígitos medios (4 dígitos)
-        self.current = int(square_str[middle - 2:middle + 2])
+        square_str = str(square).zfill(8)
         
+        # Si el cuadrado es muy corto, reiniciar
+        if len(square_str) < 8:
+            self.current = self.seed
+            return self.current / 10000
+            
+        # Extraer los dígitos medios (4 dígitos)
+        middle = len(square_str) // 2
+        middle_digits = int(square_str[middle-2:middle+2])
+        
+        # Evitar degeneración
+        if middle_digits < 1000:
+            middle_digits += 1000
+            
+        self.current = middle_digits
         return self.current / 10000
 
     def generate(self, n):

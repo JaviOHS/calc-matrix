@@ -97,6 +97,11 @@ class Distribution:
     
     def markov_epidemic_simulation(self, params):
         try:
+            # Configurar el generador
+            self.algorithm = params.get('algorithm', 'mersenne')
+            self.seed = params.get('seed', 12345)
+            self.generator = self._create_generator()
+    
             # Extraer parámetros
             N = int(params.get('population', 1000))
             I0 = int(params.get('initial_infected', 1))
@@ -105,42 +110,57 @@ class Distribution:
             gamma = float(params.get('gamma', 0.1))
             days = int(params.get('days', 30))
             dt = float(params.get('dt', 0.1))
-
+    
             # Inicializar estados
             S0 = N - I0 - R0
             S, I, R = [S0], [I0], [R0]
             times = [0]
-
-            # Simulación basada en ecuaciones diferenciales
+    
+            # Generar números aleatorios base
             steps = int(days / dt)
-            for step in range(steps):
+            base_numbers = self.generate_numbers(steps * 2)  # Necesitamos 2 números por paso
+            
+            # Dividir los números base en dos grupos
+            infection_base = base_numbers[:steps]
+            recovery_base = base_numbers[steps:]
+            
+            # Transformar a distribución gamma para modelar tiempos entre eventos
+            infection_numbers = self.transformer.gamma(infection_base, alpha=beta * dt, beta=1.0)
+            recovery_numbers = self.transformer.gamma(recovery_base, alpha=gamma * dt, beta=1.0)
+
+            # Simulación
+            for step in range(min(steps, len(infection_numbers), len(recovery_numbers))):
                 current_S = S[-1]
                 current_I = I[-1]
                 current_R = R[-1]
 
-                # Calcular cambios usando las ecuaciones diferenciales
-                dS = -beta * current_S * current_I / N * dt
-                dI = (beta * current_S * current_I / N - gamma * current_I) * dt
-                dR = gamma * current_I * dt
+                # Calcular transiciones usando los números transformados directamente
+                actual_infections = int(max(0, min(current_S, 
+                    infection_numbers[step] * beta * current_S * current_I / N)))
+                actual_recoveries = int(max(0, min(current_I,
+                    recovery_numbers[step] * gamma * current_I)))
 
                 # Actualizar estados
-                next_S = current_S + dS
-                next_I = current_I + dI
-                next_R = current_R + dR
-
-                # Asegurar que los valores sean consistentes
-                next_S = max(0, next_S)
-                next_I = max(0, next_I)
-                next_R = max(0, next_R)
-
+                next_S = max(0, current_S - actual_infections)
+                next_I = max(0, current_I + actual_infections - actual_recoveries)
+                next_R = max(0, current_R + actual_recoveries)
+    
+                # Normalizar población
+                total = next_S + next_I + next_R
+                if total > 0:
+                    factor = N / total
+                    next_S = int(next_S * factor)
+                    next_I = int(next_I * factor)
+                    next_R = int(next_R * factor)
+    
                 S.append(next_S)
                 I.append(next_I)
                 R.append(next_R)
                 times.append(times[-1] + dt)
-
-            # Generar el gráfico
+    
+            # Generar el gráfico y retornar resultados
             canvas = self.graph_controller.create_epidemic_plot(times, S, I, R, params)
-
+            
             return {
                 "times": times,
                 "susceptible": S,
@@ -155,45 +175,62 @@ class Distribution:
                     "gamma": gamma,
                     "days": days,
                     "dt": dt,
-                    "R0": beta / gamma
+                    "R0": beta / gamma,
+                    "algorithm": self.algorithm,
+                    "seed": self.seed
                 },
                 "canvas": canvas
             }
-
+    
         except Exception as e:
             raise ValueError(f"Error en la simulación de Markov: {str(e)}")
     
-    def transform_distribution(self, distribution_type, params=None):
+    def transform_distribution(self, distribution_type, params=None, uniform_numbers=None):
         """Transforma los números uniformes a la distribución especificada."""
-        if not self.numbers:
-            raise ValueError("No hay números generados para transformar")
-
+        
+        # Si se proporcionan números uniformes como parámetro, usarlos
+        if uniform_numbers is not None:
+            if isinstance(uniform_numbers, str):
+                # Convertir string separado por comas a lista de floats
+                try:
+                    numbers_to_transform = [float(x.strip()) for x in uniform_numbers.split(',')]
+                except ValueError:
+                    raise ValueError("Los números deben ser valores numéricos separados por comas")
+            elif isinstance(uniform_numbers, list):
+                numbers_to_transform = uniform_numbers
+            else:
+                raise ValueError("uniform_numbers debe ser una lista o string separado por comas")
+        else:
+            # Usar los números generados internamente
+            if not self.numbers:
+                raise ValueError("No hay números generados para transformar")
+            numbers_to_transform = self.numbers
+    
         if params is None:
             params = {}
-
+    
         try:
             if distribution_type == "normal":
-                return self.transformer.box_muller(self.numbers)
+                return self.transformer.box_muller(numbers_to_transform)
             elif distribution_type == "exponential":
                 lambda_param = params.get('lambda', 1.0)
-                return self.transformer.exponential(self.numbers, lambda_param)
+                return self.transformer.exponential(numbers_to_transform, lambda_param)
             elif distribution_type == "poisson":
                 lambda_param = params.get('lambda', 1.0)
-                return self.transformer.poisson(self.numbers, lambda_param)
+                return self.transformer.poisson(numbers_to_transform, lambda_param)
             elif distribution_type == "binomial":
                 n = params.get('n', 10)
                 p = params.get('p', 0.5)
-                return self.transformer.binomial(self.numbers, n, p)
+                return self.transformer.binomial(numbers_to_transform, n, p)
             elif distribution_type == "gamma":
                 alpha = params.get('alpha', 1.0)
                 beta = params.get('beta', 1.0)
-                return self.transformer.gamma(self.numbers, alpha, beta)
+                return self.transformer.gamma(numbers_to_transform, alpha, beta)
             elif distribution_type == "beta":
                 alpha = params.get('alpha', 1.0)
                 beta = params.get('beta', 1.0)
-                return self.transformer.beta(self.numbers, alpha, beta)
+                return self.transformer.beta(numbers_to_transform, alpha, beta)
             else:
                 raise ValueError(f"Tipo de distribución no soportada: {distribution_type}")
         except Exception as e:
             raise ValueError(f"Error en la transformación: {str(e)}")
-

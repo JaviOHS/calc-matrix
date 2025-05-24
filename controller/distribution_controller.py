@@ -59,7 +59,9 @@ class DistributionController:
         except Exception as e:
             return {"success": False, "error": str(e)}
 
-    def simulate_markov_epidemic(self, population=1000, initial_infected=1, initial_recovered=0, beta=0.3, gamma=0.1, days=30, dt=0.1,algorithm="mersenne", seed=None, **kwargs):
+    def simulate_markov_epidemic(self, population=1000, initial_infected=1, initial_recovered=0, 
+                           beta=0.3, gamma=0.1, days=30, dt=0.1, algorithm="mersenne", 
+                           seed=None, **kwargs):
         """Controla la simulación de una epidemia usando el modelo de Markov."""
         try:
             try:
@@ -106,11 +108,13 @@ class DistributionController:
                 'beta': beta,
                 'gamma': gamma,
                 'days': days,
-                'dt': dt
+                'dt': dt,
+                'algorithm': algorithm,  # Añadir algoritmo
+                'seed': seed  # Añadir semilla
             }
             
             # Llamar al método del manager y obtener resultado con canvas
-            result = self.manager.simulate_markov_epidemic(params, algorithm, seed, **kwargs)
+            result = self.manager.simulate_markov_epidemic(params)  # Ya no necesitamos pasar algorithm y seed por separado
             
             # Procesar el resultado incluyendo el canvas
             processed_result = {
@@ -127,10 +131,24 @@ class DistributionController:
         except Exception as e:
             return {"success": False, "error": str(e),"message": "Error en la simulación de la epidemia."}
 
-    def transform_distribution(self, numbers, distribution_type, **params):
+    def transform_distribution(self, numbers=None, distribution_type=None, uniform_numbers=None, **params):
         """Transforma números uniformes a la distribución especificada."""
         try:
-            result = self.manager.transform_numbers(numbers, distribution_type, **params)
+            if distribution_type is None:
+                raise ValueError("Debe especificar el tipo de distribución")
+                
+            # Determinar qué números usar - priorizar uniform_numbers
+            numbers_to_transform = uniform_numbers if uniform_numbers is not None else numbers
+            
+            if numbers_to_transform is None:
+                raise ValueError("Debe proporcionar números para transformar")
+                
+            result = self.manager.transform_numbers(
+                numbers=numbers_to_transform, 
+                distribution_type=distribution_type, 
+                uniform_numbers=uniform_numbers,
+                **params
+            )
             return {
                 "success": True,
                 "original": result["original"],

@@ -4,6 +4,7 @@ from model.distribution_manager import DistributionManager
 from .operations.random_op import RandomOperation
 from .operations.monte_carlo_op import MonteCarloOp
 from .operations.markov_op import MarkovOperation
+from .operations.transform_op import TransformOp
 
 class DistributionOpWidget(ExpressionOpWidget):
     def __init__(self, manager=DistributionManager, controller=DistributionController, operation_type=None):
@@ -23,6 +24,12 @@ class DistributionOpWidget(ExpressionOpWidget):
             allow_expression = False
             use_dialog_for_result = True
             button_text = "Simular"
+        elif operation_type == "transform_distribution":
+            input_label = "Transformación de distribución"
+            placeholder = "Ejemplo: 0.1, 0.5, 0.9"
+            allow_expression = True
+            use_dialog_for_result = True
+            button_text = "Transformar"
         else:
             input_label = "Generación de números aleatorios"
             placeholder = None
@@ -41,6 +48,8 @@ class DistributionOpWidget(ExpressionOpWidget):
             self.operation_handler = MonteCarloOp(self)
         elif self.operation_type == "markov_epidemic":
             self.operation_handler = MarkovOperation(self)
+        elif self.operation_type == "transform_distribution":
+            self.operation_handler = TransformOp(self)
         else:
             self.operation_handler = RandomOperation(self)
 

@@ -56,12 +56,14 @@ class BasePage(QWidget):
         super().hideEvent(event)
 
     def _animate_entrance(self, direction: QPoint = None):
-        """Aplica lPageAnimationsa animación de entrada a la página"""
+        """Aplica una animación suave de entrada a la página"""
         self.setWindowOpacity(0.0)
         direction = self.animation_direction if direction is None else direction
+        
+        # Crear y comenzar la animación
         self.entrance_animation = PageAnimations.fade_slide_in(
             self,
-            duration=PageAnimations.DURATION_SLOW,
+            duration=PageAnimations.DURATION_NORMAL,
             direction=direction
         )
         self.entrance_animation.start()
@@ -292,7 +294,7 @@ class BasePage(QWidget):
         widget = self.operation_widgets[operation_key]
         self.stacked_widget.setCurrentWidget(widget)
 
-        direction = PageAnimations.TOP_TO_BOTTOM
+        direction = PageAnimations.RIGHT_TO_LEFT  # Animación de entrada de derecha a izquierda
         QTimer.singleShot(50, lambda: self._animate_entrance(direction))
 
     def get_object_name(self):
