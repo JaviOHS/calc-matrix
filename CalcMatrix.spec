@@ -1,23 +1,13 @@
-# -*- mode: python ; coding: utf-8 -*-
+from PyInstaller.utils.hooks import collect_submodules
 
-import sys
-from PyInstaller.utils.hooks import collect_data_files
+hiddenimports = collect_submodules('PySide6.QtWidgets') + \
+                collect_submodules('PySide6.QtGui') + \
+                collect_submodules('PySide6.QtCore') + \
+                ['numpy', 'matplotlib.pyplot', 'sympy']
 
 datas = [
     ('assets/', 'assets'),
     ('styles/', 'styles'),
-]
-
-datas += collect_data_files('matplotlib')
-datas += collect_data_files('PySide6')
-
-hiddenimports = [
-    'PySide6.QtWidgets',
-    'PySide6.QtGui',
-    'PySide6.QtCore',
-    'numpy',
-    'matplotlib',
-    'sympy'
 ]
 
 block_cipher = None

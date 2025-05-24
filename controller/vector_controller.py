@@ -1,4 +1,5 @@
-import numpy as np
+from numpy.linalg import norm
+from numpy import dot, cross
 from utils.parsers.vector_parser import VectorParser
 
 class VectorController:
@@ -30,14 +31,14 @@ class VectorController:
         if len(vector_map) != 1:
             raise ValueError("Solo se requiere un vector para calcular magnitud.")
         vector = list(vector_map.values())[0]
-        return np.linalg.norm(vector)
+        return norm(vector)
 
     def dot_product(self, expression):
         expr, vector_map = self.parser.parse_expression(expression)
         if len(vector_map) != 2:
             raise ValueError("Se requieren exactamente dos vectores para producto punto.")
         v1, v2 = vector_map.values()
-        return np.dot(v1, v2)
+        return dot(v1, v2)
 
     def cross_product(self, expression):
         expr, vector_map = self.parser.parse_expression(expression)
@@ -46,5 +47,4 @@ class VectorController:
         v1, v2 = vector_map.values()
         if len(v1) != 3 or len(v2) != 3:
             raise ValueError("El producto cruzado solo es válido para vectores de 3 dimensiones.")
-        return np.cross(v1, v2)
-    
+        return cross(v1, v2)

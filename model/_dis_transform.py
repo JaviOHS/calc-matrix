@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import cos, sin, pi
 from math import log, sqrt, exp, factorial
 
 class DistributionTransformer:
@@ -11,8 +11,8 @@ class DistributionTransformer:
         transformed = []
         for i in range(0, len(uniform_numbers) - 1, 2):
             u1, u2 = uniform_numbers[i:i+2]
-            z1 = sqrt(-2 * log(u1)) * np.cos(2 * np.pi * u2)
-            z2 = sqrt(-2 * log(u1)) * np.sin(2 * np.pi * u2)
+            z1 = sqrt(-2 * log(u1)) * cos(2 * pi * u2)
+            z2 = sqrt(-2 * log(u1)) * sin(2 * pi * u2)
             transformed.extend([z1, z2])
         return transformed
 
@@ -88,4 +88,3 @@ class DistributionTransformer:
             if x + y <= 1:
                 transformed.append(x / (x + y))
         return transformed
-    

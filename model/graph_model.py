@@ -1,5 +1,5 @@
-import numpy as np
 from sympy import lambdify
+from numpy import linspace, meshgrid
 
 class GraphModel:
     def __init__(self, expressions=None, x_range=None, y_range=None):
@@ -11,7 +11,7 @@ class GraphModel:
 
     def evaluate_2d_function(self, parsed_expr, x_symbol, num_points=500):
         """Evalúa una expresión 2D en el rango definido"""
-        x_vals = np.linspace(self.x_min, self.x_max, num_points)
+        x_vals = linspace(self.x_min, self.x_max, num_points)
         f = lambdify(x_symbol, parsed_expr, "numpy")
         try:
             y_vals = f(x_vals)
@@ -21,9 +21,9 @@ class GraphModel:
 
     def evaluate_3d_function(self, parsed_expr, x_symbol, y_symbol, num_points=100):
         """Evalúa una expresión 3D en los rangos definidos"""
-        x_vals = np.linspace(self.x_min, self.x_max, num_points)
-        y_vals = np.linspace(self.y_min, self.y_max, num_points)
-        X, Y = np.meshgrid(x_vals, y_vals)
+        x_vals = linspace(self.x_min, self.x_max, num_points)
+        y_vals = linspace(self.y_min, self.y_max, num_points)
+        X, Y = meshgrid(x_vals, y_vals)
         
         f = lambdify((x_symbol, y_symbol), parsed_expr, modules="numpy")
         try:

@@ -1,5 +1,4 @@
 from utils.parsers.expression_parser import ExpressionParser
-import numpy as np
 
 class Plot3DController:
     def __init__(self, manager, figure_manager, style_helper):
@@ -37,9 +36,10 @@ class Plot3DController:
         self.style_helper.apply_dark_style(canvas, ax, is_3d=True)
         
         # Manejar el caso de valores constantes
-        if isinstance(Z, (int, float)) or (isinstance(Z, np.ndarray) and Z.size == 1):
+        from numpy import ndarray, full_like
+        if isinstance(Z, (int, float)) or (isinstance(Z, ndarray) and Z.size == 1):
             constant_value = float(Z)
-            Z = np.full_like(X, constant_value)
+            Z = full_like(X, constant_value)
         
         # Validar dimensiones
         if Z.shape != X.shape or Z.shape != Y.shape:

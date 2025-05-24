@@ -1,5 +1,4 @@
 import re
-import sympy as sp
 from .base import create_section
 from .polynomials import format_polynomial
 from utils.patterns import DISPLAY_PATTERNS, COLORS, ICONS
@@ -40,7 +39,8 @@ def format_diff_eq(equation, solution):
         
         # Procesar la solución
         if hasattr(solution, 'rhs'):
-            sol_text = sp.sstr(solution.rhs, full_prec=False)
+            from sympy import sstr
+            sol_text = sstr(solution.rhs, full_prec=False)
             sol_text = sol_text.replace("Eq(y(x),", "y(x) =")
         else:
             sol_text = str(solution)

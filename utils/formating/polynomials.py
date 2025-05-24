@@ -1,5 +1,4 @@
 import re
-import sympy as sp
 from .base import clean_number, create_section
 from utils.patterns import COLORS, ICONS
 
@@ -51,8 +50,9 @@ def format_roots_result(expression, roots):
     roots_html = "<div style='margin-left: 15px;'>"
     for idx, root in enumerate(roots):
         try:
+            from sympy import N
             root_expr = to_unicode_repr(root)
-            approx = sp.N(root)
+            approx = N(root)
             
             if approx.is_real:
                 approx_str = f"{float(approx):.6f}".rstrip('0').rstrip('.')

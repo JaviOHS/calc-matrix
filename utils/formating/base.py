@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import integer, floating
 from utils.core.font_weight_manager import FontWeightManager
 
 def create_section(title, content, color, icon=None):
@@ -24,10 +24,10 @@ def clean_number(n):
         operator = '+' if n.imag >= 0 else '-'
         return f"{real} {operator} {imag}i"
     
-    if isinstance(n, (int, np.integer)):
+    if isinstance(n, (int, integer)):
         return str(n)
     
-    if isinstance(n, (float, np.floating)):
+    if isinstance(n, (float, floating)):
         formatted = f"{n:.4f}"
         return formatted.rstrip('0').rstrip('.') if '.' in formatted else formatted
     

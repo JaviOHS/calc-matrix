@@ -1,9 +1,9 @@
-import numpy as np
+from numpy import array, dot, cross, linalg
 
 class Vector:
     def __init__(self, components):
         """Inicializa un vector con una lista de componentes."""
-        self.components = np.array(components)
+        self.components = array(components)
     
     def __str__(self):
         """Devuelve una representación en cadena del vector."""
@@ -17,16 +17,16 @@ class Vector:
 
     def magnitude(self):
         """Calcula la magnitud del vector (norma)."""
-        return np.linalg.norm(self.components)
+        return linalg.norm(self.components)
 
     def dot(self, other):
         """Realiza el producto punto entre este vector y otro."""
         if len(self.components) != len(other.components):
             raise ValueError("Los vectores deben tener la misma dimensión para el producto punto.")
-        return np.dot(self.components, other.components)
+        return dot(self.components, other.components)
 
     def cross(self, other):
         """Realiza el producto cruzado entre dos vectores 3D."""
         if len(self.components) != 3 or len(other.components) != 3:
             raise ValueError("El producto cruzado solo es válido para vectores 3D.")
-        return Vector(np.cross(self.components, other.components))
+        return Vector(cross(self.components, other.components))

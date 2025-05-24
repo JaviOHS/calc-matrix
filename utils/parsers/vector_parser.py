@@ -1,6 +1,5 @@
 import re
-import numpy as np
-
+from numpy import array
 class VectorParser:
     VECTOR_PATTERN = re.compile(r'\[(-?\d+(?:\.\d+)?(?:\s*,\s*-?\d+(?:\.\d+)?)*)\]') # Para op. [1] + [2]
     # VECTOR_PATTERN = re.compile(r'\[(-?\d+(?:\.\d+)?(?:,\s*-?\d+(?:\.\d+)?)+)\]') # Para op. [1,2] + [3,4]
@@ -23,7 +22,7 @@ class VectorParser:
             for m in matches:
                 # Limpiar espacios alrededor de las comas y convertir a array
                 numbers = [float(x.strip()) for x in m.split(',')]
-                vectors.append(np.array(numbers))
+                vectors.append(array(numbers))
 
             dim = len(vectors[0])
             for v in vectors:

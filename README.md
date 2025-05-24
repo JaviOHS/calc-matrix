@@ -104,7 +104,7 @@ Puedes empaquetar la aplicación como un ejecutable para su distribución. Sigue
 pip install pyinstaller
 
 # 3. Ejecuta el empaquetado con el archivo .spec
-pyinstaller main.spec
+pyinstaller main.spec --clean
 ```
 
 Esto generará una carpeta `dist/CalcMatrix v1.2/` que contiene el ejecutable `CalcMatrix v1.2.exe` con todos los recursos y dependencias incluidos (no requiere instalación de Python en el equipo destino).

@@ -26,8 +26,8 @@ class MatrixValidator:
     @staticmethod
     def validate_invertible(matrix):
         """Valida que una matriz sea invertible (det ≠ 0)"""
-        import numpy as np
-        det = np.linalg.det(matrix.data)
+        from numpy import linalg
+        det = linalg.det(matrix.data)
         if abs(det) < 1e-10:  # Usar un umbral pequeño para comparaciones de punto flotante
             raise ValueError("La matriz no es invertible (determinante = 0).")
     

@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import array, mean, std, sqrt
 from sympy import symbols, lambdify, sympify
 from model._custom_generators import *
 from model.graph_manager import GraphManager
@@ -73,16 +73,15 @@ class Distribution:
                 self.generate_numbers(n_points)
                 
             # Convertir los números aleatorios al intervalo [a, b]
-            x_random = np.array(self.numbers[:n_points]) * (b - a) + a
+            x_random = array(self.numbers[:n_points]) * (b - a) + a
 
             try:
                 f_values = f(x_random)
             except Exception as e:
                 raise ValueError(f"Error al evaluar la función: {str(e)}")
             
-            integral_result = (b - a) * np.mean(f_values) # Calcular la integral aproximada
-            
-            std_error = (b - a) * np.std(f_values) / np.sqrt(n_points) # Calcular el error estándar
+            integral_result = (b - a) * mean(f_values)
+            std_error = (b - a) * std(f_values) / sqrt(n_points)
             
             return {
                 "result": float(integral_result),

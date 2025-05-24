@@ -1,8 +1,7 @@
 from controller.graph_controller import GraphController 
 from model.graph_manager import GraphManager
-from sympy import symbols, diff, integrate, sympify, Function
-import sympy as sp
-import numpy as np
+from sympy import symbols,  diff,  integrate,  sympify,  Function,  Derivative, Eq, solve, lambdify, Poly, Symbol, dsolve
+from numpy import linspace
 from utils.formating.diff_equations import standardize_ode_equation
 
 class SymCalModel:
@@ -39,7 +38,7 @@ class SymCalModel:
                 
                 # Intentar convertir el resultado a un polinomio
                 try:
-                    poly_result = Polynomial(sp.Poly(result, variable).all_coeffs(), var=expression.var)
+                    poly_result = Polynomial(Poly(result, variable).all_coeffs(), var=expression.var)
                     return poly_result
                 except:
                     # Si no se puede convertir a polinomio, devolver la expresión simbólica
@@ -113,14 +112,14 @@ class SymCalModel:
                 # Estructura de método numérico: (func, texto)
                 f, rhs_text = equation
                 # Convertir a ecuación simbólica para resolución
-                x_sym, y_sym = sp.symbols('x y')
+                x_sym, y_sym = symbols('x y')
                 try:
-                    rhs_sym = sp.sympify(rhs_text)
-                    lhs_sym = sp.Derivative(y, x)
-                    equation_to_solve = sp.Eq(lhs_sym, rhs_sym)
+                    rhs_sym = sympify(rhs_text)
+                    lhs_sym = Derivative(y, x)
+                    equation_to_solve = Eq(lhs_sym, rhs_sym)
                 except:
                     # Si falla la conversión, crear una ecuación genérica
-                    equation_to_solve = sp.Eq(sp.Derivative(y, x), sp.sympify(rhs_text))
+                    equation_to_solve = Eq(Derivative(y, x), sympify(rhs_text))
                 equation_display = equation  # Para mostrar
             elif hasattr(equation, 'rhs') and hasattr(equation, 'lhs'):
                 # Ecuación simbólica directa
@@ -129,18 +128,18 @@ class SymCalModel:
                 rhs_text = str(equation.rhs)
                 # Intentar crear una función lambda a partir de la expresión simbólica
                 try:
-                    f = sp.lambdify((x, sp.Symbol('y')), equation.rhs)
+                    f = lambdify((x, Symbol('y')), equation.rhs)
                     equation_display = (f, rhs_text)
                 except:
                     # Si no se puede crear la función, usar solo el texto
                     equation_display = rhs_text
             else:
                 # Cualquier otro caso, intentar crear una ecuación
-                equation_to_solve = sp.Eq(sp.Derivative(y, x), equation)
+                equation_to_solve = Eq(Derivative(y, x), equation)
                 equation_display = str(equation)
         
             # Resolver la ecuación diferencial
-            solution = sp.dsolve(equation_to_solve, y)
+            solution = dsolve(equation_to_solve, y)
             
             if initial_condition and x_range:
                 x0, y0 = initial_condition
@@ -150,7 +149,7 @@ class SymCalModel:
                 equation_info = standardize_ode_equation(equation_display)
 
                 # Generar puntos para graficar
-                x_vals = np.linspace(x_range[0], x_range[1], 20)
+                x_vals = linspace(x_range[0], x_range[1], 20)
                 y_vals = [solution_func(xi) for xi in x_vals]
                 solution_points = list(zip(x_vals, y_vals))
 
@@ -190,7 +189,7 @@ class SymCalModel:
                     # Resuelve para las constantes usando la condición inicial
                     const_eq = solution_rhs.subs(self.x, x0) - y0
                     try:
-                        const_sol = sp.solve(const_eq, 'C1')
+                        const_sol = solve(const_eq, 'C1')
                         if const_sol:
                             # Sustituye la constante resuelta en la solución
                             solution_rhs = solution_rhs.subs('C1', const_sol[0])
@@ -199,7 +198,7 @@ class SymCalModel:
                             y_test = float(solution_rhs.subs(self.x, x0).evalf())
                             if abs(y_test - y0) < 1e-10:  # Tolerancia numérica
                                 # Convierte la solución simbólica a una función numérica
-                                solution_func = sp.lambdify(self.x, solution_rhs)
+                                solution_func = lambdify(self.x, solution_rhs)
                                 return solution_func
                     except Exception as e:
                         # Si falla con esta solución, intentar con la siguiente
@@ -211,11 +210,11 @@ class SymCalModel:
                 if 'C1' in str(solution_rhs):
                     # Intentar resolver con la primera solución
                     const_eq = solution_rhs.subs(self.x, x0) - y0
-                    const_sol = sp.solve(const_eq, 'C1')
+                    const_sol = solve(const_eq, 'C1')
                     if const_sol:
                         solution_rhs = solution_rhs.subs('C1', const_sol[0])
                     
-                solution_func = sp.lambdify(self.x, solution_rhs)
+                solution_func = lambdify(self.x, solution_rhs)
                 return solution_func
                 
             return None
@@ -353,7 +352,7 @@ class SymCalModel:
         x0, y0 = initial_condition
         x_start, x_end = x_range
         N = int((x_end - x_start) / h) + 1 # Número de puntos
-        x_vals = np.linspace(x_start, x_end, N)
+        x_vals = linspace(x_start, x_end, N)
 
         solutions = {}
         errors    = {}
@@ -361,7 +360,7 @@ class SymCalModel:
         for m in methods:
             if m == "analytical":
                 try:
-                    sol = sp.dsolve(sym_eq, Function('y')(self.x))
+                    sol = dsolve(sym_eq, Function('y')(self.x))
                     sol_func = self._prepare_solution_function(sol, x0, y0)
                     y_vals = [sol_func(xi) for xi in x_vals]
                     solutions["analytical"] = list(zip(x_vals, y_vals))

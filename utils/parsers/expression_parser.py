@@ -2,9 +2,9 @@ from sympy.parsing.sympy_parser import standard_transformations,implicit_multipl
 from model.polynomial_model import Polynomial
 from utils.validators.expression_validators import exponents_validator, validate_characters, validate_parentheses,validate_symbols,validate_expression_syntax
 from utils.patterns import MATH_SYMBOLS, ODE_PATTERNS, SPECIAL_CHARS, ALLOWED_CHARS, ALLOWED_DIFFERENTIAL_CHARS
-import sympy as sp
+from sympy import Function, sin, cos, tan, ln, log, sqrt, exp, Abs, E, pi, Rational, Derivative, Eq, lambdify, expand, Poly, Symbol
+from numpy import isfinite
 import re
-import numpy as np
 import functools
 
 def expression_error_handler(func):
@@ -30,29 +30,29 @@ def expression_error_handler(func):
 
 class ExpressionParser:
     def __init__(self):
-        self.x = sp.Symbol('x')
-        self.y = sp.Function('y')  # y(x) como función simbólica para 2D
-        self.y_symbol = sp.Symbol('y')  # y como variable independiente para 3D
+        self.x = Symbol('x')
+        self.y = Function('y')  # y(x) como función simbólica para 2D
+        self.y_symbol = Symbol('y')  # y como variable independiente para 3D
 
         self.transformations = (standard_transformations +(implicit_multiplication_application, convert_xor, implicit_application))
 
         # Diccionario base con símbolos comunes
         self.common_symbols = {
-            "sin": sp.sin,
-            "sen": sp.sin,
-            "cos": sp.cos,
-            "tan": sp.tan,
-            "ln": sp.ln,
-            "log": sp.log,
-            "sqrt": sp.sqrt,
-            "exp": sp.exp,
-            "Abs": sp.Abs,
-            "e": sp.E,
-            "pi": sp.pi,
-            "π": sp.pi,
-            "Derivative": sp.Derivative,
-            "diff": sp.Derivative,
-            "Eq": sp.Eq,
+            "sin": sin,
+            "sen": sin,
+            "cos": cos,
+            "tan": tan,
+            "ln": ln,
+            "log": log,
+            "sqrt": sqrt,
+            "exp": exp,
+            "Abs": Abs,
+            "e": E,
+            "pi": pi,
+            "π": pi,
+            "Derivative": Derivative,
+            "diff": Derivative,
+            "Eq": Eq,
         }
         
         self.allowed_symbols_2d = self.common_symbols.copy() # Símbolos para expresiones 2D (y es una función)
@@ -120,14 +120,14 @@ class ExpressionParser:
         if parsed.is_constant():
             return float(parsed.evalf()) # Si es una constante, devolverla como float
 
-        return sp.expand(parsed)
+        return expand(parsed)
 
     @expression_error_handler
     def to_polynomial(self, sympy_expr):
         """Convierte una expresión sympy a un objeto Polynomial."""
-        poly_expr = sp.Poly(sympy_expr, self.x, domain='QQ')
+        poly_expr = Poly(sympy_expr, self.x, domain='QQ')
         coeffs = poly_expr.all_coeffs()
-        return Polynomial([sp.Rational(c) for c in coeffs])
+        return Polynomial([Rational(c) for c in coeffs])
        
     @expression_error_handler
     def parse_equation(self, raw_expr: str):
@@ -143,11 +143,11 @@ class ExpressionParser:
             lhs, rhs = clean_expr.split('==', 1)
             lhs_expr = parse_expr(lhs.strip(), transformations=self.transformations, local_dict=self.allowed_symbols_2d)
             rhs_expr = parse_expr(rhs.strip(), transformations=self.transformations, local_dict=self.allowed_symbols_2d)
-            return sp.Eq(lhs_expr, rhs_expr)
+            return Eq(lhs_expr, rhs_expr)
         else:
             # Si no hay igual, asumir == 0
             expr = parse_expr(clean_expr, transformations=self.transformations, local_dict=self.allowed_symbols_2d)
-            return sp.Eq(expr, 0)
+            return Eq(expr, 0)
         
     @expression_error_handler
     def parse_ode_for_numerical(self, raw_expr: str):
@@ -164,8 +164,8 @@ class ExpressionParser:
         # Crear función lambda evaluable f(x, y) con manejo de errores
         def safe_lambdify(x, y):
             try:
-                result = sp.lambdify([self.x, self.y_symbol], parsed_expr, modules=['numpy'])(x, y)
-                if not np.isfinite(result):
+                result = lambdify([self.x, self.y_symbol], parsed_expr, modules=['numpy'])(x, y)
+                if not isfinite(result):
                     raise OverflowError("Resultado numérico fuera de rango.")
                 return result
             except OverflowError:

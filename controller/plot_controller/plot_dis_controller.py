@@ -1,4 +1,4 @@
-import numpy as np
+from numpy import argmax
 
 class PlotDistributionController:
     def __init__(self, manager, figure_manager, style_helper):
@@ -28,7 +28,7 @@ class PlotDistributionController:
                    label='Recuperados', linewidth=2)
 
             # Encontrar y marcar el pico de infectados
-            max_infected_idx = np.argmax(infected)
+            max_infected_idx = argmax(infected)
             max_infected_time = times[max_infected_idx]
             max_infected_value = infected[max_infected_idx]
             
